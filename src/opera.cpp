@@ -21,10 +21,12 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <ariadne.hpp>
+#include "runtime.hpp"
 
-using namespace Ariadne;
+using namespace Opera;
 
 Int main(Int argc, const char* argv[]) {
     if (not CommandLineInterface::instance().acquire(argc, argv)) return -1;
+
+    Runtime runtime;
 }

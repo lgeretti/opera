@@ -11,8 +11,11 @@ find_package(Ariadne REQUIRED)
 
 find_package(LibRDKafka REQUIRED)
 
-include_directories(SYSTEM ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR})
 
 add_executable(opera src/opera.cpp)
 
 target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
+
+enable_testing()
+include(CTest)
