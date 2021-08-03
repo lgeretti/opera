@@ -31,10 +31,11 @@ using namespace Opera;
 class TestBody {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_bodysegment());
+        ARIADNE_TEST_CALL(test_bodysegment_creation());
+        ARIADNE_TEST_CALL(test_bodysegment_intersection());
     }
 
-    void test_bodysegment() {
+    void test_bodysegment_creation() {
         Point begin(0,0.5,1.0);
         Point end(1.0,2.0,-1.0);
         FloatType thickness(0.5,Ariadne::dp);
@@ -50,6 +51,36 @@ public:
         ARIADNE_TEST_EQUALS(bb[1].upper_bound(),2.5)
         ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[2].upper_bound(),1.5)
+    }
+
+    void test_bodysegment_intersection() {
+        FloatType thickness(1.0,Ariadne::dp);
+
+        BodySegment s1(Point(0,0,0),Point(5,5,5),thickness);
+        BodySegment s2(Point(0,3,0),Point(5,5,5),thickness);
+        BodySegment s3(Point(0,3,0),Point(5,6,5),thickness);
+        BodySegment s4(Point(0,3,3),Point(0,8,8),thickness);
+        BodySegment s5(Point(2.01,3, 3),Point(2.01,5,5),thickness);
+        BodySegment s6(Point(2,3, 3),Point(2,5,5),thickness);
+
+        ARIADNE_TEST_PRINT(s1.bounding_box())
+        ARIADNE_TEST_PRINT(s2.bounding_box())
+        ARIADNE_TEST_PRINT(s3.bounding_box())
+        ARIADNE_TEST_PRINT(s4.bounding_box())
+        ARIADNE_TEST_PRINT(s5.bounding_box())
+        ARIADNE_TEST_PRINT(s6.bounding_box())
+
+        ARIADNE_TEST_PRINT(distance(s1,s2))
+        ARIADNE_TEST_PRINT(distance(s1,s3))
+        ARIADNE_TEST_PRINT(distance(s1,s4))
+        ARIADNE_TEST_PRINT(distance(s4,s5))
+        ARIADNE_TEST_PRINT(distance(s4,s6))
+
+        ARIADNE_TEST_ASSERT(s1.intersects(s2))
+        ARIADNE_TEST_ASSERT(s1.intersects(s3))
+        ARIADNE_TEST_ASSERT(not s1.intersects(s4))
+        ARIADNE_TEST_ASSERT(not s4.intersects(s5))
+        ARIADNE_TEST_ASSERT(s4.intersects(s6))
     }
 };
 

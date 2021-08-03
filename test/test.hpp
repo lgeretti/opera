@@ -38,6 +38,8 @@
 using Ariadne::StringStream;
 using Ariadne::Bool;
 using Ariadne::decide;
+using Ariadne::definitely;
+using Ariadne::possibly;
 
 int ARIADNE_TEST_FAILURES=0;
 int ARIADNE_TEST_SKIPPED=0;

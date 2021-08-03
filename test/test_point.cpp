@@ -24,7 +24,7 @@
 
 #include "test.hpp"
 
-#include "point.hpp"
+#include "algebra3d.hpp"
 
 using namespace Opera;
 

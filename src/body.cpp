@@ -49,3 +49,10 @@ FloatType const& BodySegment::thickness() const {
 BoundingType const& BodySegment::bounding_box() const {
     return _bb;
 }
+
+bool BodySegment::intersects(BodySegment const& other) const {
+    if (decide(_bb.disjoint(other.bounding_box()))) return false;
+    else {
+        return (decide(distance(*this,other) <= _thickness+other.thickness()));
+    }
+}

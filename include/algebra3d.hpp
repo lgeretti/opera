@@ -1,5 +1,5 @@
 /***************************************************************************
- *            point.hpp
+ *            algebra3d.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,8 +22,8 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERA_POINT_HPP
-#define OPERA_POINT_HPP
+#ifndef OPERA_ALGEBRA3D_HPP
+#define OPERA_ALGEBRA3D_HPP
 
 #include "declarations.hpp"
 
@@ -36,6 +36,33 @@ struct Point {
     FloatType z;
 };
 
+struct Vector {
+    Vector(FloatType x_, FloatType y_, FloatType z_) : x(x_), y(y_), z(z_) { }
+    FloatType x;
+    FloatType y;
+    FloatType z;
+};
+
+inline FloatType dot(Vector const& v1, Vector const& v2) {
+    return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;
 }
 
-#endif //OPERA_POINT_HPP
+inline Vector operator-(Vector const& v1, Vector const& v2) {
+    return Vector({v1.x-v2.x, v1.y-v2.y, v1.z-v2.z });
+}
+
+inline Vector operator+(Vector const& v1, Vector const& v2) {
+    return Vector({v1.x+v2.x, v1.y+v2.y, v1.z+v2.z });
+}
+
+inline Vector operator*(FloatType const& s, Vector const& v) {
+    return Vector({s*v.x, s*v.y, s*v.z});
+}
+
+inline Vector operator*(Vector const& v, FloatType const& s) {
+    return s*v;
+}
+
+}
+
+#endif //OPERA_ALGEBRA3D_HPP
