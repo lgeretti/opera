@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_point.cpp
+ *            body.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,26 +22,37 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
+#ifndef OPERA_BODY_HPP
+#define OPERA_BODY_HPP
 
 #include "point.hpp"
+#include <ariadne.hpp>
 
-using namespace Opera;
+namespace Opera {
 
-class TestPoint {
-public:
-    void test() {
-        ARIADNE_TEST_CALL(test_construct());
-    }
+class BodySegment {
+  public:
 
-    void test_construct() {
-        Point pt(1.0,-2.1,0);
-    }
+    //! \brief Construct from two points and a thickness
+    BodySegment(Point const& begin, Point const& end, FloatType const& thickness);
+
+    //! \brief Return the begin point of the segment
+    Point const& begin() const;
+    //! \brief Return the end point of the segment
+    Point const& end() const;
+    //! \brief Return the thickness of the body segment around the geometrical segment
+    FloatType const& thickness() const;
+
+    //! \brief Return the bounding box overapproximation
+    BoundingType const& bounding_box() const;
+
+  private:
+    Point _begin;
+    Point _end;
+    FloatType _thickness;
+    BoundingType _bb;
 };
 
-
-int main() {
-    TestPoint().test();
-
-    return ARIADNE_TEST_FAILURES;
 }
+
+#endif //OPERA_BODY_HPP

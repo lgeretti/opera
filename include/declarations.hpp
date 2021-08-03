@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_point.cpp
+ *            declarations.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,26 +22,17 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
+#ifndef OPERA_DECLARATIONS_HPP
+#define OPERA_DECLARATIONS_HPP
 
-#include "point.hpp"
+#include <ariadne.hpp>
 
-using namespace Opera;
+namespace Opera {
 
-class TestPoint {
-public:
-    void test() {
-        ARIADNE_TEST_CALL(test_construct());
-    }
+typedef Ariadne::FloatDPApproximation FloatType;
+typedef Ariadne::Interval<FloatType> IntervalType;
+typedef Ariadne::Box<IntervalType> BoundingType;
 
-    void test_construct() {
-        Point pt(1.0,-2.1,0);
-    }
-};
-
-
-int main() {
-    TestPoint().test();
-
-    return ARIADNE_TEST_FAILURES;
 }
+
+#endif //OPERA_DECLARATIONS_HPP

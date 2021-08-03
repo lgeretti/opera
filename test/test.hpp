@@ -35,6 +35,10 @@
 #include <exception>
 #include "numeric/logical.hpp"
 
+using Ariadne::StringStream;
+using Ariadne::Bool;
+using Ariadne::decide;
+
 int ARIADNE_TEST_FAILURES=0;
 int ARIADNE_TEST_SKIPPED=0;
 std::string ARIADNE_CURRENT_TESTING_CLASS = "???";

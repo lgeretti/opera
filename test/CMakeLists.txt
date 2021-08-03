@@ -2,11 +2,12 @@ include(CTest)
 
 set(UNIT_TESTS
     test_point
+    test_body
 )
 
 foreach(TEST ${UNIT_TESTS})
     add_executable(${TEST} ${TEST}.cpp)
-    target_link_libraries(${TEST} ${ARIADNE_LIBRARIES})
+    target_link_libraries(${TEST} OPERA_SRC ${ARIADNE_LIBRARIES})
     add_test(${TEST} ${TEST})
 endforeach()
 

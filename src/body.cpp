@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_point.cpp
+ *            body.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,26 +22,30 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
-
-#include "point.hpp"
+#include "body.hpp"
 
 using namespace Opera;
 
-class TestPoint {
-public:
-    void test() {
-        ARIADNE_TEST_CALL(test_construct());
-    }
+BodySegment::BodySegment(Point const& begin, Point const& end, FloatType const& thickness) :
+    _begin(begin), _end(end), _thickness(thickness) {
+    IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
+    IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
+    IntervalType zi(min(begin.z,end.z)-thickness,max(begin.z,end.z)+thickness);
+    _bb = BoundingType({xi,yi,zi});
+}
 
-    void test_construct() {
-        Point pt(1.0,-2.1,0);
-    }
-};
+Point const& BodySegment::begin() const {
+    return _begin;
+}
 
+Point const& BodySegment::end() const {
+    return _end;
+}
 
-int main() {
-    TestPoint().test();
+FloatType const& BodySegment::thickness() const {
+    return _thickness;
+}
 
-    return ARIADNE_TEST_FAILURES;
+BoundingType const& BodySegment::bounding_box() const {
+    return _bb;
 }

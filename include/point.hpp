@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_point.cpp
+ *            point.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,26 +22,20 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
+#ifndef OPERA_POINT_HPP
+#define OPERA_POINT_HPP
 
-#include "point.hpp"
+#include "declarations.hpp"
 
-using namespace Opera;
+namespace Opera {
 
-class TestPoint {
-public:
-    void test() {
-        ARIADNE_TEST_CALL(test_construct());
-    }
-
-    void test_construct() {
-        Point pt(1.0,-2.1,0);
-    }
+struct Point {
+    Point(double x_, double y_, double z_) : x(x_,Ariadne::dp), y(y_,Ariadne::dp), z(z_,Ariadne::dp) { }
+    FloatType x;
+    FloatType y;
+    FloatType z;
 };
 
-
-int main() {
-    TestPoint().test();
-
-    return ARIADNE_TEST_FAILURES;
 }
+
+#endif //OPERA_POINT_HPP
