@@ -18,4 +18,6 @@ add_executable(opera src/opera.cpp)
 target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
 
 enable_testing()
-include(CTest)
+add_subdirectory(test)
+
+
