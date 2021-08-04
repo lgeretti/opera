@@ -29,19 +29,15 @@
 
 namespace Opera {
 
-struct Point {
-    Point(double x_, double y_, double z_) : x(x_,Ariadne::dp), y(y_,Ariadne::dp), z(z_,Ariadne::dp) { }
-    FloatType x;
-    FloatType y;
-    FloatType z;
-};
-
 struct Vector {
+    Vector(double x_, double y_, double z_) : x(FloatType(x_,Ariadne::dp)), y(FloatType(y_,Ariadne::dp)), z(FloatType(z_,Ariadne::dp)) { }
     Vector(FloatType x_, FloatType y_, FloatType z_) : x(x_), y(y_), z(z_) { }
     FloatType x;
     FloatType y;
     FloatType z;
 };
+
+using Point = Vector;
 
 inline FloatType dot(Vector const& v1, Vector const& v2) {
     return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;

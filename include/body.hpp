@@ -61,13 +61,9 @@ inline FloatType distance(BodySegment const& s1, BodySegment const& s2) {
 
     const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
 
-    Vector uS({ s1.begin().x, s1.begin().y, s1.begin().z });
-    Vector uE({ s1.end().x, s1.end().y, s1.end().z });
-    Vector vS({ s2.begin().x, s2.begin().y, s2.begin().z });
-    Vector vE({ s2.end().x, s2.end().y, s2.end().z });
-    auto u = uE - uS;
-    auto v = vE - vS;
-    auto w = uS - vS;
+    auto u = s1.end() - s1.begin();
+    auto v = s2.end() - s2.begin();
+    auto w = s1.begin() - s2.begin();
 
     FloatType a = dot(u, u);
     FloatType b = dot(u, v);
@@ -123,7 +119,7 @@ inline FloatType distance(BodySegment const& s1, BodySegment const& s2) {
     if (decide(abs(tN) < SMALL_VALUE)) tc = 0;
     else tc = tN / tD;
 
-    Vector dP = w + (sc * u) - (tc * v);
+    auto dP = w + (sc * u) - (tc * v);
 
     return sqrt(dot(dP, dP));
 }

@@ -25,6 +25,7 @@
 #include "test.hpp"
 
 #include "body.hpp"
+#include <ariadne/utility/stopwatch.hpp>
 
 using namespace Opera;
 
@@ -60,8 +61,9 @@ public:
         BodySegment s2(Point(0,3,0),Point(5,5,5),thickness);
         BodySegment s3(Point(0,3,0),Point(5,6,5),thickness);
         BodySegment s4(Point(0,3,3),Point(0,8,8),thickness);
-        BodySegment s5(Point(2.01,3, 3),Point(2.01,5,5),thickness);
-        BodySegment s6(Point(2,3, 3),Point(2,5,5),thickness);
+        BodySegment s5(Point(2.01,3,3),Point(2.01,5,5),thickness);
+        BodySegment s6(Point(2,3,3),Point(2,5,5),thickness);
+        BodySegment s7(Point(0,8,0),Point(0,10,0),thickness);
 
         ARIADNE_TEST_PRINT(s1.bounding_box())
         ARIADNE_TEST_PRINT(s2.bounding_box())
@@ -69,6 +71,7 @@ public:
         ARIADNE_TEST_PRINT(s4.bounding_box())
         ARIADNE_TEST_PRINT(s5.bounding_box())
         ARIADNE_TEST_PRINT(s6.bounding_box())
+        ARIADNE_TEST_PRINT(s7.bounding_box())
 
         ARIADNE_TEST_PRINT(distance(s1,s2))
         ARIADNE_TEST_PRINT(distance(s1,s3))
@@ -76,11 +79,23 @@ public:
         ARIADNE_TEST_PRINT(distance(s4,s5))
         ARIADNE_TEST_PRINT(distance(s4,s6))
 
+        Ariadne::Stopwatch<Ariadne::Microseconds> sw;
+
+        unsigned int total = 0;
+        for (unsigned int i=0; i<1000; ++i) {
+            sw.restart();
+            s1.intersects(s2);
+            sw.click();
+            total += sw.duration().count();
+        }
+        std::cout << "Done in " << ((double)total)/1000 << " microseconds on average" << std::endl;
+
         ARIADNE_TEST_ASSERT(s1.intersects(s2))
         ARIADNE_TEST_ASSERT(s1.intersects(s3))
         ARIADNE_TEST_ASSERT(not s1.intersects(s4))
         ARIADNE_TEST_ASSERT(not s4.intersects(s5))
         ARIADNE_TEST_ASSERT(s4.intersects(s6))
+        ARIADNE_TEST_ASSERT(not s1.intersects(s7))
     }
 };
 

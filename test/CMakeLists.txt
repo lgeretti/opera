@@ -1,7 +1,7 @@
 include(CTest)
 
 set(UNIT_TESTS
-    test_point
+    test_algebra
     test_body
 )
 
