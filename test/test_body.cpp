@@ -25,7 +25,6 @@
 #include "test.hpp"
 
 #include "body.hpp"
-#include <ariadne/utility/stopwatch.hpp>
 
 using namespace Opera;
 
@@ -78,17 +77,6 @@ public:
         ARIADNE_TEST_PRINT(distance(s1,s4))
         ARIADNE_TEST_PRINT(distance(s4,s5))
         ARIADNE_TEST_PRINT(distance(s4,s6))
-
-        Ariadne::Stopwatch<Ariadne::Microseconds> sw;
-
-        unsigned int total = 0;
-        for (unsigned int i=0; i<1000; ++i) {
-            sw.restart();
-            s1.intersects(s2);
-            sw.click();
-            total += sw.duration().count();
-        }
-        std::cout << "Done in " << ((double)total)/1000 << " microseconds on average" << std::endl;
 
         ARIADNE_TEST_ASSERT(s1.intersects(s2))
         ARIADNE_TEST_ASSERT(s1.intersects(s3))

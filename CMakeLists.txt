@@ -14,6 +14,7 @@ find_package(LibRDKafka REQUIRED)
 include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR})
 
 add_subdirectory(src)
+add_subdirectory(profile)
 
 add_executable(opera src/opera.cpp)
 
