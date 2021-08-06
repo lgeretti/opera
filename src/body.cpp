@@ -26,33 +26,46 @@
 
 using namespace Opera;
 
-BodySegment::BodySegment(Point const& begin, Point const& end, FloatType const& thickness) :
-    _begin(begin), _end(end), _thickness(thickness) {
-    IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
-    IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
-    IntervalType zi(min(begin.z,end.z)-thickness,max(begin.z,end.z)+thickness);
-    _bb = BoundingType({xi,yi,zi});
+BodySegment::BodySegment(unsigned int head_id, unsigned int tail_id, FloatType const& thickness) :
+_head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+
+unsigned int BodySegment::head_id() const {
+    return _head_id;
 }
 
-Point const& BodySegment::begin() const {
-    return _begin;
-}
-
-Point const& BodySegment::end() const {
-    return _end;
+//! \brief Identifier for the tail_position point
+unsigned int BodySegment::tail_id() const {
+    return _tail_id;
 }
 
 FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
-BoundingType const& BodySegment::bounding_box() const {
+BodySegmentOccupancy::BodySegmentOccupancy(BodySegment* segment, Point const& begin, Point const& end) :
+    _segment(segment), _begin(begin), _end(end) {
+    auto const& thickness = _segment->thickness();
+    IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
+    IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
+    IntervalType zi(min(begin.z,end.z)-thickness,max(begin.z,end.z)+thickness);
+    _bb = BoundingType({xi,yi,zi});
+}
+
+Point const& BodySegmentOccupancy::head_position() const {
+    return _begin;
+}
+
+Point const& BodySegmentOccupancy::tail_position() const {
+    return _end;
+}
+
+BoundingType const& BodySegmentOccupancy::bounding_box() const {
     return _bb;
 }
 
-bool BodySegment::intersects(BodySegment const& other) const {
+bool BodySegmentOccupancy::intersects(BodySegmentOccupancy const& other) const {
     if (decide(_bb.disjoint(other.bounding_box()))) return false;
     else {
-        return (decide(distance(*this,other) <= _thickness+other.thickness()));
+        return (decide(distance(*this,other) <= _segment->thickness()+other._segment->thickness()));
     }
 }

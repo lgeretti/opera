@@ -36,11 +36,14 @@ public:
     }
 
     void test_bodysegment_creation() {
+
+        FloatType thickness(0.5,Ariadne::dp);
+        BodySegment* segment = new BodySegment(0,1,thickness);
+
         Point begin(0,0.5,1.0);
         Point end(1.0,2.0,-1.0);
-        FloatType thickness(0.5,Ariadne::dp);
 
-        BodySegment s(begin,end,thickness);
+        BodySegmentOccupancy s(segment, begin, end);
 
         auto bb = s.bounding_box();
 
@@ -51,18 +54,21 @@ public:
         ARIADNE_TEST_EQUALS(bb[1].upper_bound(),2.5)
         ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[2].upper_bound(),1.5)
+
+        delete segment;
     }
 
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
+        BodySegment* segment = new BodySegment(0,1,thickness);
 
-        BodySegment s1(Point(0,0,0),Point(5,5,5),thickness);
-        BodySegment s2(Point(0,3,0),Point(5,5,5),thickness);
-        BodySegment s3(Point(0,3,0),Point(5,6,5),thickness);
-        BodySegment s4(Point(0,3,3),Point(0,8,8),thickness);
-        BodySegment s5(Point(2.01,3,3),Point(2.01,5,5),thickness);
-        BodySegment s6(Point(2,3,3),Point(2,5,5),thickness);
-        BodySegment s7(Point(0,8,0),Point(0,10,0),thickness);
+        BodySegmentOccupancy s1(segment,Point(0, 0, 0), Point(5, 5, 5));
+        BodySegmentOccupancy s2(segment,Point(0, 3, 0), Point(5, 5, 5));
+        BodySegmentOccupancy s3(segment,Point(0, 3, 0), Point(5, 6, 5));
+        BodySegmentOccupancy s4(segment,Point(0, 3, 3), Point(0, 8, 8));
+        BodySegmentOccupancy s5(segment,Point(2.01, 3, 3), Point(2.01, 5, 5));
+        BodySegmentOccupancy s6(segment,Point(2, 3, 3), Point(2, 5, 5));
+        BodySegmentOccupancy s7(segment,Point(0, 8, 0), Point(0, 10, 0));
 
         ARIADNE_TEST_PRINT(s1.bounding_box())
         ARIADNE_TEST_PRINT(s2.bounding_box())
@@ -84,6 +90,8 @@ public:
         ARIADNE_TEST_ASSERT(not s4.intersects(s5))
         ARIADNE_TEST_ASSERT(s4.intersects(s6))
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
+
+        delete segment;
     }
 };
 

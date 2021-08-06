@@ -31,39 +31,57 @@ namespace Opera {
 
 class BodySegment {
   public:
+    //! \brief Construct from head_position/tail_position identifiers and thickness
+    BodySegment(unsigned int head_id, unsigned int tail_id, FloatType const& thickness);
 
-    //! \brief Construct from two points and a thickness
-    BodySegment(Point const& begin, Point const& end, FloatType const& thickness);
+    //! \brief Identifier for the head_position point
+    unsigned int head_id() const;
 
-    //! \brief Return the begin point of the segment
-    Point const& begin() const;
-    //! \brief Return the end point of the segment
-    Point const& end() const;
+    //! \brief Identifier for the tail_position point
+    unsigned int tail_id() const;
+
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
+
+  private:
+    unsigned int const _head_id;
+    unsigned int const _tail_id;
+    FloatType const _thickness;
+};
+
+class BodySegmentOccupancy {
+  public:
+
+    //! \brief Construct from two points and a thickness
+    BodySegmentOccupancy(BodySegment* segment, Point const& begin, Point const& end);
+
+    //! \brief Return the position of the head_position point of the segment
+    Point const& head_position() const;
+    //! \brief Return the position of the tail_position point of the segment
+    Point const& tail_position() const;
 
     //! \brief Return the bounding box overapproximation
     BoundingType const& bounding_box() const;
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
-    bool intersects(BodySegment const& other) const;
+    bool intersects(BodySegmentOccupancy const& other) const;
 
   private:
-    Point _begin;
-    Point _end;
-    FloatType _thickness;
+    Point const _begin;
+    Point const _end;
+    BodySegment* const _segment;
     BoundingType _bb;
 };
 
 //! \brief Calculate the minimum distance between two segments
-inline FloatType distance(BodySegment const& s1, BodySegment const& s2) {
+inline FloatType distance(BodySegmentOccupancy const& s1, BodySegmentOccupancy const& s2) {
 
     const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
 
-    auto u = s1.end() - s1.begin();
-    auto v = s2.end() - s2.begin();
-    auto w = s1.begin() - s2.begin();
+    auto u = s1.tail_position() - s1.head_position();
+    auto v = s2.tail_position() - s2.head_position();
+    auto w = s1.head_position() - s2.head_position();
 
     FloatType a = dot(u, u);
     FloatType b = dot(u, v);

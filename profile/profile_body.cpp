@@ -38,10 +38,11 @@ public:
 
     void profile_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
+        BodySegment* segment = new BodySegment(0,1,thickness);
 
-        BodySegment s1(Point(0,0,0),Point(5,5,5),thickness);
-        BodySegment s2(Point(0,3,0),Point(5,5,5),thickness);
-        BodySegment s7(Point(0,8,0),Point(0,10,0),thickness);
+        BodySegmentOccupancy s1(segment,Point(0, 0, 0), Point(5, 5, 5));
+        BodySegmentOccupancy s2(segment,Point(0, 3, 0), Point(5, 5, 5));
+        BodySegmentOccupancy s7(segment,Point(0, 8, 0), Point(0, 10, 0));
 
         sw.restart();
         for (unsigned int i=0; i<NUM_TRIES; ++i) {
@@ -56,6 +57,8 @@ public:
         }
         sw.click();
         std::cout << "Complex intersections completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+
+        delete segment;
     }
 };
 
