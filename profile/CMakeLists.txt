@@ -1,4 +1,5 @@
 set(PROFILE_FILES
+    profile_algebra
     profile_body
 )
 

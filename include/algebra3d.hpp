@@ -55,8 +55,17 @@ inline Vector operator*(FloatType const& s, Vector const& v) {
     return Vector({s*v.x, s*v.y, s*v.z});
 }
 
+inline Vector operator/(Vector const& v, unsigned int c) {
+    return Vector({v.x/c, v.y/c, v.z/c});
+}
+
 inline Vector operator*(Vector const& v, FloatType const& s) {
     return s*v;
+}
+
+//! \brief The center of the segment joining two points
+inline Point center(Point const& p1, Point const& p2) {
+    return (p1+p2)/2;
 }
 
 }

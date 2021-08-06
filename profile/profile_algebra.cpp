@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_algebra.cpp
+ *            profile_algebra.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,38 +22,33 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
-
 #include "algebra3d.hpp"
+#include <ariadne/utility/stopwatch.hpp>
 
 using namespace Opera;
 
-class TestAlgebra {
+class ProfileAlgebra {
+private:
+    Ariadne::Stopwatch<Ariadne::Microseconds> sw;
+    const unsigned int NUM_TRIES = 1000000;
 public:
-    void test() {
-        ARIADNE_TEST_CALL(test_construct_point())
-        ARIADNE_TEST_CALL(test_center())
+    void profile() {
+        profile_center();
     }
 
-    void test_construct_point() {
-        Point p(1.0,-2.1,0);
-    }
-
-    void test_center() {
+    void profile_center() {
         Point p1(1.0,3.0,-2.0);
         Point p2(4.0,1.2,0);
-
-        auto c = center(p1,p2);
-
-        ARIADNE_TEST_EQUALS(c.x,2.5)
-        ARIADNE_TEST_EQUALS(c.y,2.1)
-        ARIADNE_TEST_EQUALS(c.z,-1.0)
+        sw.restart();
+        for (unsigned int i=0; i<NUM_TRIES; ++i) {
+            center(p1,p2);
+        }
+        sw.click();
+        std::cout << "Center completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
     }
 };
 
 
 int main() {
-    TestAlgebra().test();
-
-    return ARIADNE_TEST_FAILURES;
+    ProfileAlgebra().profile();
 }
