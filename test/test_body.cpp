@@ -38,12 +38,12 @@ public:
     void test_bodysegment_creation() {
 
         FloatType thickness(0.5,Ariadne::dp);
-        BodySegment* segment = new BodySegment(0,1,thickness);
+        BodySegment segment(0,1,thickness);
 
         Point begin(0,0.5,1.0);
         Point end(1.0,2.0,-1.0);
 
-        BodySegmentState s(segment, begin, end, 32490234);
+        auto s = segment.create_state(begin, end, 32490234);
 
         auto bb = s.bounding_box();
 
@@ -54,21 +54,19 @@ public:
         ARIADNE_TEST_EQUALS(bb[1].upper_bound(),2.5)
         ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[2].upper_bound(),1.5)
-
-        delete segment;
     }
 
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        BodySegment* segment = new BodySegment(0,1,thickness);
+        BodySegment segment(0,1,thickness);
 
-        BodySegmentState s1(segment, Point(0, 0, 0), Point(5, 5, 5), 32490234);
-        BodySegmentState s2(segment, Point(0, 3, 0), Point(5, 5, 5), 32490234);
-        BodySegmentState s3(segment, Point(0, 3, 0), Point(5, 6, 5), 32490234);
-        BodySegmentState s4(segment, Point(0, 3, 3), Point(0, 8, 8), 32490234);
-        BodySegmentState s5(segment, Point(2.01, 3, 3), Point(2.01, 5, 5), 32490234);
-        BodySegmentState s6(segment, Point(2, 3, 3), Point(2, 5, 5), 32490234);
-        BodySegmentState s7(segment, Point(0, 8, 0), Point(0, 10, 0), 32490234);
+        auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5), 32490234);
+        auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5), 32490234);
+        auto s3 = segment.create_state(Point(0, 3, 0), Point(5, 6, 5), 32490234);
+        auto s4 = segment.create_state(Point(0, 3, 3), Point(0, 8, 8), 32490234);
+        auto s5 = segment.create_state(Point(2.01, 3, 3), Point(2.01, 5, 5), 32490234);
+        auto s6 = segment.create_state(Point(2, 3, 3), Point(2, 5, 5), 32490234);
+        auto s7 = segment.create_state(Point(0, 8, 0), Point(0, 10, 0), 32490234);
 
         ARIADNE_TEST_PRINT(s1.bounding_box())
         ARIADNE_TEST_PRINT(s2.bounding_box())
@@ -90,8 +88,6 @@ public:
         ARIADNE_TEST_ASSERT(not s4.intersects(s5))
         ARIADNE_TEST_ASSERT(s4.intersects(s6))
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
-
-        delete segment;
     }
 };
 

@@ -32,6 +32,8 @@ namespace Opera {
 using IdType = unsigned int;
 using TimestampType = long unsigned int;
 
+class BodySegmentState;
+
 class BodySegment {
   public:
     //! \brief Construct from head_position/tail_position identifiers and thickness
@@ -46,6 +48,9 @@ class BodySegment {
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
 
+    //! \brief Create a state for the segment from a \a begin and \a end points along with a \a timestamp
+    BodySegmentState create_state(Point const& begin, Point const& end, TimestampType const& timestamp);
+
   private:
     IdType const _head_id;
     IdType const _tail_id;
@@ -53,10 +58,11 @@ class BodySegment {
 };
 
 class BodySegmentState {
-  public:
-
+    friend class BodySegment;
+  protected:
     //! \brief Construct from two points and the timestamp
     BodySegmentState(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp);
+  public:
 
     //! \brief Return the position of the head_position point of the segment
     Point const& head_position() const;

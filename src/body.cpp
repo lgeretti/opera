@@ -41,6 +41,10 @@ FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
+BodySegmentState BodySegment::create_state(Point const& begin, Point const& end, TimestampType const& timestamp) {
+    return BodySegmentState(this,begin,end,timestamp);
+}
+
 BodySegmentState::BodySegmentState(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp) :
     _segment(segment), _begin(begin), _end(end), _timestamp(timestamp) {
     auto const& thickness = _segment->thickness();
