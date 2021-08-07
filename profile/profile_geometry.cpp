@@ -1,5 +1,5 @@
 /***************************************************************************
- *            profile_algebra.cpp
+ *            profile_geometry.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -27,7 +27,7 @@
 
 using namespace Opera;
 
-class ProfileAlgebra {
+class ProfileGeometry {
 private:
     Ariadne::Stopwatch<Ariadne::Microseconds> sw;
     const unsigned int NUM_TRIES = 1000000;
@@ -50,5 +50,5 @@ public:
 
 
 int main() {
-    ProfileAlgebra().profile();
+    ProfileGeometry().profile();
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_algebra.cpp
+ *            test_geometry.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -28,7 +28,7 @@
 
 using namespace Opera;
 
-class TestAlgebra {
+class TestGeometry {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_construct_point())
@@ -53,7 +53,7 @@ public:
 
 
 int main() {
-    TestAlgebra().test();
+    TestGeometry().test();
 
     return ARIADNE_TEST_FAILURES;
 }

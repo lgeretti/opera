@@ -1,5 +1,5 @@
 set(PROFILE_FILES
-    profile_algebra
+    profile_geometry
     profile_body
 )
 
