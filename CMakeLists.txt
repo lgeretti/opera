@@ -22,6 +22,18 @@ add_executable(opera $<TARGET_OBJECTS:OPERA_SRC> src/opera.cpp)
 
 target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
 
+option(COVERAGE "Enable coverage reporting" OFF)
+add_library(coverage_config INTERFACE)
+if(COVERAGE)
+    message(STATUS "Enabled coverage reporting")
+    target_compile_options(coverage_config INTERFACE -O0 -g --coverage)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+        target_link_options(coverage_config INTERFACE --coverage)
+    else()
+        target_link_libraries(coverage_config INTERFACE --coverage)
+    endif()
+endif()
+
 enable_testing()
 add_subdirectory(test)
 
