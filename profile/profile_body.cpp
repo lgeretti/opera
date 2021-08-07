@@ -40,9 +40,9 @@ public:
         FloatType thickness(1.0,Ariadne::dp);
         BodySegment* segment = new BodySegment(0,1,thickness);
 
-        BodySegmentOccupancy s1(segment,Point(0, 0, 0), Point(5, 5, 5));
-        BodySegmentOccupancy s2(segment,Point(0, 3, 0), Point(5, 5, 5));
-        BodySegmentOccupancy s7(segment,Point(0, 8, 0), Point(0, 10, 0));
+        BodySegmentState s1(segment, Point(0, 0, 0), Point(5, 5, 5), 32490234);
+        BodySegmentState s2(segment, Point(0, 3, 0), Point(5, 5, 5), 32490234);
+        BodySegmentState s7(segment, Point(0, 8, 0), Point(0, 10, 0), 32490234);
 
         sw.restart();
         for (unsigned int i=0; i<NUM_TRIES; ++i) {

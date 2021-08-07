@@ -26,15 +26,14 @@
 
 namespace Opera {
 
-BodySegment::BodySegment(unsigned int head_id, unsigned int tail_id, FloatType const& thickness) :
-_head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+BodySegment::BodySegment(IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
+    _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
 
-unsigned int BodySegment::head_id() const {
+IdType BodySegment::head_id() const {
     return _head_id;
 }
 
-//! \brief Identifier for the tail_position point
-unsigned int BodySegment::tail_id() const {
+IdType BodySegment::tail_id() const {
     return _tail_id;
 }
 
@@ -42,8 +41,8 @@ FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
-BodySegmentOccupancy::BodySegmentOccupancy(BodySegment* segment, Point const& begin, Point const& end) :
-    _segment(segment), _begin(begin), _end(end) {
+BodySegmentState::BodySegmentState(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp) :
+    _segment(segment), _begin(begin), _end(end), _timestamp(timestamp) {
     auto const& thickness = _segment->thickness();
     IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
     IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
@@ -51,26 +50,30 @@ BodySegmentOccupancy::BodySegmentOccupancy(BodySegment* segment, Point const& be
     _bb = BoundingType({xi,yi,zi});
 }
 
-Point const& BodySegmentOccupancy::head_position() const {
+Point const& BodySegmentState::head_position() const {
     return _begin;
 }
 
-Point const& BodySegmentOccupancy::tail_position() const {
+Point const& BodySegmentState::tail_position() const {
     return _end;
 }
 
-BoundingType const& BodySegmentOccupancy::bounding_box() const {
+TimestampType const& BodySegmentState::timestamp() const {
+    return _timestamp;
+}
+
+BoundingType const& BodySegmentState::bounding_box() const {
     return _bb;
 }
 
-bool BodySegmentOccupancy::intersects(BodySegmentOccupancy const& other) const {
+bool BodySegmentState::intersects(BodySegmentState const& other) const {
     if (decide(_bb.disjoint(other.bounding_box()))) return false;
     else {
         return (decide(distance(*this,other) <= _segment->thickness()+other._segment->thickness()));
     }
 }
 
-FloatType distance(BodySegmentOccupancy const& s1, BodySegmentOccupancy const& s2) {
+FloatType distance(BodySegmentState const& s1, BodySegmentState const& s2) {
 
     const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
 
