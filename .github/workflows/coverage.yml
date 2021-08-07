@@ -19,7 +19,7 @@ jobs:
     - name: Set Up Dependencies
       run: |
         sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev ariadne
+        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 librdkafka-dev ariadne
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
