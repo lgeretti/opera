@@ -24,7 +24,7 @@
 
 #include "test.hpp"
 
-#include "algebra3d.hpp"
+#include "geometry.hpp"
 
 using namespace Opera;
 

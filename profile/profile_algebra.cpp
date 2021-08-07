@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "algebra3d.hpp"
+#include "geometry.hpp"
 #include <ariadne/utility/stopwatch.hpp>
 
 using namespace Opera;

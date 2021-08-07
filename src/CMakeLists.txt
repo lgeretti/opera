@@ -1,4 +1,5 @@
 add_library(OPERA_SRC OBJECT
+   geometry.cpp
    body.cpp
 )
 

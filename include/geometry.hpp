@@ -1,5 +1,5 @@
 /***************************************************************************
- *            algebra3d.hpp
+ *            geometry.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,8 +22,8 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERA_ALGEBRA3D_HPP
-#define OPERA_ALGEBRA3D_HPP
+#ifndef OPERA_GEOMETRY_HPP
+#define OPERA_GEOMETRY_HPP
 
 #include "declarations.hpp"
 
@@ -64,10 +64,12 @@ inline Vector operator*(Vector const& v, FloatType const& s) {
 }
 
 //! \brief The center of the segment joining two points
-inline Point center(Point const& p1, Point const& p2) {
-    return (p1+p2)/2;
-}
+Point center(Point const& p1, Point const& p2);
+
+//! \brief The minimum distance between a segment s1 (with head/tail points s1h and s1t) and segment s2
+//! (with head/tail points s2h and s2t)
+FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point const& s2t);
 
 }
 
-#endif //OPERA_ALGEBRA3D_HPP
+#endif //OPERA_GEOMETRY_HPP

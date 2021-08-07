@@ -40,13 +40,23 @@ public:
         FloatType thickness(0.5,Ariadne::dp);
         BodySegment segment(0,1,thickness);
 
-        Point begin(0,0.5,1.0);
-        Point end(1.0,2.0,-1.0);
+        Point head(0,0.5,1.0);
+        Point tail(1.0,2.0,-1.0);
 
-        auto s = segment.create_state(begin, end, 32490234);
+        auto s = segment.create_state(head, tail, 32490234);
 
+        auto hp = s.head_position();
+        auto tp = s.tail_position();
+        auto ts = s.timestamp();
         auto bb = s.bounding_box();
 
+        ARIADNE_TEST_EQUALS(hp.x,0)
+        ARIADNE_TEST_EQUALS(hp.y,0.5)
+        ARIADNE_TEST_EQUALS(hp.z,1)
+        ARIADNE_TEST_EQUALS(tp.x,1)
+        ARIADNE_TEST_EQUALS(tp.y,2)
+        ARIADNE_TEST_EQUALS(tp.z,-1)
+        ARIADNE_TEST_EQUALS(ts,32490234)
         ARIADNE_TEST_EQUALS(bb.dimension(),3)
         ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-0.5)
         ARIADNE_TEST_EQUALS(bb[0].upper_bound(),1.5)

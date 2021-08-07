@@ -25,7 +25,7 @@
 #ifndef OPERA_BODY_HPP
 #define OPERA_BODY_HPP
 
-#include "algebra3d.hpp"
+#include "geometry.hpp"
 
 namespace Opera {
 
@@ -80,8 +80,8 @@ class BodySegmentState {
     bool intersects(BodySegmentState const& other) const;
 
   private:
-    Point const _begin;
-    Point const _end;
+    Point const _head_position;
+    Point const _tail_position;
     TimestampType const _timestamp;
     BodySegment* const _segment;
     BoundingType _bb;
