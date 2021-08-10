@@ -26,8 +26,12 @@
 
 namespace Opera {
 
-BodySegment::BodySegment(IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
-    _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+BodySegment::BodySegment(IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
+    _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+
+IdType BodySegment::id() const {
+    return _id;
+}
 
 IdType BodySegment::head_id() const {
     return _head_id;

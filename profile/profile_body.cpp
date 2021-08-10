@@ -38,7 +38,7 @@ public:
 
     void profile_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        BodySegment segment(0,1,thickness);
+        BodySegment segment(0,0,1,thickness);
 
         auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5), 32490234);
         auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5), 32490234);

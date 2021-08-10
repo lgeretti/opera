@@ -36,8 +36,11 @@ class BodySegmentState;
 
 class BodySegment {
   public:
-    //! \brief Construct from head_position/tail_position identifiers and thickness
-    BodySegment(IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
+    //! \brief Construct from identifier, head_position/tail_position identifiers and thickness
+    BodySegment(IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
+
+    //! \brief Identifier for the segment within the specific body
+    IdType id() const;
 
     //! \brief Identifier for the head_position point
     IdType head_id() const;
@@ -52,6 +55,7 @@ class BodySegment {
     BodySegmentState create_state(Point const& begin, Point const& end, TimestampType const& timestamp);
 
   private:
+    IdType const _id;
     IdType const _head_id;
     IdType const _tail_id;
     FloatType const _thickness;
