@@ -31,19 +31,29 @@ using namespace Opera;
 class TestBody {
 public:
     void test() {
+        ARIADNE_TEST_CALL(test_body_creation())
         ARIADNE_TEST_CALL(test_bodysegment_creation())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
-        ARIADNE_TEST_CALL(test_body())
+    }
+
+    void test_body_creation() {
+        Body b(5, BodyType::ROBOT, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+
+        ARIADNE_TEST_EQUALS(b.id(),5)
+        ARIADNE_TEST_ASSERT(b.type() == BodyType::ROBOT)
+        ARIADNE_TEST_EQUALS(b.segments().size(),2)
     }
 
     void test_bodysegment_creation() {
 
         FloatType thickness(0.5,Ariadne::dp);
-        BodySegment segment(15,0,1,thickness);
 
-        ARIADNE_TEST_EQUALS(segment.id(),15)
-        ARIADNE_TEST_EQUALS(segment.head_id(),0)
-        ARIADNE_TEST_EQUALS(segment.tail_id(),1)
+        Body b(5, BodyType::ROBOT, {3,2,1,0}, {FloatType(1.0,Ariadne::dp),FloatType(0.5,Ariadne::dp)});
+        auto segment = b.segments().at(1);
+
+        ARIADNE_TEST_EQUALS(segment.id(),1)
+        ARIADNE_TEST_EQUALS(segment.head_id(),1)
+        ARIADNE_TEST_EQUALS(segment.tail_id(),0)
         ARIADNE_TEST_EQUALS(segment.thickness(),0.5)
 
         Point head(0,0.5,1.0);
@@ -74,7 +84,8 @@ public:
 
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        BodySegment segment(0,0,1,thickness);
+        Body b(0, BodyType::ROBOT, {0,1}, {thickness});
+        auto segment = b.segments().at(0);
 
         auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5), 32490234);
         auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5), 32490234);
@@ -104,10 +115,6 @@ public:
         ARIADNE_TEST_ASSERT(not s4.intersects(s5))
         ARIADNE_TEST_ASSERT(s4.intersects(s6))
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
-    }
-
-    void test_body() {
-
     }
 };
 

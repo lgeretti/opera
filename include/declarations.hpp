@@ -30,6 +30,7 @@
 namespace Opera {
 
 typedef Ariadne::FloatDPApproximation FloatType;
+
 typedef Ariadne::Interval<FloatType> IntervalType;
 typedef Ariadne::Box<IntervalType> BoundingType;
 

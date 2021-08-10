@@ -22,12 +22,35 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <ariadne/utility/macros.hpp>
 #include "body.hpp"
+
+using Ariadne::StringStream;
 
 namespace Opera {
 
-BodySegment::BodySegment(IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
-    _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+Body::Body(IdType const& id, BodyType const& type, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    _id(id), _type(type) {
+    ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
+
+    for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i)
+        _segments.append(BodySegment(this,i,points_ids.at(2*i),points_ids.at(2*i+1),thicknesses.at(i)));
+}
+
+IdType const& Body::id() const {
+    return _id;
+}
+
+BodyType const& Body::type() const {
+    return _type;
+}
+
+List<BodySegment> const& Body::segments() const {
+    return _segments;
+}
+
+BodySegment::BodySegment(Body* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
+    _body(body), _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
 
 IdType BodySegment::id() const {
     return _id;
