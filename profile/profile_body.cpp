@@ -42,7 +42,7 @@ public:
         auto segment = b.segments().at(0);
 
         auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5), 32490234);
-        auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5), 32490234);
+        auto s2 = segment.create_state(Point(0, 3, 0), Point(6, 6, 6), 32490234);
         auto s3 = segment.create_state(Point(0, 8, 0), Point(0, 10, 0), 32490234);
 
         sw.restart();

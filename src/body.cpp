@@ -68,11 +68,11 @@ FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
-BodySegmentState BodySegment::create_state(Point const& begin, Point const& end, TimestampType const& timestamp) {
-    return BodySegmentState(this,begin,end,timestamp);
+BodySegmentTimedSample BodySegment::create_state(Point const& begin, Point const& end, TimestampType const& timestamp) {
+    return BodySegmentTimedSample(this, begin, end, timestamp);
 }
 
-BodySegmentState::BodySegmentState(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp) :
+BodySegmentTimedSample::BodySegmentTimedSample(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp) :
         _segment(segment), _head_position(begin), _tail_position(end), _timestamp(timestamp) {
     auto const& thickness = _segment->thickness();
     IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
@@ -81,30 +81,30 @@ BodySegmentState::BodySegmentState(BodySegment* segment, Point const& begin, Poi
     _bb = BoundingType({xi,yi,zi});
 }
 
-Point const& BodySegmentState::head_position() const {
+Point const& BodySegmentTimedSample::head_position() const {
     return _head_position;
 }
 
-Point const& BodySegmentState::tail_position() const {
+Point const& BodySegmentTimedSample::tail_position() const {
     return _tail_position;
 }
 
-TimestampType const& BodySegmentState::timestamp() const {
+TimestampType const& BodySegmentTimedSample::timestamp() const {
     return _timestamp;
 }
 
-BoundingType const& BodySegmentState::bounding_box() const {
+BoundingType const& BodySegmentTimedSample::bounding_box() const {
     return _bb;
 }
 
-bool BodySegmentState::intersects(BodySegmentState const& other) const {
+bool BodySegmentTimedSample::intersects(BodySegmentTimedSample const& other) const {
     if (decide(_bb.disjoint(other.bounding_box()))) return false;
     else {
         return (decide(distance(*this,other) <= _segment->thickness() + other._segment->thickness()));
     }
 }
 
-FloatType distance(BodySegmentState const& s1, BodySegmentState const& s2) {
+FloatType distance(BodySegmentTimedSample const& s1, BodySegmentTimedSample const& s2) {
     return distance(s1.head_position(), s1.tail_position(), s2.head_position(), s2.tail_position());
 }
 

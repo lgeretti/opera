@@ -57,7 +57,7 @@ class Body {
     List<BodySegment> _segments;
 };
 
-class BodySegmentState;
+class BodySegmentTimedSample;
 
 class BodySegment {
     friend class Body;
@@ -78,7 +78,7 @@ class BodySegment {
     FloatType const& thickness() const;
 
     //! \brief Create a state for the segment from a \a begin and \a end points along with a \a timestamp
-    BodySegmentState create_state(Point const& begin, Point const& end, TimestampType const& timestamp);
+    BodySegmentTimedSample create_state(Point const& begin, Point const& end, TimestampType const& timestamp);
 
   private:
     IdType const _id;
@@ -88,11 +88,11 @@ class BodySegment {
     Body* const _body;
 };
 
-class BodySegmentState {
+class BodySegmentTimedSample {
     friend class BodySegment;
   protected:
     //! \brief Construct from two points and the timestamp
-    BodySegmentState(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp);
+    BodySegmentTimedSample(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp);
   public:
 
     //! \brief Return the position of the head_position point of the segment
@@ -108,7 +108,7 @@ class BodySegmentState {
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
-    bool intersects(BodySegmentState const& other) const;
+    bool intersects(BodySegmentTimedSample const& other) const;
 
   private:
     Point const _head_position;
@@ -119,7 +119,7 @@ class BodySegmentState {
 };
 
 //! \brief Calculate the minimum distance between two segments
-FloatType distance(BodySegmentState const& s1, BodySegmentState const& s2);
+FloatType distance(BodySegmentTimedSample const& s1, BodySegmentTimedSample const& s2);
 
 }
 

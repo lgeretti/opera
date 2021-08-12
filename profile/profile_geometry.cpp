@@ -34,6 +34,7 @@ private:
 public:
     void profile() {
         profile_center();
+        profile_distance();
     }
 
     void profile_center() {
@@ -45,6 +46,20 @@ public:
         }
         sw.click();
         std::cout << "Center completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+    }
+
+    void profile_distance() {
+        Point s1h(1.0,3.0,-2.0);
+        Point s1t(4.0,1.2,0);
+        Point s2h(2.0,1.0,1.0);
+        Point s2t(0,0,0);
+
+        sw.restart();
+        for (unsigned int i=0; i<NUM_TRIES; ++i) {
+            distance(s1h,s1t,s2h,s2t);
+        }
+        sw.click();
+        std::cout << "Distance completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
     }
 };
 
