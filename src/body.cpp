@@ -49,6 +49,15 @@ List<BodySegment> const& Body::segments() const {
     return _segments;
 }
 
+BodyStateHistory Body::make_history() {
+    return BodyStateHistory(this);
+}
+
+BodyState::BodyState(DiscreteLocation const& location, List<Point> const& points, TimestampType const& timestamp) :
+    _location(location), _points(points), _timestamp(timestamp) {}
+
+BodyStateHistory::BodyStateHistory(Body* body) : _body(body) { }
+
 BodySegment::BodySegment(Body* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
     _body(body), _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
 
@@ -68,12 +77,12 @@ FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
-BodySegmentTimedSample BodySegment::create_state(Point const& begin, Point const& end, TimestampType const& timestamp) {
-    return BodySegmentTimedSample(this, begin, end, timestamp);
+BodySegmentSample BodySegment::create_state(Point const& begin, Point const& end) {
+    return BodySegmentSample(this, begin, end);
 }
 
-BodySegmentTimedSample::BodySegmentTimedSample(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp) :
-        _segment(segment), _head_position(begin), _tail_position(end), _timestamp(timestamp) {
+BodySegmentSample::BodySegmentSample(BodySegment* segment, Point const& begin, Point const& end) :
+        _segment(segment), _head_position(begin), _tail_position(end) {
     auto const& thickness = _segment->thickness();
     IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
     IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
@@ -81,30 +90,26 @@ BodySegmentTimedSample::BodySegmentTimedSample(BodySegment* segment, Point const
     _bb = BoundingType({xi,yi,zi});
 }
 
-Point const& BodySegmentTimedSample::head_position() const {
+Point const& BodySegmentSample::head_position() const {
     return _head_position;
 }
 
-Point const& BodySegmentTimedSample::tail_position() const {
+Point const& BodySegmentSample::tail_position() const {
     return _tail_position;
 }
 
-TimestampType const& BodySegmentTimedSample::timestamp() const {
-    return _timestamp;
-}
-
-BoundingType const& BodySegmentTimedSample::bounding_box() const {
+BoundingType const& BodySegmentSample::bounding_box() const {
     return _bb;
 }
 
-bool BodySegmentTimedSample::intersects(BodySegmentTimedSample const& other) const {
+bool BodySegmentSample::intersects(BodySegmentSample const& other) const {
     if (decide(_bb.disjoint(other.bounding_box()))) return false;
     else {
         return (decide(distance(*this,other) <= _segment->thickness() + other._segment->thickness()));
     }
 }
 
-FloatType distance(BodySegmentTimedSample const& s1, BodySegmentTimedSample const& s2) {
+FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2) {
     return distance(s1.head_position(), s1.tail_position(), s2.head_position(), s2.tail_position());
 }
 

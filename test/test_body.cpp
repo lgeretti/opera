@@ -59,11 +59,10 @@ public:
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
 
-        auto s = segment.create_state(head, tail, 32490234);
+        auto s = segment.create_state(head, tail);
 
         auto hp = s.head_position();
         auto tp = s.tail_position();
-        auto ts = s.timestamp();
         auto bb = s.bounding_box();
 
         ARIADNE_TEST_EQUALS(hp.x,0)
@@ -72,7 +71,6 @@ public:
         ARIADNE_TEST_EQUALS(tp.x,1)
         ARIADNE_TEST_EQUALS(tp.y,2)
         ARIADNE_TEST_EQUALS(tp.z,-1)
-        ARIADNE_TEST_EQUALS(ts,32490234)
         ARIADNE_TEST_EQUALS(bb.dimension(),3)
         ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-0.5)
         ARIADNE_TEST_EQUALS(bb[0].upper_bound(),1.5)
@@ -87,13 +85,13 @@ public:
         Body b(0, BodyType::ROBOT, {0,1}, {thickness});
         auto segment = b.segments().at(0);
 
-        auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5), 32490234);
-        auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5), 32490234);
-        auto s3 = segment.create_state(Point(0, 3, 0), Point(5, 6, 5), 32490234);
-        auto s4 = segment.create_state(Point(0, 3, 3), Point(0, 8, 8), 32490234);
-        auto s5 = segment.create_state(Point(2.01, 3, 3), Point(2.01, 5, 5), 32490234);
-        auto s6 = segment.create_state(Point(2, 3, 3), Point(2, 5, 5), 32490234);
-        auto s7 = segment.create_state(Point(0, 8, 0), Point(0, 10, 0), 32490234);
+        auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5));
+        auto s2 = segment.create_state(Point(0, 3, 0), Point(5, 5, 5));
+        auto s3 = segment.create_state(Point(0, 3, 0), Point(5, 6, 5));
+        auto s4 = segment.create_state(Point(0, 3, 3), Point(0, 8, 8));
+        auto s5 = segment.create_state(Point(2.01, 3, 3), Point(2.01, 5, 5));
+        auto s6 = segment.create_state(Point(2, 3, 3), Point(2, 5, 5));
+        auto s7 = segment.create_state(Point(0, 8, 0), Point(0, 10, 0));
 
         ARIADNE_TEST_PRINT(s1.bounding_box())
         ARIADNE_TEST_PRINT(s2.bounding_box())

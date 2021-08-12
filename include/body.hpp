@@ -33,11 +33,13 @@ namespace Opera {
 using IdType = unsigned int;
 using TimestampType = long unsigned int;
 using Ariadne::List;
+using Ariadne::DiscreteLocation;
 
 //! \brief Enumeration for the type of body
 enum class BodyType { ROBOT, WORKER };
 
 class BodySegment;
+class BodyStateHistory;
 
 class Body {
   public:
@@ -51,13 +53,16 @@ class Body {
 
     //! \brief The segments making the body
     List<BodySegment> const& segments() const;
+
+    //! \brief Create an empty history for the body
+    BodyStateHistory make_history();
   private:
     IdType const _id;
     BodyType const _type;
     List<BodySegment> _segments;
 };
 
-class BodySegmentTimedSample;
+class BodySegmentSample;
 
 class BodySegment {
     friend class Body;
@@ -77,8 +82,8 @@ class BodySegment {
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
 
-    //! \brief Create a state for the segment from a \a begin and \a end points along with a \a timestamp
-    BodySegmentTimedSample create_state(Point const& begin, Point const& end, TimestampType const& timestamp);
+    //! \brief Create a state for the segment from a \a begin and \a end points
+    BodySegmentSample create_state(Point const& begin, Point const& end);
 
   private:
     IdType const _id;
@@ -88,11 +93,40 @@ class BodySegment {
     Body* const _body;
 };
 
-class BodySegmentTimedSample {
+class BodyState {
+  public:
+    BodyState(DiscreteLocation const& location, List<Point> const& points, TimestampType const& timestamp);
+  private:
+    DiscreteLocation const _location;
+    List<Point> const _points;
+    TimestampType const _timestamp;
+};
+
+//! \brief Holds the states reached by the body up to now
+class BodyStateHistory {
+    friend class Body;
+    using BodySegmentId = IdType;
+    typedef List<List<Point>> PointStatesBuffer;
+    typedef Ariadne::Map<DiscreteLocation,std::deque<TimestampType>> LocationEntriesType;
+    typedef Ariadne::Map<BodySegmentId,List<BodySegmentSample>> SegmentSamplesType;
+    typedef Ariadne::Map<DiscreteLocation,SegmentSamplesType> LocationStatesType;
+  protected:
+    BodyStateHistory(Body* body);
+  public:
+
+  private:
+    LocationEntriesType _location_entries;
+    LocationStatesType _location_states;
+    DiscreteLocation _current_location;
+    PointStatesBuffer _current_location_states_buffer;
+    Body* const _body;
+};
+
+class BodySegmentSample {
     friend class BodySegment;
   protected:
-    //! \brief Construct from two points and the timestamp
-    BodySegmentTimedSample(BodySegment* segment, Point const& begin, Point const& end, TimestampType const& timestamp);
+    //! \brief Construct from two points
+    BodySegmentSample(BodySegment* segment, Point const& begin, Point const& end);
   public:
 
     //! \brief Return the position of the head_position point of the segment
@@ -100,26 +134,22 @@ class BodySegmentTimedSample {
     //! \brief Return the position of the tail_position point of the segment
     Point const& tail_position() const;
 
-    //! \brief Return the timestamp of this state
-    TimestampType const& timestamp() const;
-
     //! \brief Return the bounding box overapproximation
     BoundingType const& bounding_box() const;
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
-    bool intersects(BodySegmentTimedSample const& other) const;
+    bool intersects(BodySegmentSample const& other) const;
 
   private:
     Point const _head_position;
     Point const _tail_position;
-    TimestampType const _timestamp;
     BodySegment* const _segment;
     BoundingType _bb;
 };
 
 //! \brief Calculate the minimum distance between two segments
-FloatType distance(BodySegmentTimedSample const& s1, BodySegmentTimedSample const& s2);
+FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2);
 
 }
 
