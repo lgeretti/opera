@@ -27,13 +27,21 @@
 
 using namespace Opera;
 
+struct Randomiser {
+    static FloatType get(double min, double max) {
+        return FloatType((max-min)*rand()/RAND_MAX + min,Ariadne::dp);
+    }
+};
+
 class ProfileBody {
 private:
     Ariadne::Stopwatch<Ariadne::Microseconds> sw;
     const unsigned int NUM_TRIES = 1000000;
+    Randomiser rnd;
 public:
     void profile() {
         profile_bodysegment_intersection();
+        profile_bodysegment_state_update();
     }
 
     void profile_bodysegment_intersection() {
@@ -58,6 +66,27 @@ public:
         }
         sw.click();
         std::cout << "Complex intersections completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+    }
+
+    void profile_bodysegment_state_update() {
+        FloatType thickness(1.0,Ariadne::dp);
+        Body b(0, BodyType::ROBOT, {0,1}, {thickness});
+        auto segment = b.segments().at(0);
+
+        auto s = segment.create_state(Point(0, 0, 0), Point(5, 5, 5));
+
+        Ariadne::List<Point> heads, tails;
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        }
+
+        sw.restart();
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            s.update(heads.at(i),tails.at(i));
+        }
+        sw.click();
+        std::cout << "States updates completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
     }
 };
 

@@ -34,6 +34,7 @@ using IdType = unsigned int;
 using TimestampType = long unsigned int;
 using Ariadne::List;
 using Ariadne::DiscreteLocation;
+using Ariadne::SizeType;
 
 //! \brief Enumeration for the type of body
 enum class BodyType { ROBOT, WORKER };
@@ -67,16 +68,17 @@ class BodySegmentSample;
 class BodySegment {
     friend class Body;
   protected:
-    //! \brief Construct from identifier, head_position/tail_position identifiers and thickness
+    //! \brief Construct from identifier, head_centre/tail_centre identifiers and thickness
     BodySegment(Body* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
   public:
     //! \brief Identifier for the segment within the specific body
     IdType id() const;
 
-    //! \brief Identifier for the head_position point
+
+    //! \brief Identifier for the head
     IdType head_id() const;
 
-    //! \brief Identifier for the tail_position point
+    //! \brief Identifier for the tail
     IdType tail_id() const;
 
     //! \brief Return the thickness of the body segment around the geometrical segment
@@ -113,7 +115,9 @@ class BodyStateHistory {
   protected:
     BodyStateHistory(Body* body);
   public:
-
+    //! \brief Acquire the \a state to be ultimately held into the hystory
+    //! \details Hystory will not be effectively updated till the location changes
+    void acquire(BodyState const& state);
   private:
     LocationEntriesType _location_entries;
     LocationStatesType _location_states;
@@ -125,14 +129,21 @@ class BodyStateHistory {
 class BodySegmentSample {
     friend class BodySegment;
   protected:
-    //! \brief Construct from two points
-    BodySegmentSample(BodySegment* segment, Point const& begin, Point const& end);
+    //! \brief Create from two singleton points
+    BodySegmentSample(BodySegment* segment, Point const& head, Point const& tail);
   public:
 
-    //! \brief Return the position of the head_position point of the segment
-    Point const& head_position() const;
-    //! \brief Return the position of the tail_position point of the segment
-    Point const& tail_position() const;
+    //! \brief Return the center point for the head of the segment
+    Point const& head_centre() const;
+    //! \brief Return the center point for the tail of the segment
+    Point const& tail_centre() const;
+
+    //! \brief Return the radius of error in the segment head/tail positions,
+    //! as obtained from the centers with respect to the bounds
+    FloatType radius() const;
+
+    //! \brief Update the begin and end bounds with the given points
+    void update(Point const& begin, Point const& end);
 
     //! \brief Return the bounding box overapproximation
     BoundingType const& bounding_box() const;
@@ -142,9 +153,13 @@ class BodySegmentSample {
     bool intersects(BodySegmentSample const& other) const;
 
   private:
-    Point const _head_position;
-    Point const _tail_position;
+    BoundingType _head_bounds;
+    BoundingType _tail_bounds;
+    Point _head_centre;
+    Point _tail_centre;
+    FloatType _radius;
     BodySegment* const _segment;
+
     BoundingType _bb;
 };
 

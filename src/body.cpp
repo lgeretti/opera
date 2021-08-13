@@ -81,21 +81,41 @@ BodySegmentSample BodySegment::create_state(Point const& begin, Point const& end
     return BodySegmentSample(this, begin, end);
 }
 
-BodySegmentSample::BodySegmentSample(BodySegment* segment, Point const& begin, Point const& end) :
-        _segment(segment), _head_position(begin), _tail_position(end) {
-    auto const& thickness = _segment->thickness();
-    IntervalType xi(min(begin.x,end.x)-thickness,max(begin.x,end.x)+thickness);
-    IntervalType yi(min(begin.y,end.y)-thickness,max(begin.y,end.y)+thickness);
-    IntervalType zi(min(begin.z,end.z)-thickness,max(begin.z,end.z)+thickness);
-    _bb = BoundingType({xi,yi,zi});
+BodySegmentSample::BodySegmentSample(BodySegment* segment, Point const& head, Point const& tail) :
+        _head_bounds({IntervalType(head.x), IntervalType(head.y), IntervalType(head.z)}),
+        _tail_bounds({IntervalType(tail.x), IntervalType(tail.y), IntervalType(tail.z)}),
+        _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp), _segment(segment) {
+    _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
-Point const& BodySegmentSample::head_position() const {
-    return _head_position;
+Point const& BodySegmentSample::head_centre() const {
+    return _head_centre;
 }
 
-Point const& BodySegmentSample::tail_position() const {
-    return _tail_position;
+Point const& BodySegmentSample::tail_centre() const {
+    return _tail_centre;
+}
+
+FloatType BodySegmentSample::radius() const {
+    return _radius;
+}
+
+void BodySegmentSample::update(Point const& head, Point const& tail) {
+    BoundingType nhb(3), ntb(3);
+    nhb[0]=hull(_head_bounds[0],head.x);
+    nhb[1]=hull(_head_bounds[1],head.y);
+    nhb[2]=hull(_head_bounds[2],head.z);
+    ntb[0]=hull(_tail_bounds[0],tail.x);
+    ntb[1]=hull(_tail_bounds[1],tail.y);
+    ntb[2]=hull(_tail_bounds[2],tail.z);
+    _head_bounds = nhb;
+    _tail_bounds = ntb;
+    auto hc = _head_bounds.centre();
+    auto tc = _tail_bounds.centre();
+    _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));
+    _tail_centre = Point(tc.at(0), tc.at(1), tc.at(2));
+    _radius = max(_head_bounds.radius(),_tail_bounds.radius());
+    _bb = widen(hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
 BoundingType const& BodySegmentSample::bounding_box() const {
@@ -105,12 +125,12 @@ BoundingType const& BodySegmentSample::bounding_box() const {
 bool BodySegmentSample::intersects(BodySegmentSample const& other) const {
     if (decide(_bb.disjoint(other.bounding_box()))) return false;
     else {
-        return (decide(distance(*this,other) <= _segment->thickness() + other._segment->thickness()));
+        return (decide(distance(*this,other) <= _segment->thickness()+_radius + other._segment->thickness()+other._radius));
     }
 }
 
 FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2) {
-    return distance(s1.head_position(), s1.tail_position(), s2.head_position(), s2.tail_position());
+    return distance(s1.head_centre(), s1.tail_centre(), s2.head_centre(), s2.tail_centre());
 }
 
 }

@@ -26,11 +26,19 @@
 #include <ariadne/utility/stopwatch.hpp>
 
 using namespace Opera;
+using Ariadne::SizeType;
+
+struct Randomiser {
+    static FloatType get(double min, double max) {
+        return FloatType((max-min)*rand()/RAND_MAX + min,Ariadne::dp);
+    }
+};
 
 class ProfileGeometry {
 private:
     Ariadne::Stopwatch<Ariadne::Microseconds> sw;
     const unsigned int NUM_TRIES = 1000000;
+    Randomiser rnd;
 public:
     void profile() {
         profile_center();
@@ -38,11 +46,14 @@ public:
     }
 
     void profile_center() {
-        Point p1(1.0,3.0,-2.0);
-        Point p2(4.0,1.2,0);
+        Ariadne::List<Point> heads, tails;
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        }
         sw.restart();
-        for (unsigned int i=0; i<NUM_TRIES; ++i) {
-            center(p1,p2);
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            center(heads.at(i),tails.at(i));
         }
         sw.click();
         std::cout << "Center completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
@@ -51,12 +62,15 @@ public:
     void profile_distance() {
         Point s1h(1.0,3.0,-2.0);
         Point s1t(4.0,1.2,0);
-        Point s2h(2.0,1.0,1.0);
-        Point s2t(0,0,0);
+        Ariadne::List<Point> heads, tails;
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        }
 
         sw.restart();
-        for (unsigned int i=0; i<NUM_TRIES; ++i) {
-            distance(s1h,s1t,s2h,s2t);
+        for (SizeType i=0; i<NUM_TRIES; ++i) {
+            distance(s1h,s1t,heads.at(i),tails.at(i));
         }
         sw.click();
         std::cout << "Distance completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;

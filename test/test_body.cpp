@@ -33,6 +33,7 @@ public:
     void test() {
         ARIADNE_TEST_CALL(test_body_creation())
         ARIADNE_TEST_CALL(test_bodysegment_creation())
+        ARIADNE_TEST_CALL(test_bodysegment_update())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
     }
 
@@ -61,8 +62,8 @@ public:
 
         auto s = segment.create_state(head, tail);
 
-        auto hp = s.head_position();
-        auto tp = s.tail_position();
+        auto hp = s.head_centre();
+        auto tp = s.tail_centre();
         auto bb = s.bounding_box();
 
         ARIADNE_TEST_EQUALS(hp.x,0)
@@ -78,6 +79,36 @@ public:
         ARIADNE_TEST_EQUALS(bb[1].upper_bound(),2.5)
         ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[2].upper_bound(),1.5)
+    }
+
+    void test_bodysegment_update() {
+
+        FloatType thickness(0.5,Ariadne::dp);
+
+        Body b(5, BodyType::ROBOT, {0,1}, {FloatType(1.0,Ariadne::dp)});
+        auto segment = b.segments().at(0);
+
+        Point head(0,0.5,1.0);
+        Point tail(1.0,2.0,-1.0);
+
+        auto s = segment.create_state(head, tail);
+
+        s.update(Point(-0.5,1.0,1.25),Point(1.0,2.5,0.0));
+
+        ARIADNE_TEST_EQUALS(s.head_centre().x, -0.25)
+        ARIADNE_TEST_EQUALS(s.head_centre().y, 0.75)
+        ARIADNE_TEST_EQUALS(s.head_centre().z, 1.125)
+        ARIADNE_TEST_EQUALS(s.tail_centre().x, 1.0)
+        ARIADNE_TEST_EQUALS(s.tail_centre().y, 2.25)
+        ARIADNE_TEST_EQUALS(s.tail_centre().z, -0.5)
+
+        auto bb = s.bounding_box();
+        ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-1.5)
+        ARIADNE_TEST_EQUALS(bb[0].upper_bound(),2.0)
+        ARIADNE_TEST_EQUALS(bb[1].lower_bound(),-0.5)
+        ARIADNE_TEST_EQUALS(bb[1].upper_bound(),3.5)
+        ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-2.0)
+        ARIADNE_TEST_EQUALS(bb[2].upper_bound(),2.25)
     }
 
     void test_bodysegment_intersection() {
