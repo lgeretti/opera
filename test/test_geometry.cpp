@@ -32,11 +32,21 @@ class TestGeometry {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_construct_point())
+        ARIADNE_TEST_CALL(test_distance())
         ARIADNE_TEST_CALL(test_center())
     }
 
     void test_construct_point() {
         Point p(1.0,-2.1,0);
+    }
+
+    void test_distance() {
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(1,2,3),Point(1,2,3),Point(1,2,3)),0)
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(3,4,5),Point(1,2,3),Point(3,4,5)),0)
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(0,0,0),Point(0,0,0),Point(2,2,2)),0)
+        ARIADNE_TEST_EQUALS(distance(Point(0,0,0),Point(0,3,0),Point(0,4,0),Point(0,2,0)),0)
+        ARIADNE_TEST_EQUALS(distance(Point(1,0,0),Point(3,0,0),Point(1,1,0),Point(3,1,0)),1)
+        ARIADNE_TEST_EQUALS(distance(Point(1,0,0),Point(3,0,0),Point(0,0,0),Point(0,2,0)),1)
     }
 
     void test_center() {
