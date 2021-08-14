@@ -142,6 +142,7 @@ class BodyStateHistory {
     typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
   protected:
     BodyStateHistory(const Body* body);
+    BodyStateHistory(BodyStateHistory const& other) = delete;
   public:
     //! \brief Acquire the \a state to be ultimately held into the hystory
     //! \details Hystory will not be effectively updated till the location changes
