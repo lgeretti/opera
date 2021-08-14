@@ -46,12 +46,12 @@ public:
 
     void profile_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, {0,1}, {thickness});
+        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
         auto segment = b.segments().at(0);
 
-        auto s1 = segment.create_state(Point(0, 0, 0), Point(5, 5, 5));
-        auto s2 = segment.create_state(Point(0, 3, 0), Point(6, 6, 6));
-        auto s3 = segment.create_state(Point(0, 8, 0), Point(0, 10, 0));
+        auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
+        auto s2 = segment.create_sample(Point(0, 3, 0), Point(6, 6, 6));
+        auto s3 = segment.create_sample(Point(0, 8, 0), Point(0, 10, 0));
 
         sw.restart();
         for (unsigned int i=0; i<NUM_TRIES; ++i) {
@@ -70,10 +70,10 @@ public:
 
     void profile_bodysegment_state_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, {0,1}, {thickness});
+        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
         auto segment = b.segments().at(0);
 
-        auto s = segment.create_state(Point(0, 0, 0), Point(5, 5, 5));
+        auto s = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
 
         Ariadne::List<Point> heads, tails;
         for (SizeType i=0; i<NUM_TRIES; ++i) {

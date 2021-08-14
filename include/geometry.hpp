@@ -35,6 +35,9 @@ struct Vector {
     FloatType x;
     FloatType y;
     FloatType z;
+
+    friend std::ostream& operator<<(std::ostream& os, const Vector& v) {
+        return os << "(" << v.x << "," << v.y << "," << v.z << ")"; }
 };
 
 using Point = Vector;
