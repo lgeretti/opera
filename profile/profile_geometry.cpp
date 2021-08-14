@@ -23,61 +23,43 @@
  */
 
 #include "geometry.hpp"
-#include <ariadne/utility/stopwatch.hpp>
+#include "profile.hpp"
 
 using namespace Opera;
-using Ariadne::SizeType;
 
-struct Randomiser {
-    static FloatType get(double min, double max) {
-        return FloatType((max-min)*rand()/RAND_MAX + min,Ariadne::dp);
-    }
-};
+struct ProfileGeometry : public Profiler {
 
-class ProfileGeometry {
-private:
-    Ariadne::Stopwatch<Ariadne::Microseconds> sw;
-    const unsigned int NUM_TRIES = 1000000;
-    Randomiser rnd;
-public:
-    void profile() {
+    ProfileGeometry() : Profiler(1000000) { }
+
+    void run() {
         profile_center();
         profile_distance();
     }
 
     void profile_center() {
         Ariadne::List<Point> heads, tails;
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
-            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
-            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        for (SizeType i=0; i<num_tries(); ++i) {
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
-        sw.restart();
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
-            center(heads.at(i),tails.at(i));
-        }
-        sw.click();
-        std::cout << "Center completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+
+        profile("Center",[heads,tails](SizeType i){ center(heads.at(i),tails.at(i)); });
     }
 
     void profile_distance() {
         Point s1h(1.0,3.0,-2.0);
         Point s1t(4.0,1.2,0);
         Ariadne::List<Point> heads, tails;
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
-            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
-            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        for (SizeType i=0; i<num_tries(); ++i) {
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        sw.restart();
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
-            distance(s1h,s1t,heads.at(i),tails.at(i));
-        }
-        sw.click();
-        std::cout << "Distance completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+        profile("Distance",[s1h,s1t,heads,tails](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
     }
 };
 
 
 int main() {
-    ProfileGeometry().profile();
+    ProfileGeometry().run();
 }

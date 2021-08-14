@@ -1,5 +1,5 @@
 /***************************************************************************
- *            profile_body.cpp
+ *            profile.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -23,25 +23,17 @@
  */
 
 #include "body.hpp"
-#include <ariadne/utility/stopwatch.hpp>
+#include "profile.hpp"
 
 using namespace Opera;
 
-struct Randomiser {
-    static FloatType get(double min, double max) {
-        return FloatType((max-min)*rand()/RAND_MAX + min,Ariadne::dp);
-    }
-};
+struct ProfileBody : public Profiler {
 
-class ProfileBody {
-private:
-    Ariadne::Stopwatch<Ariadne::Microseconds> sw;
-    const unsigned int NUM_TRIES = 1000000;
-    Randomiser rnd;
-public:
-    void profile() {
+    ProfileBody() : Profiler(1e6) { }
+
+    void run() {
         profile_bodysegment_intersection();
-        profile_bodysegment_state_update();
+        profile_bodysegment_sample_update();
         profile_history_acquirement_and_update();
     }
 
@@ -54,18 +46,11 @@ public:
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(6, 6, 6));
         auto s3 = segment.create_sample(Point(0, 8, 0), Point(0, 10, 0));
 
-        sw.restart();
-        for (SizeType i=0; i<NUM_TRIES; ++i) s1.intersects(s3);
-        sw.click();
-        std::cout << "Simple intersections completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
-
-        sw.restart();
-        for (unsigned int i=0; i<NUM_TRIES; ++i) s1.intersects(s2);
-        sw.click();
-        std::cout << "Complex intersections completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+        profile("Box intersection",[s1,s3](SizeType i){ s1.intersects(s3); });
+        profile("Pill intersection",[s1,s2](SizeType i){ s1.intersects(s2); });
     }
 
-    void profile_bodysegment_state_update() {
+    void profile_bodysegment_sample_update() {
         FloatType thickness(1.0,Ariadne::dp);
         Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
         auto segment = b.segments().at(0);
@@ -73,15 +58,12 @@ public:
         auto s = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
 
         Ariadne::List<Point> heads, tails;
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
-            heads.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
-            tails.push_back(Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0)));
+        for (SizeType i=0; i<num_tries(); ++i) {
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        sw.restart();
-        for (SizeType i=0; i<NUM_TRIES; ++i) s.update(heads.at(i),tails.at(i));
-        sw.click();
-        std::cout << "States updates completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+        profile("Sample update",[&s,heads,tails](SizeType i){ s.update(heads.at(i),tails.at(i)); });
     }
 
     void profile_history_acquirement_and_update() {
@@ -91,39 +73,32 @@ public:
         auto history = b.make_history();
 
         Ariadne::List<BodyStatePackage> pkgs;
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
+        for (SizeType i=0; i<num_tries(); ++i) {
             pkgs.push_back(BodyStatePackage(DiscreteLocation(robot|"first"),
-                                            {{Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))},
-                                                    {Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))}},
+                                            {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
+                                                    {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                                     10*i));
         }
 
-        sw.restart();
-        for (auto pkg : pkgs) history.acquire(pkg);
-        sw.click();
-        std::cout << "Acquired package for new location completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+        profile("Acquire package for new location",[&history,pkgs](SizeType i){ history.acquire(pkgs.at(i)); });
 
         history.acquire(BodyStatePackage(DiscreteLocation(robot|"second"),
-                                         {{Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))},
-                                          {Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))}},
+                                         {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
+                                          {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                           10000010));
 
         pkgs.clear();
-        for (SizeType i=0; i<NUM_TRIES; ++i) {
+        for (SizeType i=0; i<num_tries(); ++i) {
             pkgs.push_back(BodyStatePackage(DiscreteLocation(robot|"first"),
-                                            {{Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))},
-                                             {Point(rnd.get(-5.0,5.0),rnd.get(-5.0,5.0),rnd.get(-5.0,5.0))}},
+                                            {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
+                                             {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                              10000020+10*i));
         }
 
-        sw.restart();
-        for (auto pkg : pkgs) history.acquire(pkg);
-        sw.click();
-        std::cout << "Acquired package for existing location completed in " << ((double)sw.duration().count())/NUM_TRIES*1000 << " ns on average" << std::endl;
+        profile("Acquire package for existing location",[&history,pkgs](SizeType i){ history.acquire(pkgs.at(i)); });
     }
 };
 
-
 int main() {
-    ProfileBody().profile();
+    ProfileBody().run();
 }
