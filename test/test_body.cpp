@@ -164,7 +164,8 @@ public:
         ARIADNE_TEST_EQUALS(history.current_location(),first)
         auto entrances = history.entrances(first);
         ARIADNE_TEST_EQUAL(entrances.size(),1)
-        ARIADNE_TEST_EQUALS(entrances.at(0).timestamp(),5000)
+        ARIADNE_TEST_ASSERT(entrances.back().source().values().empty())
+        ARIADNE_TEST_EQUALS(entrances.back().timestamp(),5000)
         history.acquire(BodyStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6000u));
         ARIADNE_TEST_EQUALS(history.entrances(first).size(),1)
 
@@ -172,14 +173,17 @@ public:
         ARIADNE_TEST_EQUALS(history.current_location(),second)
         ARIADNE_TEST_ASSERT(not history.has_samples(second))
         ARIADNE_TEST_EQUALS(history.entrances(second).size(),1)
+        ARIADNE_TEST_EQUALS(history.entrances(second).back().source(),first)
         ARIADNE_TEST_ASSERT(history.has_samples(first))
         auto samples = history.samples(first);
         ARIADNE_TEST_EQUALS(samples.size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
+        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).radius() == 0))
 
         history.acquire(BodyStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
         ARIADNE_TEST_ASSERT(history.has_samples(second))
         ARIADNE_TEST_EQUALS(history.entrances(first).size(),2)
+        ARIADNE_TEST_EQUALS(history.entrances(first).back().source(),second)
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.samples(second).at(0).size(),1)
         ARIADNE_TEST_PRINT(history.samples(second))
@@ -189,6 +193,7 @@ public:
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.entrances(second).size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
+        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).radius() > 0))
     }
 };
 

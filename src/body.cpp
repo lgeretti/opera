@@ -109,8 +109,8 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
      * 1) If the location is different from the current one (including the first location inserted)
      *   a) Put the buffered content (if it exists) in place of the current location content
      *   b) Create a new empty buffer
-     *   c) Update the current location
-     *   d) Add the entrance (or create from scratch if a new location)
+     *   c) Add the entrance (or create from scratch if a new location)
+     *   d) Update the current location
      * 3) Check if the location has a history
      *   a) If not, adding each segment sample to the buffer
      *   b) If it has, identify the index from the timestamp and update the sample on the corresponding entry, adding it to the buffer
@@ -122,7 +122,6 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
         _current_location_states_buffer = List<List<BodySegmentSample>>();
         for (SizeType i=0; i<_body->segments().size(); ++i)
             _current_location_states_buffer.push_back(List<BodySegmentSample>());
-        _current_location = state.location();
 
         if (_location_states.find(state.location()) == _location_states.end()) {
             auto timestamps = std::deque<DiscreteTransitionData>();
@@ -131,6 +130,8 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
         } else {
             _location_entrances[state.location()].push_back(DiscreteTransitionData(_current_location,state.timestamp()));
         }
+
+        _current_location = state.location();
     }
 
     auto segments = _body->segments();
