@@ -35,6 +35,12 @@ struct Randomiser {
     }
 };
 
+inline bool _init_randomiser() {
+    srand(time(nullptr));
+    return true;
+}
+static const bool init_randomiser = _init_randomiser();
+
 class Profiler {
   public:
     Profiler(SizeType num_tries) : _num_tries(num_tries) { }
