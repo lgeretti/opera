@@ -72,7 +72,7 @@ class BodySegment {
     friend class Body;
   protected:
     //! \brief Construct from identifier, head_centre/tail_centre identifiers and thickness
-    BodySegment(const Body* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
+    BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
   public:
     //! \brief Identifier for the segment within the specific body
     IdType id() const;
@@ -95,7 +95,7 @@ class BodySegment {
     IdType const _head_id;
     IdType const _tail_id;
     FloatType const _thickness;
-    const Body* _body;
+    Body const* _body;
 };
 
 //! \brief A representation of an inbound package for the state of a body
@@ -141,7 +141,7 @@ class BodyStateHistory {
     typedef List<SegmentTemporalSamplesType> BodySamplesType;
     typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
   protected:
-    BodyStateHistory(const Body* body);
+    BodyStateHistory(Body const* body);
     BodyStateHistory(BodyStateHistory const& other) = delete;
   public:
     //! \brief Acquire the \a state to be ultimately held into the hystory
@@ -170,14 +170,14 @@ class BodyStateHistory {
     LocationSamplesType _location_states;
     DiscreteLocation _current_location;
     BodySamplesType _current_location_states_buffer;
-    const Body* _body;
+    Body const* _body;
 };
 
 class BodySegmentSample {
     friend class BodySegment;
   protected:
     //! \brief Create from two singleton points
-    BodySegmentSample(const BodySegment* segment, Point const& head, Point const& tail);
+    BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail);
   public:
 
     //! \brief Return the center point for the head of the segment
@@ -219,7 +219,7 @@ class BodySegmentSample {
     Point _head_centre;
     Point _tail_centre;
     FloatType _radius;
-    const BodySegment* _segment;
+    BodySegment const* _segment;
 
     BoundingType _bb;
 };

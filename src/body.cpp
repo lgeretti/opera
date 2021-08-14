@@ -82,7 +82,7 @@ TimestampType const& DiscreteTransitionData::timestamp() const {
     return _timestamp;
 }
 
-BodyStateHistory::BodyStateHistory(const Body* body) : _body(body) { }
+BodyStateHistory::BodyStateHistory(Body const* body) : _body(body) { }
 
 DiscreteLocation const& BodyStateHistory::current_location() const {
     return _current_location;
@@ -152,7 +152,7 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
     }
 }
 
-BodySegment::BodySegment(const Body* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
+BodySegment::BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
     _body(body), _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
 
 IdType BodySegment::id() const {
@@ -175,7 +175,7 @@ BodySegmentSample BodySegment::create_sample(Point const& begin, Point const& en
     return BodySegmentSample(this, begin, end);
 }
 
-BodySegmentSample::BodySegmentSample(const BodySegment* segment, Point const& head, Point const& tail) :
+BodySegmentSample::BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail) :
         _head_bounds({IntervalType(head.x), IntervalType(head.y), IntervalType(head.z)}),
         _tail_bounds({IntervalType(tail.x), IntervalType(tail.y), IntervalType(tail.z)}),
         _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp), _segment(segment) {
