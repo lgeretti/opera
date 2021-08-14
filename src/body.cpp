@@ -141,7 +141,7 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
         auto tail_pts = state.points().at(segments.at(i).tail_id());
         BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
                                                           segments.at(i).create_sample(head_pts.at(0),tail_pts.at(0)));
-        auto common_size = std::max(head_pts.size(),tail_pts.size());
+        auto common_size = std::min(head_pts.size(),tail_pts.size());
         for (SizeType j=j0; j<common_size; ++j)
             s.update(head_pts.at(j),tail_pts.at(j));
         for (SizeType j=common_size; j<head_pts.size(); ++j)

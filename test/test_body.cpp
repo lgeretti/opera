@@ -177,7 +177,7 @@ public:
         ARIADNE_TEST_EQUALS(samples.size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
 
-        history.acquire(BodyStatePackage(first,{{Point(0,0,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3)}},8000u));
+        history.acquire(BodyStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
         ARIADNE_TEST_ASSERT(history.has_samples(second))
         ARIADNE_TEST_EQUALS(history.entrances(first).size(),2)
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
