@@ -41,6 +41,7 @@ public:
     void test_body_creation() {
         Body b(5, BodyType::ROBOT, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
 
+        ARIADNE_TEST_PRINT(b)
         ARIADNE_TEST_EQUALS(b.id(),5)
         ARIADNE_TEST_ASSERT(b.type() == BodyType::ROBOT)
         ARIADNE_TEST_EQUALS(b.package_frequency(), 10)

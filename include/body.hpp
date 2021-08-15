@@ -59,6 +59,12 @@ class Body {
 
     //! \brief Create an empty history for the body
     BodyStateHistory make_history() const;
+
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, Body const& b) {
+        return os << "(id=" << b._id << ", is_robot?=" << (b._type == BodyType::ROBOT) << ", package_frequency=" << b._package_frequency << ", segments=" << b._segments << ")";
+    }
+
   private:
     IdType const _id;
     BodyType const _type;
@@ -77,7 +83,6 @@ class BodySegment {
     //! \brief Identifier for the segment within the specific body
     IdType id() const;
 
-
     //! \brief Identifier for the head
     IdType head_id() const;
 
@@ -90,11 +95,17 @@ class BodySegment {
     //! \brief Create a sample for the segment from a \a begin and \a end points
     BodySegmentSample create_sample(Point const& begin, Point const& end) const;
 
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
+        return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
+    }
+
   private:
     IdType const _id;
     IdType const _head_id;
     IdType const _tail_id;
     FloatType const _thickness;
+  public:
     Body const* _body;
 };
 
@@ -208,7 +219,7 @@ class BodySegmentSample {
     bool intersects(BodySegmentSample const& other) const;
 
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, const BodySegmentSample& s) {
+    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) {
         return os << "(s.id=" << s._segment->id() << ",h=" << s._head_centre << ",t=" << s._tail_centre << ")"; }
 
   private:
