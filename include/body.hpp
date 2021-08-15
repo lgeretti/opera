@@ -36,29 +36,21 @@ using Ariadne::List;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 
-//! \brief Enumeration for the type of body
-enum class BodyType { ROBOT, WORKER };
-
 class BodySegment;
-class BodyStateHistory;
+class RobotStateHistory;
 
 class Body {
   public:
-    //! \brief Construct from id and type, and a list of ids representing the point ids for the segments, along with a list of thicknesses for each segment
-    Body(IdType const& id, BodyType const& type, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
-
+    //! \brief Construct from fields
+    Body(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+  public:
     //! \brief The body identifier
     IdType const& id() const;
-    //! \brief The type of body
-    BodyType const& type() const;
     //! \brief The frequency of packages sent by the body, in Hz
     SizeType const& package_frequency() const;
 
     //! \brief The segments making the body
     List<BodySegment*> const& segments() const;
-
-    //! \brief Create an empty history for the body
-    BodyStateHistory make_history() const;
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, Body const& b);
@@ -68,9 +60,20 @@ class Body {
 
   private:
     IdType const _id;
-    BodyType const _type;
     SizeType const _package_frequency;
     List<BodySegment*> _segments;
+};
+
+//! \brief Defining human body as just a simple body
+using Human = Body;
+
+//! \brief A robot is a body able to have its history
+class Robot : public Body {
+  public:
+    //! \brief Construct from fields
+    using Body::Body;
+    //! \brief Create an empty history for the robot packages received
+    RobotStateHistory make_history() const;
 };
 
 class BodySegmentSample;
@@ -109,21 +112,36 @@ class BodySegment {
 
 //! \brief A representation of an inbound package for the state of a body
 class BodyStatePackage {
+  protected:
+    //! \brief Construct from a list of samples for each point, and a \a timestamp
+    BodyStatePackage(List<List<Point>> const& points, TimestampType const& timestamp);
   public:
-    //! \brief Construct from a \a location, a list of samples for each point, and a \a timestamp
-    BodyStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
-    //! \brief The location
-    DiscreteLocation const& location() const;
     //! \brief The points for each segment
     //! \details These will be always even, at least two (head and tail) but multiple points may be present
     List<List<Point>> const& points() const;
     //! \brief The timestamp associated with the package
     TimestampType const& timestamp() const;
-
   private:
-    DiscreteLocation const _location;
     List<List<Point>> const _points;
     TimestampType const _timestamp;
+};
+
+//! \brief A representation of an inbound package for the state of a human body
+class HumanStatePackage : public BodyStatePackage {
+  public:
+    //! \brief Construct from a list of samples for each point, and a \a timestamp
+    HumanStatePackage(List<List<Point>> const& points, TimestampType const& timestamp);
+};
+
+//! \brief A representation of an inbound package for the state of a robot body
+class RobotStatePackage : public BodyStatePackage {
+public:
+    //! \brief Construct from a \a location, a list of samples for each point, and a \a timestamp
+    RobotStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
+    //! \brief The location
+    DiscreteLocation const& location() const;
+private:
+    DiscreteLocation const _location;
 };
 
 //! \brief The data (source+timestamp) for a discrete transition
@@ -140,9 +158,9 @@ class DiscreteTransitionData {
     TimestampType const _timestamp;
 };
 
-//! \brief Holds the states reached by the body up to now
-class BodyStateHistory {
-    friend class Body;
+//! \brief Holds the states reached by a robot up to now
+class RobotStateHistory {
+    friend class Robot;
     using BodySegmentId = IdType;
     typedef std::deque<DiscreteTransitionData> EntrancesQueueType;
     typedef Ariadne::Map<DiscreteLocation,EntrancesQueueType> LocationEntrancesType;
@@ -150,12 +168,12 @@ class BodyStateHistory {
     typedef List<SegmentTemporalSamplesType> BodySamplesType;
     typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
   protected:
-    BodyStateHistory(Body const* body);
-    BodyStateHistory(BodyStateHistory const& other) = delete;
+    RobotStateHistory(Robot const* robot);
+    RobotStateHistory(RobotStateHistory const& other) = delete;
   public:
     //! \brief Acquire the \a state to be ultimately held into the hystory
     //! \details Hystory will not be effectively updated till the location changes
-    void acquire(BodyStatePackage const& state);
+    void acquire(RobotStatePackage const& state);
 
     //! \brief The current location
     DiscreteLocation const& current_location() const;
@@ -179,7 +197,7 @@ class BodyStateHistory {
     LocationSamplesType _location_states;
     DiscreteLocation _current_location;
     BodySamplesType _current_location_states_buffer;
-    Body const* _body;
+    Body const* _robot;
 };
 
 class BodySegmentSample {
@@ -229,8 +247,6 @@ class BodySegmentSample {
 
     BoundingType _bb;
 };
-
-
 
 //! \brief Calculate the minimum distance between two segments
 FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2);

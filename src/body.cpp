@@ -29,8 +29,8 @@ using Ariadne::StringStream;
 
 namespace Opera {
 
-Body::Body(IdType const& id, BodyType const& type, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
-    _id(id), _type(type), _package_frequency(package_frequency) {
+Body::Body(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    _id(id), _package_frequency(package_frequency) {
     ARIADNE_ASSERT_MSG(package_frequency > 0, "The package frequency must be strictly positive")
     ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
 
@@ -47,10 +47,6 @@ IdType const& Body::id() const {
     return _id;
 }
 
-BodyType const& Body::type() const {
-    return _type;
-}
-
 SizeType const& Body::package_frequency() const {
     return _package_frequency;
 }
@@ -59,12 +55,8 @@ List<BodySegment*> const& Body::segments() const {
     return _segments;
 }
 
-BodyStateHistory Body::make_history() const {
-    return BodyStateHistory(this);
-}
-
 std::ostream& operator<<(std::ostream& os, Body const& b) {
-    os << "(id=" << b._id << ", is_robot?=" << (b._type == BodyType::ROBOT) << ", package_frequency=" << b._package_frequency << ", segments=[";
+    os << "(id=" << b._id << ", package_frequency=" << b._package_frequency << ", segments=[";
     for (SizeType i=0; i<b._segments.size()-1; ++i) {
         os << *b._segments.at(i) << ",";
     }
@@ -72,17 +64,29 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
     return os;
 }
 
-BodyStatePackage::BodyStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
-    _location(location), _points(points), _timestamp(timestamp) {}
-
-DiscreteLocation const& BodyStatePackage::location() const {
-    return _location;
+RobotStateHistory Robot::make_history() const {
+    return RobotStateHistory(this);
 }
+
+BodyStatePackage::BodyStatePackage(List<List<Point>> const& points, TimestampType const& timestamp) :
+    _points(points), _timestamp(timestamp) {}
+
+RobotStatePackage::RobotStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
+    BodyStatePackage(points,timestamp), _location(location) {}
+
+HumanStatePackage::HumanStatePackage(List<List<Point>> const& points, TimestampType const& timestamp) :
+    BodyStatePackage(points,timestamp) {}
+
 List<List<Point>> const& BodyStatePackage::points() const {
     return _points;
 }
+
 TimestampType const& BodyStatePackage::timestamp() const {
     return _timestamp;
+}
+
+DiscreteLocation const& RobotStatePackage::location() const {
+    return _location;
 }
 
 DiscreteTransitionData::DiscreteTransitionData(DiscreteLocation const& source, TimestampType const& timestamp) :
@@ -96,29 +100,30 @@ TimestampType const& DiscreteTransitionData::timestamp() const {
     return _timestamp;
 }
 
-BodyStateHistory::BodyStateHistory(Body const* body) : _body(body) { }
+RobotStateHistory::RobotStateHistory(Robot const* robot) : _robot(robot) {
+}
 
-DiscreteLocation const& BodyStateHistory::current_location() const {
+DiscreteLocation const& RobotStateHistory::current_location() const {
     return _current_location;
 }
 
-bool BodyStateHistory::has_samples(DiscreteLocation const& location) const {
+bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {
     return _location_states.find(location) != _location_states.end();
 }
 
-auto BodyStateHistory::samples(DiscreteLocation const& location) const -> BodySamplesType const& {
+auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodySamplesType const& {
     return _location_states.get(location);
 }
 
-auto BodyStateHistory::entrances(DiscreteLocation const& location) const -> EntrancesQueueType const& {
+auto RobotStateHistory::entrances(DiscreteLocation const& location) const -> EntrancesQueueType const& {
     return _location_entrances.get(location);
 }
 
-SizeType BodyStateHistory::_update_index(TimestampType const& timestamp) const {
-    return floor((timestamp-_location_entrances.get(_current_location).back().timestamp())/1000*_body->package_frequency());
+SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {
+    return floor((timestamp-_location_entrances.get(_current_location).back().timestamp()) / 1000 * _robot->package_frequency());
 }
 
-void BodyStateHistory::acquire(BodyStatePackage const& state) {
+void RobotStateHistory::acquire(RobotStatePackage const& state) {
     /*
      * 1) If the location is different from the current one (including the first location inserted)
      *   a) Put the buffered content (if it exists) in place of the current location content
@@ -134,7 +139,7 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
         if (not _current_location_states_buffer.empty())
             _location_states[_current_location] = std::move(_current_location_states_buffer);
         _current_location_states_buffer = List<List<BodySegmentSample>>();
-        for (SizeType i=0; i<_body->segments().size(); ++i)
+        for (SizeType i=0; i < _robot->segments().size(); ++i)
             _current_location_states_buffer.push_back(List<BodySegmentSample>());
 
         if (_location_states.find(state.location()) == _location_states.end()) {
@@ -148,7 +153,7 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
         _current_location = state.location();
     }
 
-    auto segments = _body->segments();
+    auto segments = _robot->segments();
     bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
     SizeType j0 = (has_history_for_location ? 0 : 1);
     for (SizeType i=0; i<segments.size(); ++i) {

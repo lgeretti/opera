@@ -35,23 +35,24 @@ public:
         ARIADNE_TEST_CALL(test_bodysegment_creation())
         ARIADNE_TEST_CALL(test_bodysegment_update())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
-        ARIADNE_TEST_CALL(test_bodystatehistory())
+        ARIADNE_TEST_CALL(test_robotstatehistory())
     }
 
     void test_body_creation() {
-        Body b(5, BodyType::ROBOT, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
 
-        ARIADNE_TEST_PRINT(b)
-        ARIADNE_TEST_EQUALS(b.id(),5)
-        ARIADNE_TEST_ASSERT(b.type() == BodyType::ROBOT)
-        ARIADNE_TEST_EQUALS(b.package_frequency(), 10)
-        ARIADNE_TEST_EQUALS(b.segments().size(),2)
+        ARIADNE_TEST_PRINT(h)
+        ARIADNE_TEST_EQUALS(h.id(),5)
+        ARIADNE_TEST_EQUALS(h.package_frequency(), 10)
+        ARIADNE_TEST_EQUALS(h.segments().size(),2)
+
+        ARIADNE_TEST_CONSTRUCT(Robot,r,(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)}))
     }
 
     void test_bodysegment_creation() {
 
-        Body b(5, BodyType::ROBOT, 10, {3,2,1,0}, {FloatType(1.0,Ariadne::dp),FloatType(0.5,Ariadne::dp)});
-        auto segment = *b.segments().at(1);
+        Robot r(5, 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        auto segment = *r.segments().at(1);
 
         ARIADNE_TEST_EQUALS(segment.id(),1)
         ARIADNE_TEST_EQUALS(segment.head_id(),1)
@@ -86,8 +87,8 @@ public:
 
         FloatType thickness(0.5,Ariadne::dp);
 
-        Body b(5, BodyType::ROBOT, 10, {0,1}, {FloatType(1.0,Ariadne::dp)});
-        auto segment = *b.segments().at(0);
+        Robot r(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        auto segment = *r.segments().at(0);
 
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
@@ -114,8 +115,8 @@ public:
 
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
-        auto segment = *b.segments().at(0);
+        Robot r(0, 10, {0, 1}, {thickness});
+        auto segment = *r.segments().at(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(5, 5, 5));
@@ -147,10 +148,10 @@ public:
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
     }
 
-    void test_bodystatehistory() {
+    void test_robotstatehistory() {
         Ariadne::StringVariable robot("robot");
-        Body b(5, BodyType::ROBOT, 1, {3,2,1,0}, {FloatType(1.0,Ariadne::dp),FloatType(0.5,Ariadne::dp)});
-        auto history = b.make_history();
+        Robot r(5, 1, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        auto history = r.make_history();
 
         DiscreteLocation empty_location;
         ARIADNE_TEST_ASSERT(history.current_location().values().empty())
@@ -159,7 +160,7 @@ public:
 
         DiscreteLocation first(robot|"first"), second(robot|"second");
 
-        history.acquire(BodyStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5000u));
+        history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5000u));
         ARIADNE_TEST_FAIL(history.samples(first))
         ARIADNE_TEST_ASSERT(not history.has_samples(first))
         ARIADNE_TEST_EQUALS(history.current_location(),first)
@@ -167,10 +168,10 @@ public:
         ARIADNE_TEST_EQUAL(entrances.size(),1)
         ARIADNE_TEST_ASSERT(entrances.back().source().values().empty())
         ARIADNE_TEST_EQUALS(entrances.back().timestamp(),5000)
-        history.acquire(BodyStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6000u));
+        history.acquire(RobotStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6000u));
         ARIADNE_TEST_EQUALS(history.entrances(first).size(),1)
 
-        history.acquire(BodyStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7000u));
+        history.acquire(RobotStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7000u));
         ARIADNE_TEST_EQUALS(history.current_location(),second)
         ARIADNE_TEST_ASSERT(not history.has_samples(second))
         ARIADNE_TEST_EQUALS(history.entrances(second).size(),1)
@@ -181,16 +182,16 @@ public:
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).radius() == 0))
 
-        history.acquire(BodyStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
+        history.acquire(RobotStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
         ARIADNE_TEST_ASSERT(history.has_samples(second))
         ARIADNE_TEST_EQUALS(history.entrances(first).size(),2)
         ARIADNE_TEST_EQUALS(history.entrances(first).back().source(),second)
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.samples(second).at(0).size(),1)
         ARIADNE_TEST_PRINT(history.samples(second))
-        history.acquire(BodyStatePackage(first,{{Point(1,0,2)},{Point(5,4,6)},{Point(1,4,0)},{Point(2,2,3)}},9000u));
+        history.acquire(RobotStatePackage(first,{{Point(1,0,2)},{Point(5,4,6)},{Point(1,4,0)},{Point(2,2,3)}},9000u));
 
-        history.acquire(BodyStatePackage(second,{{Point(1,0,1.5)},{Point(5,4,5.5)},{Point(1,3.5,0)},{Point(2,1.5,3)}},10000u));
+        history.acquire(RobotStatePackage(second,{{Point(1,0,1.5)},{Point(5,4,5.5)},{Point(1,3.5,0)},{Point(2,1.5,3)}},10000u));
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.entrances(second).size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))

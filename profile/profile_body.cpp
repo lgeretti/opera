@@ -39,8 +39,8 @@ struct ProfileBody : public Profiler {
 
     void profile_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
-        auto segment = *b.segments().at(0);
+        Robot r(0, 10, {0, 1}, {thickness});
+        auto segment = *r.segments().at(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(6, 6, 6));
@@ -52,8 +52,8 @@ struct ProfileBody : public Profiler {
 
     void profile_bodysegment_sample_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
-        auto segment = *b.segments().at(0);
+        Robot r(0, 10, {0, 1}, {thickness});
+        auto segment = *r.segments().at(0);
 
         auto s = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
 
@@ -68,13 +68,13 @@ struct ProfileBody : public Profiler {
 
     void profile_history_acquirement_and_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
+        Robot r(0, 10, {0, 1}, {thickness});
         Ariadne::StringVariable robot("robot");
-        auto history = b.make_history();
+        auto history = r.make_history();
 
-        Ariadne::List<BodyStatePackage> pkgs;
+        Ariadne::List<RobotStatePackage> pkgs;
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkgs.push_back(BodyStatePackage(DiscreteLocation(robot|"first"),
+            pkgs.push_back(RobotStatePackage(DiscreteLocation(robot|"first"),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                                     {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                                     10*i));
@@ -82,14 +82,14 @@ struct ProfileBody : public Profiler {
 
         profile("Acquire package for new location",[&history,pkgs](SizeType i){ history.acquire(pkgs.at(i)); });
 
-        history.acquire(BodyStatePackage(DiscreteLocation(robot|"second"),
+        history.acquire(RobotStatePackage(DiscreteLocation(robot|"second"),
                                          {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                           {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                           10000010));
 
         pkgs.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkgs.push_back(BodyStatePackage(DiscreteLocation(robot|"first"),
+            pkgs.push_back(RobotStatePackage(DiscreteLocation(robot|"first"),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                              10000020+10*i));
