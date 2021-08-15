@@ -51,7 +51,7 @@ public:
     void test_bodysegment_creation() {
 
         Body b(5, BodyType::ROBOT, 10, {3,2,1,0}, {FloatType(1.0,Ariadne::dp),FloatType(0.5,Ariadne::dp)});
-        auto segment = b.segments().at(1);
+        auto segment = *b.segments().at(1);
 
         ARIADNE_TEST_EQUALS(segment.id(),1)
         ARIADNE_TEST_EQUALS(segment.head_id(),1)
@@ -87,7 +87,7 @@ public:
         FloatType thickness(0.5,Ariadne::dp);
 
         Body b(5, BodyType::ROBOT, 10, {0,1}, {FloatType(1.0,Ariadne::dp)});
-        auto segment = b.segments().at(0);
+        auto segment = *b.segments().at(0);
 
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
@@ -115,7 +115,7 @@ public:
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
         Body b(0, BodyType::ROBOT, 10, {0,1}, {thickness});
-        auto segment = b.segments().at(0);
+        auto segment = *b.segments().at(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(5, 5, 5));

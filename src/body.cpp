@@ -35,7 +35,12 @@ Body::Body(IdType const& id, BodyType const& type, SizeType const& package_frequ
     ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
 
     for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i)
-        _segments.append(BodySegment(this,i,points_ids.at(2*i),points_ids.at(2*i+1),thicknesses.at(i)));
+        _segments.append(new BodySegment(this,i,points_ids.at(2*i),points_ids.at(2*i+1),thicknesses.at(i)));
+}
+
+Body::~Body() {
+    for (auto s: _segments)
+        delete(s);
 }
 
 IdType const& Body::id() const {
@@ -50,12 +55,21 @@ SizeType const& Body::package_frequency() const {
     return _package_frequency;
 }
 
-List<BodySegment> const& Body::segments() const {
+List<BodySegment*> const& Body::segments() const {
     return _segments;
 }
 
 BodyStateHistory Body::make_history() const {
     return BodyStateHistory(this);
+}
+
+std::ostream& operator<<(std::ostream& os, Body const& b) {
+    os << "(id=" << b._id << ", is_robot?=" << (b._type == BodyType::ROBOT) << ", package_frequency=" << b._package_frequency << ", segments=[";
+    for (SizeType i=0; i<b._segments.size()-1; ++i) {
+        os << *b._segments.at(i) << ",";
+    }
+    os << *b._segments.at(b._segments.size()-1) << "])";
+    return os;
 }
 
 BodyStatePackage::BodyStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
@@ -138,10 +152,10 @@ void BodyStateHistory::acquire(BodyStatePackage const& state) {
     bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
     SizeType j0 = (has_history_for_location ? 0 : 1);
     for (SizeType i=0; i<segments.size(); ++i) {
-        auto head_pts = state.points().at(segments.at(i).head_id());
-        auto tail_pts = state.points().at(segments.at(i).tail_id());
+        auto head_pts = state.points().at(segments.at(i)->head_id());
+        auto tail_pts = state.points().at(segments.at(i)->tail_id());
         BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
-                                                          segments.at(i).create_sample(head_pts.at(0),tail_pts.at(0)));
+                                                          segments.at(i)->create_sample(head_pts.at(0),tail_pts.at(0)));
         auto common_size = std::min(head_pts.size(),tail_pts.size());
         for (SizeType j=j0; j<common_size; ++j)
             s.update(head_pts.at(j),tail_pts.at(j));
@@ -174,6 +188,10 @@ FloatType const& BodySegment::thickness() const {
 
 BodySegmentSample BodySegment::create_sample(Point const& begin, Point const& end) const {
     return BodySegmentSample(this, begin, end);
+}
+
+std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
+    return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
 }
 
 BodySegmentSample::BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail) :
@@ -244,6 +262,10 @@ bool BodySegmentSample::intersects(BodySegmentSample const& other) const {
     else {
         return (decide(distance(*this,other) <= _segment->thickness()+_radius + other._segment->thickness()+other._radius));
     }
+}
+
+std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) {
+    return os << "(s.id=" << s._segment->id() << ",h=" << s._head_centre << ",t=" << s._tail_centre << ")";
 }
 
 FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2) {

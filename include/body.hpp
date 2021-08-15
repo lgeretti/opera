@@ -55,28 +55,29 @@ class Body {
     SizeType const& package_frequency() const;
 
     //! \brief The segments making the body
-    List<BodySegment> const& segments() const;
+    List<BodySegment*> const& segments() const;
 
     //! \brief Create an empty history for the body
     BodyStateHistory make_history() const;
 
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, Body const& b) {
-        return os << "(id=" << b._id << ", is_robot?=" << (b._type == BodyType::ROBOT) << ", package_frequency=" << b._package_frequency << ", segments=" << b._segments << ")";
-    }
+    friend std::ostream& operator<<(std::ostream& os, Body const& b);
+
+    //! \brief Destructor
+    ~Body();
 
   private:
     IdType const _id;
     BodyType const _type;
     SizeType const _package_frequency;
-    List<BodySegment> _segments;
+    List<BodySegment*> _segments;
 };
 
 class BodySegmentSample;
 
 class BodySegment {
     friend class Body;
-  protected:
+  public:
     //! \brief Construct from identifier, head_centre/tail_centre identifiers and thickness
     BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
   public:
@@ -96,16 +97,13 @@ class BodySegment {
     BodySegmentSample create_sample(Point const& begin, Point const& end) const;
 
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
-        return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
-    }
+    friend std::ostream& operator<<(std::ostream& os, BodySegment const& s);
 
   private:
     IdType const _id;
     IdType const _head_id;
     IdType const _tail_id;
     FloatType const _thickness;
-  public:
     Body const* _body;
 };
 
@@ -219,8 +217,7 @@ class BodySegmentSample {
     bool intersects(BodySegmentSample const& other) const;
 
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) {
-        return os << "(s.id=" << s._segment->id() << ",h=" << s._head_centre << ",t=" << s._tail_centre << ")"; }
+    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
 
   private:
     BoundingType _head_bounds;
