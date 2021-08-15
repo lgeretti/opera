@@ -205,7 +205,7 @@ void BodySegmentSample::update(Point const& head, Point const& tail) {
     ntb[2]=hull(_tail_bounds[2],tail.z);
     _head_bounds = nhb;
     _tail_bounds = ntb;
-    _recalculate_centers_radius_bb();
+    recalculate_centers_radius_bb();
 }
 
 void BodySegmentSample::update_head(Point const& head) {
@@ -214,7 +214,7 @@ void BodySegmentSample::update_head(Point const& head) {
     nhb[1]=hull(_head_bounds[1],head.y);
     nhb[2]=hull(_head_bounds[2],head.z);
     _head_bounds = nhb;
-    _recalculate_centers_radius_bb();
+    recalculate_centers_radius_bb();
 }
 
 void BodySegmentSample::update_tail(Point const& tail) {
@@ -223,10 +223,10 @@ void BodySegmentSample::update_tail(Point const& tail) {
     ntb[1]=hull(_tail_bounds[1],tail.y);
     ntb[2]=hull(_tail_bounds[2],tail.z);
     _tail_bounds = ntb;
-    _recalculate_centers_radius_bb();
+    recalculate_centers_radius_bb();
 }
 
-void BodySegmentSample::_recalculate_centers_radius_bb() {
+void BodySegmentSample::recalculate_centers_radius_bb() {
     auto hc = _head_bounds.centre();
     auto tc = _tail_bounds.centre();
     _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));

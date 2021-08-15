@@ -189,13 +189,16 @@ class BodySegmentSample {
     //! as obtained from the centers with respect to the bounds
     FloatType radius() const;
 
-    //! \brief Update the begin and end bounds with the given points
-    void update(Point const& begin, Point const& end);
+    //! \brief Update the head and tail bounds with the given points
+    void update(Point const& head, Point const& tail);
 
     //! \brief Update only the head bounds
     void update_head(Point const& head);
     //! \brief Update only the tail bounds
     void update_tail(Point const& tail);
+
+    //! \brief Re-calculate the centers, radius and bounding box from the bounds
+    void recalculate_centers_radius_bb();
 
     //! \brief Return the bounding box overapproximation
     BoundingType const& bounding_box() const;
@@ -207,11 +210,6 @@ class BodySegmentSample {
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, const BodySegmentSample& s) {
         return os << "(s.id=" << s._segment->id() << ",h=" << s._head_centre << ",t=" << s._tail_centre << ")"; }
-
-  private:
-
-    //! \brief Re-calculate the centers, radius and bounding box after an update
-    void _recalculate_centers_radius_bb();
 
   private:
     BoundingType _head_bounds;
