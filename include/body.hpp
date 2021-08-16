@@ -158,6 +158,57 @@ class RobotStatePackage : public BodyStatePackage {
     DiscreteLocation const _location;
 };
 
+class BodySegmentSample {
+    friend class BodySegment;
+protected:
+    //! \brief Create from two singleton points
+    BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail);
+public:
+
+    //! \brief Return the center point for the head of the segment
+    Point const& head_centre() const;
+    //! \brief Return the center point for the tail of the segment
+    Point const& tail_centre() const;
+
+    //! \brief Return the radius of error in the segment head/tail positions,
+    //! as obtained from the centers with respect to the bounds
+    FloatType radius() const;
+
+    //! \brief Update the head and tail bounds with the given points
+    void update(Point const& head, Point const& tail);
+
+    //! \brief Update only the head bounds
+    void update_head(Point const& head);
+    //! \brief Update only the tail bounds
+    void update_tail(Point const& tail);
+
+    //! \brief Re-calculate the centers, radius and bounding box from the bounds
+    void recalculate_centers_radius_bb();
+
+    //! \brief Return the bounding box overapproximation
+    BoundingType const& bounding_box() const;
+
+    //! \brief Whether it intersects an \a other segment
+    //! \details Returns true also in the case of tangency
+    bool intersects(BodySegmentSample const& other) const;
+
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
+
+private:
+    BoundingType _head_bounds;
+    BoundingType _tail_bounds;
+    Point _head_centre;
+    Point _tail_centre;
+    FloatType _radius;
+    BodySegment const* _segment;
+
+    BoundingType _bb;
+};
+
+//! \brief Calculate the minimum distance between two segments
+FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2);
+
 //! \brief Holds the state of a human
 class HumanStateInstance {
     friend class Human;
@@ -169,7 +220,7 @@ class HumanStateInstance {
     List<BodySegmentSample> const& samples() const;
     //! \brief The timestamp of the instance
     TimestampType const& timestamp() const;
-  protected:
+  private:
     List<BodySegmentSample> const _samples;
     TimestampType const _timestamp;
     Human const* _human;
@@ -230,57 +281,6 @@ class RobotStateHistory {
     BodySamplesType _current_location_states_buffer;
     Body const* _robot;
 };
-
-class BodySegmentSample {
-    friend class BodySegment;
-  protected:
-    //! \brief Create from two singleton points
-    BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail);
-  public:
-
-    //! \brief Return the center point for the head of the segment
-    Point const& head_centre() const;
-    //! \brief Return the center point for the tail of the segment
-    Point const& tail_centre() const;
-
-    //! \brief Return the radius of error in the segment head/tail positions,
-    //! as obtained from the centers with respect to the bounds
-    FloatType radius() const;
-
-    //! \brief Update the head and tail bounds with the given points
-    void update(Point const& head, Point const& tail);
-
-    //! \brief Update only the head bounds
-    void update_head(Point const& head);
-    //! \brief Update only the tail bounds
-    void update_tail(Point const& tail);
-
-    //! \brief Re-calculate the centers, radius and bounding box from the bounds
-    void recalculate_centers_radius_bb();
-
-    //! \brief Return the bounding box overapproximation
-    BoundingType const& bounding_box() const;
-
-    //! \brief Whether it intersects an \a other segment
-    //! \details Returns true also in the case of tangency
-    bool intersects(BodySegmentSample const& other) const;
-
-    //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
-
-  private:
-    BoundingType _head_bounds;
-    BoundingType _tail_bounds;
-    Point _head_centre;
-    Point _tail_centre;
-    FloatType _radius;
-    BodySegment const* _segment;
-
-    BoundingType _bb;
-};
-
-//! \brief Calculate the minimum distance between two segments
-FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2);
 
 }
 
