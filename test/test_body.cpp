@@ -35,7 +35,8 @@ public:
         ARIADNE_TEST_CALL(test_bodysegment_creation())
         ARIADNE_TEST_CALL(test_bodysegment_update())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
-        ARIADNE_TEST_CALL(test_robotstatehistory())
+        ARIADNE_TEST_CALL(test_human_state_instance())
+        ARIADNE_TEST_CALL(test_robot_state_history())
     }
 
     void test_body_creation() {
@@ -148,7 +149,15 @@ public:
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
     }
 
-    void test_robotstatehistory() {
+    void test_human_state_instance() {
+        Human h(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        auto instance = h.make_instance(HumanStatePackage({{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5000u));
+
+        ARIADNE_TEST_EQUALS(instance.samples().size(),2)
+        ARIADNE_TEST_EQUALS(instance.timestamp(),5000)
+    }
+
+    void test_robot_state_history() {
         Ariadne::StringVariable robot("robot");
         Robot r(5, 1, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         auto history = r.make_history();

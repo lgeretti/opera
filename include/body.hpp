@@ -37,10 +37,12 @@ using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 
 class BodySegment;
+class HumanStateInstance;
+class HumanStatePackage;
 class RobotStateHistory;
 
 class Body {
-  public:
+  protected:
     //! \brief Construct from fields
     Body(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
   public:
@@ -48,6 +50,8 @@ class Body {
     IdType const& id() const;
     //! \brief The frequency of packages sent by the body, in Hz
     SizeType const& package_frequency() const;
+
+    // TODO: access only a specific segment by index and the num_segments
 
     //! \brief The segments making the body
     List<BodySegment*> const& segments() const;
@@ -61,17 +65,24 @@ class Body {
   private:
     IdType const _id;
     SizeType const _package_frequency;
+  protected:
     List<BodySegment*> _segments;
 };
 
-//! \brief Defining human body as just a simple body
-using Human = Body;
+//! \brief A human is a body able to get a singular state
+class Human : public Body {
+  public:
+    //! \brief Construct from fields
+    Human(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    //! \brief Create a state instance from the package
+    HumanStateInstance make_instance(HumanStatePackage const& pkg) const;
+};
 
 //! \brief A robot is a body able to have its history
 class Robot : public Body {
   public:
     //! \brief Construct from fields
-    using Body::Body;
+    Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief Create an empty history for the robot packages received
     RobotStateHistory make_history() const;
 };
@@ -135,13 +146,30 @@ class HumanStatePackage : public BodyStatePackage {
 
 //! \brief A representation of an inbound package for the state of a robot body
 class RobotStatePackage : public BodyStatePackage {
-public:
+  public:
     //! \brief Construct from a \a location, a list of samples for each point, and a \a timestamp
     RobotStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
     //! \brief The location
     DiscreteLocation const& location() const;
-private:
+  private:
     DiscreteLocation const _location;
+};
+
+//! \brief Holds the state of a human
+class HumanStateInstance {
+    friend class Human;
+  protected:
+    //! \brief Construct from a human pointer and the fields
+    HumanStateInstance(Human const* human, List<BodySegmentSample> const& samples, TimestampType const& timestamp);
+  public:
+    //! \brief The samples for each segment
+    List<BodySegmentSample> const& samples() const;
+    //! \brief The timestamp of the instance
+    TimestampType const& timestamp() const;
+  protected:
+    List<BodySegmentSample> const _samples;
+    TimestampType const _timestamp;
+    Human const* _human;
 };
 
 //! \brief The data (source+timestamp) for a discrete transition

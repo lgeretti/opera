@@ -64,6 +64,34 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
     return os;
 }
 
+Human::Human(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    Body(id,package_frequency,points_ids,thicknesses) { }
+
+HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
+
+    List<BodySegmentSample> samples;
+
+    auto segments = _segments;
+    for (auto segment : _segments) {
+        auto head_pts = pkg.points().at(segment->head_id());
+        auto tail_pts = pkg.points().at(segment->tail_id());
+        BodySegmentSample sample = segment->create_sample(head_pts.at(0),tail_pts.at(0));
+        auto common_size = std::min(head_pts.size(),tail_pts.size());
+        for (SizeType j=1; j<common_size; ++j)
+            sample.update(head_pts.at(j),tail_pts.at(j));
+        for (SizeType j=common_size; j<head_pts.size(); ++j)
+            sample.update_head(head_pts.at(j));
+        for (SizeType j=common_size; j<tail_pts.size(); ++j)
+            sample.update_tail(tail_pts.at(j));
+        samples.push_back(sample);
+    }
+
+    return HumanStateInstance(this, samples, pkg.timestamp());
+}
+
+Robot::Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    Body(id,package_frequency,points_ids,thicknesses) { }
+
 RobotStateHistory Robot::make_history() const {
     return RobotStateHistory(this);
 }
@@ -87,6 +115,17 @@ TimestampType const& BodyStatePackage::timestamp() const {
 
 DiscreteLocation const& RobotStatePackage::location() const {
     return _location;
+}
+
+HumanStateInstance::HumanStateInstance(Human const* human, List<BodySegmentSample> const& samples, TimestampType const& timestamp) :
+    _samples(samples), _timestamp(timestamp), _human(human) { }
+
+List<BodySegmentSample> const& HumanStateInstance::samples() const {
+    return _samples;
+}
+
+TimestampType const& HumanStateInstance::timestamp() const {
+    return _timestamp;
 }
 
 DiscreteTransitionData::DiscreteTransitionData(DiscreteLocation const& source, TimestampType const& timestamp) :
