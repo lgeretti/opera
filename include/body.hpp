@@ -53,8 +53,11 @@ class Body {
 
     // TODO: access only a specific segment by index and the num_segments
 
-    //! \brief The segments making the body
-    List<BodySegment*> const& segments() const;
+    //! \brief Return the segment indexed by \a idx
+    BodySegment const& segment(SizeType const& idx) const;
+
+    //! \brief The number of segments in the body
+    SizeType num_segments() const;
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, Body const& b);

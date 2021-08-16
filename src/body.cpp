@@ -51,16 +51,20 @@ SizeType const& Body::package_frequency() const {
     return _package_frequency;
 }
 
-List<BodySegment*> const& Body::segments() const {
-    return _segments;
+BodySegment const& Body::segment(SizeType const& idx) const {
+    return *_segments.at(idx);
+}
+
+SizeType Body::num_segments() const {
+    return _segments.size();
 }
 
 std::ostream& operator<<(std::ostream& os, Body const& b) {
-    os << "(id=" << b._id << ", package_frequency=" << b._package_frequency << ", segments=[";
-    for (SizeType i=0; i<b._segments.size()-1; ++i) {
-        os << *b._segments.at(i) << ",";
+    os << "(id=" << b.id() << ", package_frequency=" << b.package_frequency() << ", segments=[";
+    for (SizeType i=0; i<b.num_segments()-1; ++i) {
+        os << b.segment(i) << ",";
     }
-    os << *b._segments.at(b._segments.size()-1) << "])";
+    os << b.segment(b.num_segments()-1) << "])";
     return os;
 }
 
@@ -178,7 +182,7 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
         if (not _current_location_states_buffer.empty())
             _location_states[_current_location] = std::move(_current_location_states_buffer);
         _current_location_states_buffer = List<List<BodySegmentSample>>();
-        for (SizeType i=0; i < _robot->segments().size(); ++i)
+        for (SizeType i=0; i < _robot->num_segments(); ++i)
             _current_location_states_buffer.push_back(List<BodySegmentSample>());
 
         if (_location_states.find(state.location()) == _location_states.end()) {
@@ -192,14 +196,13 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
         _current_location = state.location();
     }
 
-    auto segments = _robot->segments();
     bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
     SizeType j0 = (has_history_for_location ? 0 : 1);
-    for (SizeType i=0; i<segments.size(); ++i) {
-        auto head_pts = state.points().at(segments.at(i)->head_id());
-        auto tail_pts = state.points().at(segments.at(i)->tail_id());
+    for (SizeType i=0; i<_robot->num_segments(); ++i) {
+        auto head_pts = state.points().at(_robot->segment(i).head_id());
+        auto tail_pts = state.points().at(_robot->segment(i).tail_id());
         BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
-                                                          segments.at(i)->create_sample(head_pts.at(0),tail_pts.at(0)));
+                                                          _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
         auto common_size = std::min(head_pts.size(),tail_pts.size());
         for (SizeType j=j0; j<common_size; ++j)
             s.update(head_pts.at(j),tail_pts.at(j));

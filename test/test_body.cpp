@@ -45,7 +45,7 @@ public:
         ARIADNE_TEST_PRINT(h)
         ARIADNE_TEST_EQUALS(h.id(),5)
         ARIADNE_TEST_EQUALS(h.package_frequency(), 10)
-        ARIADNE_TEST_EQUALS(h.segments().size(),2)
+        ARIADNE_TEST_EQUALS(h.num_segments(),2)
 
         ARIADNE_TEST_CONSTRUCT(Robot,r,(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)}))
     }
@@ -53,7 +53,7 @@ public:
     void test_bodysegment_creation() {
 
         Robot r(5, 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
-        auto segment = *r.segments().at(1);
+        auto segment = r.segment(1);
 
         ARIADNE_TEST_EQUALS(segment.id(),1)
         ARIADNE_TEST_EQUALS(segment.head_id(),1)
@@ -89,7 +89,7 @@ public:
         FloatType thickness(0.5,Ariadne::dp);
 
         Robot r(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        auto segment = *r.segments().at(0);
+        auto segment = r.segment(0);
 
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
@@ -117,7 +117,7 @@ public:
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
         Robot r(0, 10, {0, 1}, {thickness});
-        auto segment = *r.segments().at(0);
+        auto segment = r.segment(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(5, 5, 5));
