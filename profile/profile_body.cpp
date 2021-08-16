@@ -34,7 +34,8 @@ struct ProfileBody : public Profiler {
     void run() {
         profile_bodysegment_intersection();
         profile_bodysegment_sample_update();
-        profile_history_acquirement_and_update();
+        profile_human_instance_acquirement();
+        profile_robot_history_acquirement_and_update();
     }
 
     void profile_bodysegment_intersection() {
@@ -66,7 +67,21 @@ struct ProfileBody : public Profiler {
         profile("Sample update",[&s,heads,tails](SizeType i){ s.update(heads.at(i),tails.at(i)); });
     }
 
-    void profile_history_acquirement_and_update() {
+    void profile_human_instance_acquirement() {
+        FloatType thickness(1.0,Ariadne::dp);
+        Human h(0, 10, {0, 1}, {thickness});
+
+        Ariadne::List<HumanStatePackage> pkgs;
+        for (SizeType i=0; i<num_tries(); ++i) {
+            pkgs.push_back(HumanStatePackage({{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
+                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
+                                              10*i));
+        }
+
+        profile("Make human state instance from package",[&h,pkgs](SizeType i){ h.make_instance(pkgs.at(i)); });
+    }
+
+    void profile_robot_history_acquirement_and_update() {
         FloatType thickness(1.0,Ariadne::dp);
         Robot r(0, 10, {0, 1}, {thickness});
         Ariadne::StringVariable robot("robot");

@@ -63,7 +63,7 @@ class Body {
     friend std::ostream& operator<<(std::ostream& os, Body const& b);
 
     //! \brief Destructor
-    ~Body();
+    virtual ~Body();
 
   private:
     IdType const _id;
