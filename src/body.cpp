@@ -80,13 +80,7 @@ HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
         auto head_pts = pkg.points().at(segment->head_id());
         auto tail_pts = pkg.points().at(segment->tail_id());
         BodySegmentSample sample = segment->create_sample(head_pts.at(0),tail_pts.at(0));
-        auto common_size = std::min(head_pts.size(),tail_pts.size());
-        for (SizeType j=1; j<common_size; ++j)
-            sample.update(head_pts.at(j),tail_pts.at(j));
-        for (SizeType j=common_size; j<head_pts.size(); ++j)
-            sample.update_head(head_pts.at(j));
-        for (SizeType j=common_size; j<tail_pts.size(); ++j)
-            sample.update_tail(tail_pts.at(j));
+        sample.update(head_pts,tail_pts,1);
         samples.push_back(sample);
     }
 
@@ -203,13 +197,7 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
         auto tail_pts = state.points().at(_robot->segment(i).tail_id());
         BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
                                                           _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
-        auto common_size = std::min(head_pts.size(),tail_pts.size());
-        for (SizeType j=j0; j<common_size; ++j)
-            s.update(head_pts.at(j),tail_pts.at(j));
-        for (SizeType j=common_size; j<head_pts.size(); ++j)
-            s.update_head(head_pts.at(j));
-        for (SizeType j=common_size; j<tail_pts.size(); ++j)
-            s.update_tail(tail_pts.at(j));
+        s.update(head_pts,tail_pts,j0);
         _current_location_states_buffer.at(i).push_back(s);
     }
 }
@@ -271,6 +259,18 @@ void BodySegmentSample::update(Point const& head, Point const& tail) {
     _head_bounds = nhb;
     _tail_bounds = ntb;
     recalculate_centers_radius_bb();
+}
+
+void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx) {
+    auto const hs = heads.size();
+    auto const ts = tails.size();
+    auto common_size = std::min(hs,ts);
+    for (SizeType j=idx; j<common_size; ++j)
+        update(heads.at(j),tails.at(j));
+    for (SizeType j=common_size; j<hs; ++j)
+        update_head(heads.at(j));
+    for (SizeType j=common_size; j<ts; ++j)
+        update_tail(tails.at(j));
 }
 
 void BodySegmentSample::update_head(Point const& head) {

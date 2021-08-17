@@ -174,8 +174,11 @@ public:
     //! as obtained from the centers with respect to the bounds
     FloatType radius() const;
 
-    //! \brief Update the head and tail bounds with the given points
+    //! \brief Update the head and tail bounds from the given points
     void update(Point const& head, Point const& tail);
+
+    //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
+    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u);
 
     //! \brief Update only the head bounds
     void update_head(Point const& head);
