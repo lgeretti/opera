@@ -32,7 +32,8 @@ class TestGeometry {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_construct_point())
-        ARIADNE_TEST_CALL(test_distance())
+        ARIADNE_TEST_CALL(test_segment_distance())
+        ARIADNE_TEST_CALL(test_point_distance())
         ARIADNE_TEST_CALL(test_center())
     }
 
@@ -40,7 +41,7 @@ public:
         Point p(1.0,-2.1,0);
     }
 
-    void test_distance() {
+    void test_segment_distance() {
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(1,2,3),Point(1,2,3),Point(1,2,3)),0)
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(3,4,5),Point(1,2,3),Point(3,4,5)),0)
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(0,0,0),Point(0,0,0),Point(2,2,2)),0)
@@ -52,6 +53,11 @@ public:
         ARIADNE_TEST_EXECUTE(distance(Point(0.7283,0.4762,0.1598),Point(0.6620,-0.07481,0.08877),Point(-0.6654,-0.6032,-0.9962),Point(-0.6910,-0.8980,-0.5835)))
         ARIADNE_TEST_EXECUTE(distance(Point(0.9076,-0.5889,-0.3511),Point(0.9236,0.6130,-0.9872),Point(-0.8805,-0.2538,0.6383),Point(-0.2311,-0.5325,0.9485)))
         ARIADNE_TEST_EXECUTE(distance(Point(-0.9097,-0.4835,0.3973),Point(-0.2489,-0.1628,-0.5455),Point(0.3303,0.9305,-0.1387),Point(0.7753,0.3848,0.9415)))
+    }
+
+    void test_point_distance() {
+        auto d = distance(Point(0.7283,0.4762,0.1598),Point(0.7283,0.4762,0.1598),Point(-0.6654,-0.6032,-0.9962),Point(-0.6910,-0.8980,-0.5835));
+        ARIADNE_TEST_ASSERT(decide(distance(Point(0.7283,0.4762,0.1598),Point(-0.6654,-0.6032,-0.9962),Point(-0.6910,-0.8980,-0.5835))-d < 1e-8))
     }
 
     void test_center() {

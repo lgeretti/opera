@@ -97,4 +97,29 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
     return sqrt(dot(dP, dP));
 }
 
+FloatType distance(Point const& p1, Point const& s2h, Point const& s2t) {
+
+    const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
+
+    auto v = s2t - s2h;
+    auto w = p1 - s2h;
+
+    FloatType c = dot(v, v);
+    FloatType e = dot(v, w);
+    FloatType zero = FloatType(0,Ariadne::dp);
+    FloatType tc = zero, tN = e, tD = c;
+
+    if (decide(tN < 0)) {
+        tN = 0;
+    } else if (decide(tN > tD)) {
+        tN = tD;
+    }
+
+    if (decide(abs(tN) >= SMALL_VALUE)) tc = tN / tD;
+
+    auto dP = w - (tc * v);
+
+    return sqrt(dot(dP, dP));
+}
+
 }

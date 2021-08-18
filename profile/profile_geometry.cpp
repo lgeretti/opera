@@ -33,7 +33,8 @@ struct ProfileGeometry : public Profiler {
 
     void run() {
         profile_center();
-        profile_distance();
+        profile_segment_distance();
+        profile_point_distance();
     }
 
     void profile_center() {
@@ -46,7 +47,7 @@ struct ProfileGeometry : public Profiler {
         profile("Center",[heads,tails](SizeType i){ center(heads.at(i),tails.at(i)); });
     }
 
-    void profile_distance() {
+    void profile_segment_distance() {
         Point s1h(1.0,3.0,-2.0);
         Point s1t(4.0,1.2,0);
         Ariadne::List<Point> heads, tails;
@@ -55,7 +56,19 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Distance",[s1h,s1t,heads,tails](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
+        profile("Segment distance",[s1h,s1t,heads,tails](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
+    }
+
+    void profile_point_distance() {
+        Ariadne::List<Point> points, heads, tails;
+        for (SizeType i=0; i<num_tries(); ++i) {
+            points.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+        }
+
+        profile("Point distance using segment distance",[points,heads,tails](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
+        profile("Point distance using dedicated distance",[points,heads,tails](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
     }
 };
 

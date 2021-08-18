@@ -66,12 +66,20 @@ inline Vector operator*(Vector const& v, FloatType const& s) {
     return s*v;
 }
 
+inline Vector operator*(Vector const& v1, Vector const& v2) {
+    return Vector({v1.y*v2.z-v1.z*v2.y, v1.z*v2.x-v1.x*v2.z, v1.x*v2.y-v1.y*v2.x});
+}
+
 //! \brief The center of the segment joining two points
 Point center(Point const& p1, Point const& p2);
 
 //! \brief The minimum distance between a segment s1 (with head/tail points s1h and s1t) and segment s2
 //! (with head/tail points s2h and s2t)
 FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point const& s2t);
+
+//! \brief The minimum distance between a point p1 and segment s2
+//! (with head/tail points s2h and s2t)
+FloatType distance(Point const& p1, Point const& s2h, Point const& s2t);
 
 }
 
