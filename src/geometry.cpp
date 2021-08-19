@@ -109,13 +109,13 @@ FloatType distance(Point const& p1, Point const& s2h, Point const& s2t) {
     FloatType zero = FloatType(0,Ariadne::dp);
     FloatType tc = zero, tN = e, tD = c;
 
-    if (decide(tN < 0)) {
+    if (decide(tN < 0))
         tN = 0;
-    } else if (decide(tN > tD)) {
+    else if (decide(tN > tD))
         tN = tD;
-    }
 
-    if (decide(abs(tN) >= SMALL_VALUE)) tc = tN / tD;
+    if (decide(abs(tN) >= SMALL_VALUE))
+        tc = tN / tD;
 
     auto dP = w - (tc * v);
 
