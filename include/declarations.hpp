@@ -33,6 +33,9 @@ typedef Ariadne::FloatDPApproximation FloatType;
 typedef Ariadne::Interval<FloatType> IntervalType;
 typedef Ariadne::Box<IntervalType> BoundingType;
 
+using Ariadne::SizeType;
+using Ariadne::dp;
+
 }
 
 #endif //OPERA_DECLARATIONS_HPP

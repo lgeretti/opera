@@ -35,6 +35,7 @@ public:
         ARIADNE_TEST_CALL(test_segment_distance())
         ARIADNE_TEST_CALL(test_point_distance())
         ARIADNE_TEST_CALL(test_center())
+        ARIADNE_TEST_CALL(test_circle_radius())
     }
 
     void test_construct_point() {
@@ -75,6 +76,13 @@ public:
         ARIADNE_TEST_EQUALS(c.x,2.5)
         ARIADNE_TEST_EQUALS(c.y,2.1)
         ARIADNE_TEST_EQUALS(c.z,-1.0)
+    }
+
+    void test_circle_radius() {
+        BoundingType bb({IntervalType(FloatType(1,dp),FloatType(2,dp)),
+                        IntervalType(FloatType(-1,dp),FloatType(2,dp)),
+                        IntervalType(FloatType(4,dp),FloatType(6,dp))});
+        ARIADNE_TEST_ASSERT(decide(circle_radius(bb) - 1.8708 < 1e-3))
     }
 };
 

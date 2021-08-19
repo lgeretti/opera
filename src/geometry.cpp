@@ -122,4 +122,13 @@ FloatType distance(Point const& p1, Point const& s2h, Point const& s2t) {
     return sqrt(dot(dP, dP));
 }
 
+FloatType circle_radius(BoundingType const& bb) {
+    auto widths = bb.widths();
+    auto result = widths[0]*widths[0];
+    for (SizeType i=1;i<bb.size();++i)
+        result += widths[i]*widths[i];
+
+    return sqrt(result)/2;
+}
+
 }

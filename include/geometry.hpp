@@ -81,6 +81,9 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
 //! (with head/tail points s2h and s2t)
 FloatType distance(Point const& p1, Point const& s2h, Point const& s2t);
 
+//! \brief The radius of the circle inscribing the bounding box \a bb
+FloatType circle_radius(BoundingType const& bb);
+
 }
 
 #endif //OPERA_GEOMETRY_HPP

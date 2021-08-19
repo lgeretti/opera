@@ -296,7 +296,7 @@ void BodySegmentSample::recalculate_centers_radius_bb() {
     auto tc = _tail_bounds.centre();
     _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));
     _tail_centre = Point(tc.at(0), tc.at(1), tc.at(2));
-    _radius = max(_head_bounds.radius(),_tail_bounds.radius());
+    _radius = max(circle_radius(_head_bounds),circle_radius(_tail_bounds));
     _bb = widen(hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
