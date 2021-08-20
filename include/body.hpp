@@ -26,6 +26,7 @@
 #define OPERA_BODY_HPP
 
 #include <ariadne/utility/container.hpp>
+#include <ariadne/utility/handle.hpp>
 #include "geometry.hpp"
 
 namespace Opera {
@@ -170,7 +171,10 @@ class BodySegmentSampleInterface {
 
     //! \brief Return the radius of error in the segment head/tail positions,
     //! as obtained from the centers with respect to the bounds
-    virtual FloatType radius() const = 0;
+    virtual FloatType const& radius() const = 0;
+
+    //! \brief The thickness of the segment
+    virtual FloatType const& thickness() const = 0;
 
     //! \brief Return the bounding box overapproximation
     virtual BoundingType const& bounding_box() const = 0;
@@ -186,44 +190,36 @@ class BodySegmentSampleInterface {
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
-    virtual bool intersects(BodySegmentSample const& other) const = 0;
+    virtual bool intersects(BodySegmentSampleInterface const& other) const = 0;
+
+    //! \brief Calculate the minimum distance between two segment samples
+    friend FloatType distance(BodySegmentSampleInterface const& s1, BodySegmentSampleInterface const& s2);
+
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s);
 };
 
-class BodySegmentSample: public BodySegmentSampleInterface {
+class BodySegmentSampleBase: public BodySegmentSampleInterface {
     friend class BodySegment;
 protected:
     //! \brief Create from two singleton points
-    BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail);
+    BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail);
     //! \brief Create non-valid
-    BodySegmentSample(BodySegment const* segment);
+    BodySegmentSampleBase(BodySegment const* segment);
 public:
-    //! \brief Return the center point for the head of the segment
     Point const& head_centre() const override;
-    //! \brief Return the center point for the tail of the segment
     Point const& tail_centre() const override;
 
-    //! \brief Return the radius of error in the segment head/tail positions,
-    //! as obtained from the centers with respect to the bounds
-    FloatType radius() const override;
-
-    //! \brief Return the bounding box overapproximation
+    FloatType const& radius() const override;
+    FloatType const& thickness() const override;
     BoundingType const& bounding_box() const override;
 
-    //! \brief Whether the segment is empty, i.e., whether either head and tail are empty
     bool is_empty() const override;
 
-    //! \brief Update the head and tail bounds from the given points
     void update(Point const& head, Point const& tail) override;
-
-    //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
     void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) override;
 
-    //! \brief Whether it intersects an \a other segment
-    //! \details Returns true also in the case of tangency
-    bool intersects(BodySegmentSample const& other) const override;
-
-    //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
+    bool intersects(BodySegmentSampleInterface const& other) const override;
 
   private:
     //! \brief Update head and tail bounds, without recalculation of metrics
@@ -248,8 +244,23 @@ public:
     BoundingType _bb;
 };
 
-//! \brief Calculate the minimum distance between two segments
-FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2);
+//! \brief Handle class for BodySegmentSampleInterface
+class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
+  public:
+    using Ariadne::Handle<BodySegmentSampleInterface>::Handle;
+
+    Point const& head_centre() const { return this->_ptr->head_centre(); };
+    Point const& tail_centre() const { return this->_ptr->tail_centre(); };
+    FloatType radius() const { return this->_ptr->radius(); }
+    FloatType thickness() const { return this->_ptr->thickness(); }
+    BoundingType const& bounding_box() const { return this->_ptr->bounding_box(); }
+    bool is_empty() const { return this->_ptr->is_empty(); }
+    void update(Point const& head, Point const& tail) { this->_ptr->update(head,tail); }
+    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) { this->_ptr->update(heads,tails,idx); }
+    bool intersects(BodySegmentSample const& other) const { return this->_ptr->intersects(other); }
+    friend FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2)  { return distance(s1.const_reference(),s2.const_reference()); }
+    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) { return os << s.const_reference(); }
+};
 
 //! \brief Holds the state of a human
 class HumanStateInstance {

@@ -79,7 +79,7 @@ HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
     for (auto segment : _segments) {
         auto head_pts = pkg.points().at(segment->head_id());
         auto tail_pts = pkg.points().at(segment->tail_id());
-        BodySegmentSample sample = segment->create_sample(head_pts.at(0),tail_pts.at(0));
+        BodySegmentSample sample = segment->create_sample(head_pts.at(0), tail_pts.at(0));
         sample.update(head_pts,tail_pts,1);
         samples.push_back(sample);
     }
@@ -175,9 +175,9 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
     if (_current_location.values().empty() or _current_location != state.location()) {
         if (not _current_location_states_buffer.empty())
             _location_states[_current_location] = std::move(_current_location_states_buffer);
-        _current_location_states_buffer = List<List<BodySegmentSample>>();
+        _current_location_states_buffer = List<List<BodySegmentSampleBase>>();
         for (SizeType i=0; i < _robot->num_segments(); ++i)
-            _current_location_states_buffer.push_back(List<BodySegmentSample>());
+            _current_location_states_buffer.push_back(List<BodySegmentSampleBase>());
 
         if (_location_states.find(state.location()) == _location_states.end()) {
             auto timestamps = std::deque<DiscreteTransitionData>();
@@ -196,7 +196,7 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
         auto head_pts = state.points().at(_robot->segment(i).head_id());
         auto tail_pts = state.points().at(_robot->segment(i).tail_id());
         BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
-                                                          _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
+                                   _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
         s.update(head_pts,tail_pts,j0);
         _current_location_states_buffer.at(i).push_back(s);
     }
@@ -222,24 +222,24 @@ FloatType const& BodySegment::thickness() const {
 }
 
 BodySegmentSample BodySegment::create_sample() const {
-    return BodySegmentSample(this);
+    return BodySegmentSample(new BodySegmentSampleBase(this));
 }
 
 BodySegmentSample BodySegment::create_sample(Point const& begin, Point const& end) const {
-    return BodySegmentSample(this, begin, end);
+    return BodySegmentSample(new BodySegmentSampleBase(this, begin, end));
 }
 
 std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
     return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
 }
 
-BodySegmentSample::BodySegmentSample(BodySegment const* segment) :
+BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _segment(segment), _is_empty(true),
         _head_bounds(BoundingType(3,IntervalType::empty_interval())), _tail_bounds(_head_bounds),
         _head_centre(Point(FloatType(0,dp),FloatType(0,dp),FloatType(0,dp))), _tail_centre(_head_centre),
         _radius(0.0, Ariadne::dp), _bb(BoundingType(3,IntervalType::empty_interval())) { }
 
-BodySegmentSample::BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail) :
+BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail) :
         _segment(segment), _is_empty(false),
         _head_bounds({IntervalType(head.x), IntervalType(head.y), IntervalType(head.z)}),
         _tail_bounds({IntervalType(tail.x), IntervalType(tail.y), IntervalType(tail.z)}),
@@ -247,25 +247,29 @@ BodySegmentSample::BodySegmentSample(BodySegment const* segment, Point const& he
     _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
-Point const& BodySegmentSample::head_centre() const {
+Point const& BodySegmentSampleBase::head_centre() const {
     return _head_centre;
 }
 
-Point const& BodySegmentSample::tail_centre() const {
+Point const& BodySegmentSampleBase::tail_centre() const {
     return _tail_centre;
 }
 
-FloatType BodySegmentSample::radius() const {
+FloatType const& BodySegmentSampleBase::radius() const {
     return _radius;
 }
 
-void BodySegmentSample::update(Point const& head, Point const& tail) {
+FloatType const& BodySegmentSampleBase::thickness() const {
+    return _segment->thickness();
+}
+
+void BodySegmentSampleBase::update(Point const& head, Point const& tail) {
     _is_empty = false;
     _update(head,tail);
     _recalculate_centers_radius_bb();
 }
 
-void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx) {
+void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx) {
     auto const hs = heads.size();
     auto const ts = tails.size();
     auto common_size = std::min(hs,ts);
@@ -280,20 +284,20 @@ void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tail
     if (not _is_empty) _recalculate_centers_radius_bb();
 }
 
-void BodySegmentSample::_update(Point const& head, Point const& tail) {
+void BodySegmentSampleBase::_update(Point const& head, Point const& tail) {
     _update_head(head);
     _update_tail(tail);
 }
 
-void BodySegmentSample::_update_head(Point const& head) {
+void BodySegmentSampleBase::_update_head(Point const& head) {
     _head_bounds = BoundingType({hull(_head_bounds[0],head.x),hull(_head_bounds[1],head.y),hull(_head_bounds[2],head.z)});
 }
 
-void BodySegmentSample::_update_tail(Point const& tail) {
+void BodySegmentSampleBase::_update_tail(Point const& tail) {
     _tail_bounds = BoundingType({hull(_tail_bounds[0],tail.x),hull(_tail_bounds[1],tail.y),hull(_tail_bounds[2],tail.z)});
 }
 
-void BodySegmentSample::_recalculate_centers_radius_bb() {
+void BodySegmentSampleBase::_recalculate_centers_radius_bb() {
     auto hc = _head_bounds.centre();
     auto tc = _tail_bounds.centre();
     _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));
@@ -302,26 +306,26 @@ void BodySegmentSample::_recalculate_centers_radius_bb() {
     _bb = widen(hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
-BoundingType const& BodySegmentSample::bounding_box() const {
+BoundingType const& BodySegmentSampleBase::bounding_box() const {
     return _bb;
 }
 
-bool BodySegmentSample::is_empty() const {
+bool BodySegmentSampleBase::is_empty() const {
     return _is_empty;
 }
 
-bool BodySegmentSample::intersects(BodySegmentSample const& other) const {
-    if (decide(_bb.disjoint(other.bounding_box()))) return false;
+bool BodySegmentSampleBase::intersects(BodySegmentSampleInterface const& other) const {
+    if (decide(bounding_box().disjoint(other.bounding_box()))) return false;
     else {
-        return (decide(distance(*this,other) <= _segment->thickness()+_radius + other._segment->thickness()+other._radius));
+        return (decide(distance(*this,other) <= this->thickness()+this->radius() + other.thickness()+other.radius()));
     }
 }
 
-std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) {
-    return os << "(s.id=" << s._segment->id() << ",h=" << s._head_centre << ",t=" << s._tail_centre << ")";
+std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s) {
+    return os << "(h=" << s.head_centre() << ",t=" << s.tail_centre() << ")";
 }
 
-FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2) {
+FloatType distance(BodySegmentSampleInterface const& s1, BodySegmentSampleInterface const& s2) {
     return distance(s1.head_centre(), s1.tail_centre(), s2.head_centre(), s2.tail_centre());
 }
 
