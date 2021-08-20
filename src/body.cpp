@@ -262,7 +262,7 @@ FloatType BodySegmentSample::radius() const {
 void BodySegmentSample::update(Point const& head, Point const& tail) {
     _is_empty = false;
     _update(head,tail);
-    recalculate_centers_radius_bb();
+    _recalculate_centers_radius_bb();
 }
 
 void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx) {
@@ -277,7 +277,7 @@ void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tail
         _update_tail(tails.at(j));
     if (_is_empty and decide(not _head_bounds.is_empty() and not _tail_bounds.is_empty()))
         _is_empty = false;
-    if (not _is_empty) recalculate_centers_radius_bb();
+    if (not _is_empty) _recalculate_centers_radius_bb();
 }
 
 void BodySegmentSample::_update(Point const& head, Point const& tail) {
@@ -293,7 +293,7 @@ void BodySegmentSample::_update_tail(Point const& tail) {
     _tail_bounds = BoundingType({hull(_tail_bounds[0],tail.x),hull(_tail_bounds[1],tail.y),hull(_tail_bounds[2],tail.z)});
 }
 
-void BodySegmentSample::recalculate_centers_radius_bb() {
+void BodySegmentSample::_recalculate_centers_radius_bb() {
     auto hc = _head_bounds.centre();
     auto tc = _tail_bounds.centre();
     _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));

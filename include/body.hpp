@@ -161,6 +161,10 @@ class RobotStatePackage : public BodyStatePackage {
     DiscreteLocation const _location;
 };
 
+class BodySegmentInterface {
+
+};
+
 class BodySegmentSample {
     friend class BodySegment;
 protected:
@@ -169,7 +173,6 @@ protected:
     //! \brief Create non-valid
     BodySegmentSample(BodySegment const* segment);
 public:
-
     //! \brief Return the center point for the head of the segment
     Point const& head_centre() const;
     //! \brief Return the center point for the tail of the segment
@@ -191,9 +194,6 @@ public:
     //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
     void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u);
 
-    //! \brief Re-calculate the centers, radius and bounding box from the bounds
-    void recalculate_centers_radius_bb();
-
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
     bool intersects(BodySegmentSample const& other) const;
@@ -202,13 +202,14 @@ public:
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
 
   private:
-
     //! \brief Update head and tail bounds, without recalculation of metrics
     void _update(Point const& head, Point const& tail);
     //! \brief Update only the head bounds, without recalculation of metrics
     void _update_head(Point const& head);
     //! \brief Update only the tail bounds, without recalculation of metrics
     void _update_tail(Point const& tail);
+    //! \brief Re-calculate the centers, radius and bounding box from the bounds
+    void _recalculate_centers_radius_bb();
 
   private:
     BodySegment const* _segment;
