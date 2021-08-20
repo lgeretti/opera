@@ -63,11 +63,14 @@ public:
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
 
-        auto s = segment.create_sample(head, tail);
+        auto s1 = segment.create_sample();
+        ARIADNE_TEST_ASSERT(s1.is_empty())
 
-        auto hp = s.head_centre();
-        auto tp = s.tail_centre();
-        auto bb = s.bounding_box();
+        auto s2 = segment.create_sample(head, tail);
+
+        auto hp = s2.head_centre();
+        auto tp = s2.tail_centre();
+        auto bb = s2.bounding_box();
 
         ARIADNE_TEST_EQUALS(hp.x,0)
         ARIADNE_TEST_EQUALS(hp.y,0.5)
@@ -96,7 +99,7 @@ public:
 
         auto s = segment.create_sample(head, tail);
 
-        s.update(Point(-0.5,1.0,1.25),Point(1.0,2.5,0.0));
+        s.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
 
         ARIADNE_TEST_EQUALS(s.head_centre().x, -0.25)
         ARIADNE_TEST_EQUALS(s.head_centre().y, 0.75)

@@ -110,6 +110,9 @@ class BodySegment {
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
 
+    //! \brief Create an empty sample
+    BodySegmentSample create_sample() const;
+
     //! \brief Create a sample for the segment from a \a begin and \a end points
     BodySegmentSample create_sample(Point const& begin, Point const& end) const;
 
@@ -163,6 +166,8 @@ class BodySegmentSample {
 protected:
     //! \brief Create from two singleton points
     BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail);
+    //! \brief Create non-valid
+    BodySegmentSample(BodySegment const* segment);
 public:
 
     //! \brief Return the center point for the head of the segment
@@ -174,23 +179,20 @@ public:
     //! as obtained from the centers with respect to the bounds
     FloatType radius() const;
 
+    //! \brief Return the bounding box overapproximation
+    BoundingType const& bounding_box() const;
+
+    //! \brief Whether the segment is empty, i.e., whether either head and tail are empty
+    bool is_empty() const;
+
     //! \brief Update the head and tail bounds from the given points
     void update(Point const& head, Point const& tail);
 
     //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
-    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx
-    = 0u);
-
-    //! \brief Update only the head bounds
-    void update_head(Point const& head);
-    //! \brief Update only the tail bounds
-    void update_tail(Point const& tail);
+    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u);
 
     //! \brief Re-calculate the centers, radius and bounding box from the bounds
     void recalculate_centers_radius_bb();
-
-    //! \brief Return the bounding box overapproximation
-    BoundingType const& bounding_box() const;
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
@@ -199,14 +201,25 @@ public:
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
 
-private:
+  private:
+
+    //! \brief Update head and tail bounds, without recalculation of metrics
+    void _update(Point const& head, Point const& tail);
+    //! \brief Update only the head bounds, without recalculation of metrics
+    void _update_head(Point const& head);
+    //! \brief Update only the tail bounds, without recalculation of metrics
+    void _update_tail(Point const& tail);
+
+  private:
+    BodySegment const* _segment;
+    bool _is_empty;
+
     BoundingType _head_bounds;
     BoundingType _tail_bounds;
+
     Point _head_centre;
     Point _tail_centre;
     FloatType _radius;
-    BodySegment const* _segment;
-
     BoundingType _bb;
 };
 

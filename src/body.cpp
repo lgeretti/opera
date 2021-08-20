@@ -221,6 +221,10 @@ FloatType const& BodySegment::thickness() const {
     return _thickness;
 }
 
+BodySegmentSample BodySegment::create_sample() const {
+    return BodySegmentSample(this);
+}
+
 BodySegmentSample BodySegment::create_sample(Point const& begin, Point const& end) const {
     return BodySegmentSample(this, begin, end);
 }
@@ -229,10 +233,17 @@ std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
     return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
 }
 
+BodySegmentSample::BodySegmentSample(BodySegment const* segment) :
+        _segment(segment), _is_empty(true),
+        _head_bounds(BoundingType(3,IntervalType::empty_interval())), _tail_bounds(_head_bounds),
+        _head_centre(Point(FloatType(0,dp),FloatType(0,dp),FloatType(0,dp))), _tail_centre(_head_centre),
+        _radius(0.0, Ariadne::dp), _bb(BoundingType(3,IntervalType::empty_interval())) { }
+
 BodySegmentSample::BodySegmentSample(BodySegment const* segment, Point const& head, Point const& tail) :
+        _segment(segment), _is_empty(false),
         _head_bounds({IntervalType(head.x), IntervalType(head.y), IntervalType(head.z)}),
         _tail_bounds({IntervalType(tail.x), IntervalType(tail.y), IntervalType(tail.z)}),
-        _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp), _segment(segment) {
+        _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp) {
     _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
 }
 
@@ -249,15 +260,8 @@ FloatType BodySegmentSample::radius() const {
 }
 
 void BodySegmentSample::update(Point const& head, Point const& tail) {
-    BoundingType nhb(3), ntb(3);
-    nhb[0]=hull(_head_bounds[0],head.x);
-    nhb[1]=hull(_head_bounds[1],head.y);
-    nhb[2]=hull(_head_bounds[2],head.z);
-    ntb[0]=hull(_tail_bounds[0],tail.x);
-    ntb[1]=hull(_tail_bounds[1],tail.y);
-    ntb[2]=hull(_tail_bounds[2],tail.z);
-    _head_bounds = nhb;
-    _tail_bounds = ntb;
+    _is_empty = false;
+    _update(head,tail);
     recalculate_centers_radius_bb();
 }
 
@@ -266,29 +270,27 @@ void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tail
     auto const ts = tails.size();
     auto common_size = std::min(hs,ts);
     for (SizeType j=idx; j<common_size; ++j)
-        update(heads.at(j),tails.at(j));
+        _update(heads.at(j), tails.at(j));
     for (SizeType j=common_size; j<hs; ++j)
-        update_head(heads.at(j));
+        _update_head(heads.at(j));
     for (SizeType j=common_size; j<ts; ++j)
-        update_tail(tails.at(j));
+        _update_tail(tails.at(j));
+    if (_is_empty and decide(not _head_bounds.is_empty() and not _tail_bounds.is_empty()))
+        _is_empty = false;
+    if (not _is_empty) recalculate_centers_radius_bb();
 }
 
-void BodySegmentSample::update_head(Point const& head) {
-    BoundingType nhb(3);
-    nhb[0]=hull(_head_bounds[0],head.x);
-    nhb[1]=hull(_head_bounds[1],head.y);
-    nhb[2]=hull(_head_bounds[2],head.z);
-    _head_bounds = nhb;
-    recalculate_centers_radius_bb();
+void BodySegmentSample::_update(Point const& head, Point const& tail) {
+    _update_head(head);
+    _update_tail(tail);
 }
 
-void BodySegmentSample::update_tail(Point const& tail) {
-    BoundingType ntb(3);
-    ntb[0]=hull(_tail_bounds[0],tail.x);
-    ntb[1]=hull(_tail_bounds[1],tail.y);
-    ntb[2]=hull(_tail_bounds[2],tail.z);
-    _tail_bounds = ntb;
-    recalculate_centers_radius_bb();
+void BodySegmentSample::_update_head(Point const& head) {
+    _head_bounds = BoundingType({hull(_head_bounds[0],head.x),hull(_head_bounds[1],head.y),hull(_head_bounds[2],head.z)});
+}
+
+void BodySegmentSample::_update_tail(Point const& tail) {
+    _tail_bounds = BoundingType({hull(_tail_bounds[0],tail.x),hull(_tail_bounds[1],tail.y),hull(_tail_bounds[2],tail.z)});
 }
 
 void BodySegmentSample::recalculate_centers_radius_bb() {
@@ -302,6 +304,10 @@ void BodySegmentSample::recalculate_centers_radius_bb() {
 
 BoundingType const& BodySegmentSample::bounding_box() const {
     return _bb;
+}
+
+bool BodySegmentSample::is_empty() const {
+    return _is_empty;
 }
 
 bool BodySegmentSample::intersects(BodySegmentSample const& other) const {

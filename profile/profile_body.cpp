@@ -64,7 +64,7 @@ struct ProfileBody : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Sample update",[&s,heads,tails](SizeType i){ s.update(heads.at(i),tails.at(i)); });
+        profile("Sample update",[&s,heads,tails](SizeType i){ s.update(heads.at(i), tails.at(i)); });
     }
 
     void profile_human_instance_acquirement() {
