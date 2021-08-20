@@ -161,11 +161,35 @@ class RobotStatePackage : public BodyStatePackage {
     DiscreteLocation const _location;
 };
 
-class BodySegmentInterface {
+class BodySegmentSampleInterface {
+  public:
+    //! \brief Return the center point for the head of the segment
+    virtual Point const& head_centre() const = 0;
+    //! \brief Return the center point for the tail of the segment
+    virtual Point const& tail_centre() const = 0;
 
+    //! \brief Return the radius of error in the segment head/tail positions,
+    //! as obtained from the centers with respect to the bounds
+    virtual FloatType radius() const = 0;
+
+    //! \brief Return the bounding box overapproximation
+    virtual BoundingType const& bounding_box() const = 0;
+
+    //! \brief Whether the segment is empty, i.e., whether either head and tail are empty
+    virtual bool is_empty() const = 0;
+
+    //! \brief Update the head and tail bounds from the given points
+    virtual void update(Point const& head, Point const& tail) = 0;
+
+    //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
+    virtual void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) = 0;
+
+    //! \brief Whether it intersects an \a other segment
+    //! \details Returns true also in the case of tangency
+    virtual bool intersects(BodySegmentSample const& other) const = 0;
 };
 
-class BodySegmentSample {
+class BodySegmentSample: public BodySegmentSampleInterface {
     friend class BodySegment;
 protected:
     //! \brief Create from two singleton points
@@ -174,29 +198,29 @@ protected:
     BodySegmentSample(BodySegment const* segment);
 public:
     //! \brief Return the center point for the head of the segment
-    Point const& head_centre() const;
+    Point const& head_centre() const override;
     //! \brief Return the center point for the tail of the segment
-    Point const& tail_centre() const;
+    Point const& tail_centre() const override;
 
     //! \brief Return the radius of error in the segment head/tail positions,
     //! as obtained from the centers with respect to the bounds
-    FloatType radius() const;
+    FloatType radius() const override;
 
     //! \brief Return the bounding box overapproximation
-    BoundingType const& bounding_box() const;
+    BoundingType const& bounding_box() const override;
 
     //! \brief Whether the segment is empty, i.e., whether either head and tail are empty
-    bool is_empty() const;
+    bool is_empty() const override;
 
     //! \brief Update the head and tail bounds from the given points
-    void update(Point const& head, Point const& tail);
+    void update(Point const& head, Point const& tail) override;
 
     //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
-    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u);
+    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) override;
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
-    bool intersects(BodySegmentSample const& other) const;
+    bool intersects(BodySegmentSample const& other) const override;
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s);
