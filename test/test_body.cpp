@@ -94,21 +94,47 @@ public:
         Robot r(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto segment = r.segment(0);
 
+        auto s1 = segment.create_sample();
+        List<Point> heads;
+        List<Point> tails;
+        s1.update(heads,tails);
+        ARIADNE_TEST_ASSERT(s1.is_empty())
+        heads.push_back(Point(-0.5, 1.0, 1.25));
+        s1.update(heads,tails);
+        ARIADNE_TEST_ASSERT(s1.is_empty())
+        tails.push_back(Point(1.0, 2.5, 0.0));
+        s1.update(heads,tails);
+        ARIADNE_TEST_ASSERT(not s1.is_empty())
+        heads.clear();
+        tails.clear();
+
+        auto s2 = segment.create_sample();
+        tails.push_back(Point(1.0, 2.5, 0.0));
+        s2.update(heads,tails);
+        ARIADNE_TEST_ASSERT(s2.is_empty())
+        heads.push_back(Point(-0.5, 1.0, 1.25));
+        s2.update(heads,tails);
+        ARIADNE_TEST_ASSERT(not s2.is_empty())
+
+        auto s3 = segment.create_sample();
+        s3.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
+        ARIADNE_TEST_ASSERT(not s3.is_empty())
+
         Point head(0,0.5,1.0);
         Point tail(1.0,2.0,-1.0);
 
-        auto s = segment.create_sample(head, tail);
+        auto s4 = segment.create_sample(head, tail);
 
-        s.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
+        s4.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
 
-        ARIADNE_TEST_EQUALS(s.head_centre().x, -0.25)
-        ARIADNE_TEST_EQUALS(s.head_centre().y, 0.75)
-        ARIADNE_TEST_EQUALS(s.head_centre().z, 1.125)
-        ARIADNE_TEST_EQUALS(s.tail_centre().x, 1.0)
-        ARIADNE_TEST_EQUALS(s.tail_centre().y, 2.25)
-        ARIADNE_TEST_EQUALS(s.tail_centre().z, -0.5)
+        ARIADNE_TEST_EQUALS(s4.head_centre().x, -0.25)
+        ARIADNE_TEST_EQUALS(s4.head_centre().y, 0.75)
+        ARIADNE_TEST_EQUALS(s4.head_centre().z, 1.125)
+        ARIADNE_TEST_EQUALS(s4.tail_centre().x, 1.0)
+        ARIADNE_TEST_EQUALS(s4.tail_centre().y, 2.25)
+        ARIADNE_TEST_EQUALS(s4.tail_centre().z, -0.5)
 
-        auto bb = s.bounding_box();
+        auto bb = s4.bounding_box();
         ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[0].upper_bound(),2.0)
         ARIADNE_TEST_EQUALS(bb[1].lower_bound(),-0.5)

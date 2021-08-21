@@ -235,12 +235,13 @@ std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
 
 BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _segment(segment), _is_empty(true),
-        _head_bounds(BoundingType(3,IntervalType::empty_interval())),
+        _head_bounds(BoundingType({IntervalType::empty_interval(),IntervalType::empty_interval(),IntervalType::empty_interval()})),
         _tail_bounds(_head_bounds),
         _head_centre(Point(FloatType(0,dp),FloatType(0,dp),FloatType(0,dp))),
         _tail_centre(_head_centre),
         _radius(0.0, Ariadne::dp),
-        _bb(_head_bounds) { }
+        _bb(_head_bounds)
+        { }
 
 BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail) :
         _segment(segment), _is_empty(false),
