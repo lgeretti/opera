@@ -201,12 +201,12 @@ class BodySegmentSampleInterface {
 
 class BodySegmentSampleBase: public BodySegmentSampleInterface {
     friend class BodySegment;
-protected:
+  protected:
     //! \brief Create from two singleton points
     BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail);
     //! \brief Create non-valid
     BodySegmentSampleBase(BodySegment const* segment);
-public:
+  public:
     Point const& head_centre() const override;
     Point const& tail_centre() const override;
 

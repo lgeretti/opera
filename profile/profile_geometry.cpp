@@ -33,18 +33,33 @@ struct ProfileGeometry : public Profiler {
 
     void run() {
         profile_center();
+        profile_circle_radius();
         profile_segment_distance();
         profile_point_distance();
     }
 
     void profile_center() {
-        Ariadne::List<Point> heads, tails;
+        Ariadne::List<BoundingType> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
-            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
-            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
+            auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
+            auto bx1 = BoundingType({IntervalType(pt1.x,pt1.x),IntervalType(pt1.z,pt1.z),IntervalType(pt1.z,pt1.z)});
+            bbs.push_back(hull(bx1,pt2));
         }
 
-        profile("Center",[heads,tails](SizeType i){ center(heads.at(i),tails.at(i)); });
+        profile("Bounding box center",[&bbs](SizeType i){ (bbs.at(i).centre()); });
+    }
+
+    void profile_circle_radius() {
+        Ariadne::List<BoundingType> bbs;
+        for (SizeType i=0; i<num_tries(); ++i) {
+            auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
+            auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
+            auto bx1 = BoundingType({IntervalType(pt1.x,pt1.x),IntervalType(pt1.z,pt1.z),IntervalType(pt1.z,pt1.z)});
+            bbs.push_back(hull(bx1,pt2));
+        }
+
+        profile("Bounding box circle radius",[&bbs](SizeType i){ circle_radius(bbs.at(i)); });
     }
 
     void profile_segment_distance() {
