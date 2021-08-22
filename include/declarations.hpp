@@ -30,11 +30,13 @@
 namespace Opera {
 
 typedef Ariadne::FloatDPApproximation FloatType;
-typedef Ariadne::Interval<FloatType> IntervalType;
-typedef Ariadne::Box<IntervalType> BoundingType;
+typedef Ariadne::Interval<FloatType> FloatIntervalType;
+typedef Ariadne::Box<FloatIntervalType> BoundingType;
 
 using Ariadne::SizeType;
 using Ariadne::dp;
+using Ariadne::Interval;
+using Ariadne::Natural;
 
 }
 

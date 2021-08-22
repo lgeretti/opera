@@ -44,7 +44,7 @@ struct ProfileGeometry : public Profiler {
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
             auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
-            auto bx1 = BoundingType({IntervalType(pt1.x,pt1.x),IntervalType(pt1.z,pt1.z),IntervalType(pt1.z,pt1.z)});
+            auto bx1 = BoundingType({FloatIntervalType(pt1.x, pt1.x), FloatIntervalType(pt1.z, pt1.z), FloatIntervalType(pt1.z, pt1.z)});
             bbs.push_back(hull(bx1,pt2));
         }
 
@@ -66,7 +66,7 @@ struct ProfileGeometry : public Profiler {
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
             auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
-            auto bx1 = BoundingType({IntervalType(pt1.x,pt1.x),IntervalType(pt1.z,pt1.z),IntervalType(pt1.z,pt1.z)});
+            auto bx1 = BoundingType({FloatIntervalType(pt1.x, pt1.x), FloatIntervalType(pt1.z, pt1.z), FloatIntervalType(pt1.z, pt1.z)});
             bbs.push_back(hull(bx1,pt2));
         }
 

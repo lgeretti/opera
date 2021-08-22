@@ -36,7 +36,8 @@ public:
         ARIADNE_TEST_CALL(test_bodysegment_update())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
         ARIADNE_TEST_CALL(test_human_state_instance())
-        ARIADNE_TEST_CALL(test_robot_state_history())
+        ARIADNE_TEST_CALL(test_robot_state_history_basics())
+        ARIADNE_TEST_CALL(test_robot_state_history_analytics())
     }
 
     void test_body_creation() {
@@ -196,7 +197,7 @@ public:
         ARIADNE_TEST_EQUALS(instance.timestamp(),5e8)
     }
 
-    void test_robot_state_history() {
+    void test_robot_state_history_basics() {
         Ariadne::StringVariable robot("robot");
         Robot r(5, 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         auto history = r.make_history();
@@ -217,8 +218,8 @@ public:
         ARIADNE_TEST_EQUAL(entrances.size(),1)
         ARIADNE_TEST_ASSERT(entrances.back().location().values().empty())
         ARIADNE_TEST_EQUALS(entrances.back().to(), 5e8)
-        history.acquire(RobotStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6e8));
 
+        history.acquire(RobotStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6e8));
         history.acquire(RobotStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7e8));
         ARIADNE_TEST_EQUALS(history.current_location(),second)
         ARIADNE_TEST_ASSERT(not history.has_samples(second))
@@ -227,6 +228,7 @@ public:
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().location(), first)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().from(), 5e8)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().to(), 7e8)
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples(first),Interval<Natural>(2u,2u))
         ARIADNE_TEST_ASSERT(history.has_samples(first))
         auto samples = history.samples(first);
         ARIADNE_TEST_EQUALS(samples.size(),2)
@@ -250,6 +252,43 @@ public:
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
+    }
+
+    void test_robot_state_history_analytics() {
+        Ariadne::StringVariable robot("robot");
+        Robot r(5, 10, {0,1}, {FloatType(1.0, Ariadne::dp)});
+        auto history = r.make_history();
+
+        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third");
+
+        TimestampType ts = 0u;
+        history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(first,{{Point(1,0,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(1,1,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(1,2,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(1,3,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(third,{{Point(1,3,1)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(third,{{Point(1,3,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(1,4,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(1,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(first,{{Point(2,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(first,{{Point(3,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(first,{{Point(4,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(third,{{Point(4,5,3)},{Point(4,4,4)}},ts)); ts+= 1e8;
+
+        ARIADNE_TEST_EQUALS(history.current_location(),third)
+
+        ARIADNE_TEST_EQUALS(history.presences(first).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences(second).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences(third).size(),1)
+
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(third).size(),2)
+
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples(first),Interval<Natural>(2u,3u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples(second),Interval<Natural>(2u,3u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples(third),Interval<Natural>(2u,2u))
     }
 };
 

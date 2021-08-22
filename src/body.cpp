@@ -167,6 +167,14 @@ auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodyS
     return _location_states.get(location);
 }
 
+List<RobotLocationPresence> RobotStateHistory::presences(DiscreteLocation const& location) const {
+    List<RobotLocationPresence> result;
+    for (auto p : _location_presences)
+        if ((not p.location().values().empty()) and p.location() == location)
+            result.append(p);
+        return result;
+}
+
 List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLocation const& location) const {
     List<RobotLocationPresence> result;
     for (auto p : _location_presences)
@@ -175,12 +183,19 @@ List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLo
     return result;
 }
 
-List<RobotLocationPresence> RobotStateHistory::presences(DiscreteLocation const& location) const {
-    List<RobotLocationPresence> result;
-    for (auto p : _location_presences)
-        if ((not p.location().values().empty()) and p.location() == location)
-            result.append(p);
-    return result;
+Interval<Natural> RobotStateHistory::range_of_num_samples(DiscreteLocation const& location) const {
+    auto ps = presences(location);
+    if (ps.empty())
+        return Interval<Natural>(0u,0u);
+
+    SizeType min_value = std::numeric_limits<SizeType>::max();
+    SizeType max_value = 0;
+    for (auto p : ps) {
+        auto val = static_cast<SizeType>(floor(static_cast<double>(p.to()-p.from())/1e9*_robot->package_frequency()));
+        min_value = std::min(min_value,val);
+        max_value = std::max(max_value,val);
+    }
+    return Interval<Natural>(min_value,max_value);
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {
@@ -215,7 +230,7 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
     bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
     SizeType j0 = (has_history_for_location ? 0 : 1);
     SizeType update_idx = _update_index(state.timestamp());
-    SizeType updating_sample = (has_history_for_location and _location_states[_current_location].size() < update_idx);
+    SizeType updating_sample = (has_history_for_location and _location_states[_current_location].size() > update_idx);
     for (SizeType i=0; i<_robot->num_segments(); ++i) {
         auto head_pts = state.points().at(_robot->segment(i).head_id());
         auto tail_pts = state.points().at(_robot->segment(i).tail_id());
@@ -259,7 +274,7 @@ std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
 
 BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _segment(segment), _is_empty(true),
-        _head_bounds(BoundingType({IntervalType::empty_interval(),IntervalType::empty_interval(),IntervalType::empty_interval()})),
+        _head_bounds(BoundingType({FloatIntervalType::empty_interval(), FloatIntervalType::empty_interval(), FloatIntervalType::empty_interval()})),
         _tail_bounds(_head_bounds),
         _head_centre(Point(FloatType(0,dp),FloatType(0,dp),FloatType(0,dp))),
         _tail_centre(_head_centre),
@@ -269,8 +284,8 @@ BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
 
 BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail) :
         _segment(segment), _is_empty(false),
-        _head_bounds({IntervalType(head.x), IntervalType(head.y), IntervalType(head.z)}),
-        _tail_bounds({IntervalType(tail.x), IntervalType(tail.y), IntervalType(tail.z)}),
+        _head_bounds({FloatIntervalType(head.x), FloatIntervalType(head.y), FloatIntervalType(head.z)}),
+        _tail_bounds({FloatIntervalType(tail.x), FloatIntervalType(tail.y), FloatIntervalType(tail.z)}),
         _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp) {
     _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
 }

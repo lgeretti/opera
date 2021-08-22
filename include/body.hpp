@@ -344,11 +344,12 @@ class RobotStateHistory {
     //! \brief The samples in a given \a location
     BodySamplesType const& samples(DiscreteLocation const& location) const;
 
-    //! \brief The presences exiting into a given \a location
-    List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
-
     //! \brief The presences in a given \a location
     List<RobotLocationPresence> presences(DiscreteLocation const& location) const;
+    //! \brief The presences exiting into a given \a location
+    List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
+    //! \brief The range of number of samples acquired in a given location
+    Interval<Natural> range_of_num_samples(DiscreteLocation const& location) const;
 
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp

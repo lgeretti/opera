@@ -92,9 +92,9 @@ public:
     }
 
     void test_circle_radius() {
-        BoundingType bb({IntervalType(FloatType(1,dp),FloatType(2,dp)),
-                        IntervalType(FloatType(-1,dp),FloatType(2,dp)),
-                        IntervalType(FloatType(4,dp),FloatType(6,dp))});
+        BoundingType bb({FloatIntervalType(FloatType(1, dp), FloatType(2, dp)),
+                         FloatIntervalType(FloatType(-1, dp), FloatType(2, dp)),
+                         FloatIntervalType(FloatType(4, dp), FloatType(6, dp))});
         ARIADNE_TEST_ASSERT(decide(circle_radius(bb) - 1.8708 < 1e-3))
     }
 };
