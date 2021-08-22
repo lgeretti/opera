@@ -70,8 +70,8 @@ inline Vector operator*(Vector const& v1, Vector const& v2) {
     return Vector({v1.y*v2.z-v1.z*v2.y, v1.z*v2.x-v1.x*v2.z, v1.x*v2.y-v1.y*v2.x});
 }
 
-//! \brief The center of the segment joining two points
-Point center(Point const& p1, Point const& p2);
+//! \brief The centre of the segment joining two points
+Point centre(Point const& p1, Point const& p2);
 
 //! \brief The minimum bounding box enclosing the two points \a p1 and \a p2
 BoundingType hull(Point const& p1, Point const& p2);
@@ -84,7 +84,7 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
 //! (with head/tail points s2h and s2t)
 FloatType distance(Point const& p1, Point const& s2h, Point const& s2t);
 
-//! \brief The radius of the circle inscribing the bounding box \a bb
+//! \brief The error of the circle inscribing the bounding box \a bb
 FloatType circle_radius(BoundingType const& bb);
 
 }

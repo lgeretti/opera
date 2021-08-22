@@ -70,7 +70,7 @@ public:
         Point p1(1.0,3.0,-2.0);
         Point p2(4.0,1.2,0);
 
-        auto c = center(p1,p2);
+        auto c = centre(p1, p2);
 
         ARIADNE_TEST_EQUALS(c.x,2.5)
         ARIADNE_TEST_EQUALS(c.y,2.1)

@@ -48,7 +48,7 @@ struct ProfileGeometry : public Profiler {
             bbs.push_back(hull(bx1,pt2));
         }
 
-        profile("Bounding box center",[&bbs](SizeType i){ (bbs.at(i).centre()); });
+        profile("Bounding box centre",[&bbs](SizeType i){ (bbs.at(i).centre()); });
     }
 
     void profile_hull() {
@@ -70,7 +70,7 @@ struct ProfileGeometry : public Profiler {
             bbs.push_back(hull(bx1,pt2));
         }
 
-        profile("Bounding box circle radius",[&bbs](SizeType i){ circle_radius(bbs.at(i)); });
+        profile("Bounding box circle error",[&bbs](SizeType i){ circle_radius(bbs.at(i)); });
     }
 
     void profile_segment_distance() {

@@ -259,7 +259,7 @@ Point const& BodySegmentSampleBase::tail_centre() const {
     return _tail_centre;
 }
 
-FloatType const& BodySegmentSampleBase::radius() const {
+FloatType const& BodySegmentSampleBase::error() const {
     return _radius;
 }
 
@@ -321,8 +321,13 @@ bool BodySegmentSampleBase::is_empty() const {
 bool BodySegmentSampleBase::intersects(BodySegmentSampleInterface const& other) const {
     if (decide(bounding_box().disjoint(other.bounding_box()))) return false;
     else {
-        return (decide(distance(*this,other) <= this->thickness()+this->radius() + other.thickness()+other.radius()));
+        return (decide(distance(*this,other) <= this->thickness() + this->error() + other.thickness() + other.error()));
     }
+}
+
+SphericalApproximationSample BodySegmentSampleBase::spherical_approximation() const {
+    auto centre = _bb.centre();
+    return SphericalApproximationSample(Point(centre.at(0), centre.at(1), centre.at(2)), circle_radius(_bb));
 }
 
 std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s) {
@@ -331,6 +336,17 @@ std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s) 
 
 FloatType distance(BodySegmentSampleInterface const& s1, BodySegmentSampleInterface const& s2) {
     return distance(s1.head_centre(), s1.tail_centre(), s2.head_centre(), s2.tail_centre());
+}
+
+SphericalApproximationSample::SphericalApproximationSample(Point const& centre, FloatType const& radius) :
+    _centre(centre), _radius(radius) { }
+
+Point const& SphericalApproximationSample::centre() const {
+    return _centre;
+}
+
+FloatType const& SphericalApproximationSample::radius() const {
+    return _radius;
 }
 
 }

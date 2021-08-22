@@ -52,8 +52,6 @@ class Body {
     //! \brief The frequency of packages sent by the body, in Hz
     SizeType const& package_frequency() const;
 
-    // TODO: access only a specific segment by index and the num_segments
-
     //! \brief Return the segment indexed by \a idx
     BodySegment const& segment(SizeType const& idx) const;
 
@@ -162,16 +160,30 @@ class RobotStatePackage : public BodyStatePackage {
     DiscreteLocation const _location;
 };
 
+//! \brief An approximation of a segment sample with a sphere
+class SphericalApproximationSample {
+  public:
+    SphericalApproximationSample(Point const& centre, FloatType const& radius);
+
+    //! \brief Return the centre
+    Point const& centre() const;
+    //! \brief Return the error
+    FloatType const& radius() const;
+  private:
+    Point const _centre;
+    FloatType const _radius;
+};
+
 class BodySegmentSampleInterface {
   public:
-    //! \brief Return the center point for the head of the segment
+    //! \brief Return the centre point for the head of the segment
     virtual Point const& head_centre() const = 0;
-    //! \brief Return the center point for the tail of the segment
+    //! \brief Return the centre point for the tail of the segment
     virtual Point const& tail_centre() const = 0;
 
-    //! \brief Return the radius of error in the segment head/tail positions,
+    //! \brief Return the maximum spherical error in the segment head/tail positions,
     //! as obtained from the centers with respect to the bounds
-    virtual FloatType const& radius() const = 0;
+    virtual FloatType const& error() const = 0;
 
     //! \brief The thickness of the segment
     virtual FloatType const& thickness() const = 0;
@@ -192,6 +204,9 @@ class BodySegmentSampleInterface {
     //! \details Returns true also in the case of tangency
     virtual bool intersects(BodySegmentSampleInterface const& other) const = 0;
 
+    //! \brief Construct a spherical approximation from the segment
+    virtual SphericalApproximationSample spherical_approximation() const = 0;
+
     //! \brief Calculate the minimum distance between two segment samples
     friend FloatType distance(BodySegmentSampleInterface const& s1, BodySegmentSampleInterface const& s2);
 
@@ -210,7 +225,7 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     Point const& head_centre() const override;
     Point const& tail_centre() const override;
 
-    FloatType const& radius() const override;
+    FloatType const& error() const override;
     FloatType const& thickness() const override;
     BoundingType const& bounding_box() const override;
 
@@ -218,6 +233,8 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
 
     void update(Point const& head, Point const& tail) override;
     void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) override;
+
+    SphericalApproximationSample spherical_approximation() const override;
 
     bool intersects(BodySegmentSampleInterface const& other) const override;
 
@@ -228,7 +245,7 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     void _update_head(Point const& head);
     //! \brief Update only the tail bounds, without recalculation of metrics
     void _update_tail(Point const& tail);
-    //! \brief Re-calculate the centers, radius and bounding box from the bounds
+    //! \brief Re-calculate the centers, error and bounding box from the bounds
     void _recalculate_centers_radius_bb();
 
   private:
@@ -251,13 +268,14 @@ class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
 
     Point const& head_centre() const { return this->_ptr->head_centre(); };
     Point const& tail_centre() const { return this->_ptr->tail_centre(); };
-    FloatType radius() const { return this->_ptr->radius(); }
+    FloatType error() const { return this->_ptr->error(); }
     FloatType thickness() const { return this->_ptr->thickness(); }
     BoundingType const& bounding_box() const { return this->_ptr->bounding_box(); }
     bool is_empty() const { return this->_ptr->is_empty(); }
     void update(Point const& head, Point const& tail) { this->_ptr->update(head,tail); }
     void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) { this->_ptr->update(heads,tails,idx); }
     bool intersects(BodySegmentSample const& other) const { return this->_ptr->intersects(other); }
+    SphericalApproximationSample spherical_approximation() const { return this->_ptr->spherical_approximation(); }
     friend FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2)  { return distance(s1.const_reference(),s2.const_reference()); }
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) { return os << s.const_reference(); }
 };

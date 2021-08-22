@@ -26,7 +26,7 @@
 
 namespace Opera {
 
-Point center(Point const& p1, Point const& p2) {
+Point centre(Point const& p1, Point const& p2) {
     return (p1+p2)/2;
 }
 

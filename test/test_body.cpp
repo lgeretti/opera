@@ -71,6 +71,7 @@ public:
         auto hp = s2.head_centre();
         auto tp = s2.tail_centre();
         auto bb = s2.bounding_box();
+        auto sa = s2.spherical_approximation();
 
         ARIADNE_TEST_EQUALS(hp.x,0)
         ARIADNE_TEST_EQUALS(hp.y,0.5)
@@ -78,7 +79,7 @@ public:
         ARIADNE_TEST_EQUALS(tp.x,1)
         ARIADNE_TEST_EQUALS(tp.y,2)
         ARIADNE_TEST_EQUALS(tp.z,-1)
-        ARIADNE_TEST_EQUALS(s2.radius(),0)
+        ARIADNE_TEST_EQUALS(s2.error(), 0)
         ARIADNE_TEST_EQUALS(bb.dimension(),3)
         ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-0.5)
         ARIADNE_TEST_EQUALS(bb[0].upper_bound(),1.5)
@@ -86,6 +87,12 @@ public:
         ARIADNE_TEST_EQUALS(bb[1].upper_bound(),2.5)
         ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-1.5)
         ARIADNE_TEST_EQUALS(bb[2].upper_bound(),1.5)
+
+        auto c = centre(hp, tp);
+        ARIADNE_TEST_EQUALS(sa.centre().x,c.x)
+        ARIADNE_TEST_EQUALS(sa.centre().y,c.y)
+        ARIADNE_TEST_EQUALS(sa.centre().z,c.z)
+        ARIADNE_TEST_ASSERT(sa.radius()-2.194 < 1e-6)
     }
 
     void test_bodysegment_update() {
@@ -128,7 +135,7 @@ public:
 
         s4.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
 
-        auto err = s4.radius();
+        auto err = s4.error();
 
         ARIADNE_TEST_EQUALS(s4.head_centre().x, -0.25)
         ARIADNE_TEST_EQUALS(s4.head_centre().y, 0.75)
@@ -221,7 +228,7 @@ public:
         auto samples = history.samples(first);
         ARIADNE_TEST_EQUALS(samples.size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
-        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).radius() == 0))
+        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() == 0))
 
         history.acquire(RobotStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
         ARIADNE_TEST_ASSERT(history.has_samples(second))
@@ -236,7 +243,7 @@ public:
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.entrances(second).size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
-        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).radius() > 0))
+        ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
     }
 };
 
