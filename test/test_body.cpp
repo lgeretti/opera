@@ -309,6 +309,17 @@ public:
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,second),Interval<Natural>(2u, 2u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,third),Interval<Natural>(3u, 3u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(third,second),Interval<Natural>(1u, 2u))
+
+        ARIADNE_TEST_PRINT(history.destination_likelihoods(first))
+        ARIADNE_TEST_EQUALS(history.destination_likelihoods(first).size(),2)
+        ARIADNE_TEST_PRINT(history.destination_likelihoods(second))
+        ARIADNE_TEST_EQUALS(history.destination_likelihoods(second).size(),3)
+        ARIADNE_TEST_PRINT(history.destination_likelihoods(third))
+        ARIADNE_TEST_EQUALS(history.destination_likelihoods(third).size(),1)
+        ARIADNE_TEST_PRINT(history.destination_likelihoods(fourth))
+        ARIADNE_TEST_EQUALS(history.destination_likelihoods(fourth).size(),0)
+        ARIADNE_TEST_PRINT(history.destination_likelihoods(fifth))
+        ARIADNE_TEST_EQUALS(history.destination_likelihoods(fifth).size(),0)
     }
 };
 

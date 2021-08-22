@@ -26,6 +26,7 @@
 #include "body.hpp"
 
 using Ariadne::StringStream;
+using Ariadne::Map;
 
 namespace Opera {
 
@@ -149,6 +150,21 @@ std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
     return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
 }
 
+RobotDestinationLikelihood::RobotDestinationLikelihood(DiscreteLocation const& destination, PositiveFloatType const& probability) :
+        _destination(destination), _probability(probability) { }
+
+DiscreteLocation const& RobotDestinationLikelihood::destination() const {
+    return _destination;
+}
+
+PositiveFloatType const& RobotDestinationLikelihood::probability() const {
+    return _probability;
+}
+
+std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l) {
+    return os << "{" << l.destination() << ":" << l.probability() << "}";
+}
+
 RobotStateHistory::RobotStateHistory(Robot const* robot) :
     _robot(robot), _current_location_states_buffer(List<List<BodySegmentSample>>()) {
     for (SizeType i=0; i < _robot->num_segments(); ++i)
@@ -211,6 +227,22 @@ Interval<Natural> RobotStateHistory::range_of_num_samples_in(DiscreteLocation co
 
 Interval<Natural> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
     return _range_of_num_samples_within(presences_between(source,target));
+}
+
+List<RobotDestinationLikelihood> RobotStateHistory::destination_likelihoods(DiscreteLocation const& location) const {
+    List<RobotDestinationLikelihood> result;
+    Map<DiscreteLocation,SizeType> occurrences;
+    auto presences = presences_in(location);
+    for (auto p : presences) {
+        auto const dloc = p.exit_destination();
+        if (occurrences.find(dloc) == occurrences.end())
+            occurrences.insert(make_pair(dloc,0u));
+        occurrences[dloc]++;
+    }
+    auto num_presences = presences.size();
+    for (auto o : occurrences)
+        result.append(RobotDestinationLikelihood(o.first,Ariadne::cast_positive(FloatType(static_cast<double>(o.second)/num_presences,dp))));
+    return result;
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {

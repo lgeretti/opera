@@ -320,6 +320,24 @@ class RobotLocationPresence {
     TimestampType const _to;
 };
 
+//! \brief The probability to get to a destination
+class RobotDestinationLikelihood {
+  public:
+    RobotDestinationLikelihood(DiscreteLocation const& destination, PositiveFloatType const& probability);
+
+    //! \brief The destination
+    DiscreteLocation const& destination() const;
+    //! \brief The probability
+    PositiveFloatType const& probability() const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l);
+
+  private:
+    DiscreteLocation const _destination;
+    PositiveFloatType const _probability;
+};
+
 //! \brief Holds the states reached by a robot up to now
 class RobotStateHistory {
     friend class Robot;
@@ -354,7 +372,8 @@ class RobotStateHistory {
     Interval<Natural> range_of_num_samples_in(DiscreteLocation const& location) const;
     //! \brief The range of number of samples that are acquired when in \a source going into \a target
     Interval<Natural> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
-
+    //! \brief The destination for \a location, with the likelihood to be taken
+    List<RobotDestinationLikelihood> destination_likelihoods(DiscreteLocation const& location) const;
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;
