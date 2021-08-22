@@ -204,7 +204,7 @@ public:
 
         DiscreteLocation empty_location;
         ARIADNE_TEST_ASSERT(history.current_location().values().empty())
-        ARIADNE_TEST_ASSERT(history.presences(empty_location).empty())
+        ARIADNE_TEST_ASSERT(history.presences_in(empty_location).empty())
         ARIADNE_TEST_ASSERT(history.presences_exiting_into(empty_location).empty())
         ARIADNE_TEST_FAIL(history.samples(empty_location))
 
@@ -223,12 +223,12 @@ public:
         history.acquire(RobotStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7e8));
         ARIADNE_TEST_EQUALS(history.current_location(),second)
         ARIADNE_TEST_ASSERT(not history.has_samples(second))
-        ARIADNE_TEST_EQUALS(history.presences(first).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_in(first).size(), 1)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 1)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().location(), first)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().from(), 5e8)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().to(), 7e8)
-        ARIADNE_TEST_EQUALS(history.range_of_num_samples(first),Interval<Natural>(2u,2u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<Natural>(2u, 2u))
         ARIADNE_TEST_ASSERT(history.has_samples(first))
         auto samples = history.samples(first);
         ARIADNE_TEST_EQUALS(samples.size(),2)
@@ -238,7 +238,7 @@ public:
         history.acquire(RobotStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8e8));
         ARIADNE_TEST_PRINT(history.presences_exiting_into(first))
         ARIADNE_TEST_ASSERT(history.has_samples(second))
-        ARIADNE_TEST_EQUALS(history.presences(second).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_in(second).size(), 1)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).size(), 2)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).back().location(), second)
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
@@ -248,7 +248,7 @@ public:
 
         history.acquire(RobotStatePackage(second,{{Point(1,0,1.5)},{Point(5,4,5.5)},{Point(1,3.5,0)},{Point(2,1.5,3)}},10e8));
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
-        ARIADNE_TEST_EQUALS(history.presences(first).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_in(first).size(), 2)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
@@ -259,7 +259,7 @@ public:
         Robot r(5, 10, {0,1}, {FloatType(1.0, Ariadne::dp)});
         auto history = r.make_history();
 
-        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth");
+        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth"), fifth(robot|"fifth");
 
         TimestampType ts = 0u;
         history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
@@ -275,23 +275,40 @@ public:
         history.acquire(RobotStatePackage(first,{{Point(3,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
         history.acquire(RobotStatePackage(first,{{Point(4,5,2)},{Point(4,4,4)}},ts)); ts+= 1e8;
         history.acquire(RobotStatePackage(third,{{Point(4,5,3)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(second,{{Point(4,6,3)},{Point(4,4,4)}},ts)); ts+= 1e8;
+        history.acquire(RobotStatePackage(fourth,{{Point(4,6,3)},{Point(5,4,4)}},ts)); ts+= 1e8;
 
-        ARIADNE_TEST_EQUALS(history.current_location(),third)
+        ARIADNE_TEST_EQUALS(history.current_location(),fourth)
 
-        ARIADNE_TEST_EQUALS(history.presences(first).size(),2)
-        ARIADNE_TEST_EQUALS(history.presences(second).size(),2)
-        ARIADNE_TEST_EQUALS(history.presences(third).size(),1)
-        ARIADNE_TEST_EQUALS(history.presences(fourth).size(),0)
+        ARIADNE_TEST_EQUALS(history.presences_in(first).size(), 2)
+        ARIADNE_TEST_EQUALS(history.presences_in(second).size(), 3)
+        ARIADNE_TEST_EQUALS(history.presences_in(third).size(), 2)
+        ARIADNE_TEST_EQUALS(history.presences_in(fourth).size(), 0)
+        ARIADNE_TEST_EQUALS(history.presences_in(fifth).size(), 0)
 
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).size(),2)
-        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(),3)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(third).size(),2)
-        ARIADNE_TEST_EQUALS(history.presences_exiting_into(fourth).size(),0)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(fourth).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(fifth).size(),0)
 
-        ARIADNE_TEST_EQUALS(history.range_of_num_samples(first),Interval<Natural>(2u,3u))
-        ARIADNE_TEST_EQUALS(history.range_of_num_samples(second),Interval<Natural>(2u,3u))
-        ARIADNE_TEST_EQUALS(history.range_of_num_samples(third),Interval<Natural>(2u,2u))
-        ARIADNE_TEST_EQUALS(history.range_of_num_samples(fourth),Interval<Natural>(0u,0u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<Natural>(2u, 3u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(second), Interval<Natural>(1u, 3u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(third), Interval<Natural>(1u, 2u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(fourth), Interval<Natural>(0u, 0u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_in(fifth), Interval<Natural>(0u, 0u))
+
+        ARIADNE_TEST_EQUALS(history.presences_between(first,third).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_between(first,second).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_between(second,third).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_between(third,second).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_between(third,first).size(),0)
+        ARIADNE_TEST_EQUALS(history.presences_between(second,fourth).size(),1)
+
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(third,first),Interval<Natural>(0u, 0u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,second),Interval<Natural>(2u, 2u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,third),Interval<Natural>(3u, 3u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(third,second),Interval<Natural>(1u, 2u))
     }
 };
 

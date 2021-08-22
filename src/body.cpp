@@ -167,10 +167,18 @@ auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodyS
     return _location_states.get(location);
 }
 
-List<RobotLocationPresence> RobotStateHistory::presences(DiscreteLocation const& location) const {
+List<RobotLocationPresence> RobotStateHistory::presences_in(DiscreteLocation const& location) const {
     List<RobotLocationPresence> result;
     for (auto p : _location_presences)
         if ((not p.location().values().empty()) and p.location() == location)
+            result.append(p);
+        return result;
+}
+
+List<RobotLocationPresence> RobotStateHistory::presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const {
+    List<RobotLocationPresence> result;
+    for (auto p : _location_presences)
+        if ((not p.location().values().empty()) and p.location() == source and p.exit_destination() == destination)
             result.append(p);
         return result;
 }
@@ -183,19 +191,26 @@ List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLo
     return result;
 }
 
-Interval<Natural> RobotStateHistory::range_of_num_samples(DiscreteLocation const& location) const {
-    auto ps = presences(location);
-    if (ps.empty())
+Interval<Natural> RobotStateHistory::_range_of_num_samples_within(List<RobotLocationPresence> const& presences) const {
+    if (presences.empty())
         return Interval<Natural>(0u,0u);
 
     SizeType min_value = std::numeric_limits<SizeType>::max();
     SizeType max_value = 0;
-    for (auto p : ps) {
+    for (auto p : presences) {
         auto val = static_cast<SizeType>(floor(static_cast<double>(p.to()-p.from())/1e9*_robot->package_frequency()));
         min_value = std::min(min_value,val);
         max_value = std::max(max_value,val);
     }
     return Interval<Natural>(min_value,max_value);
+}
+
+Interval<Natural> RobotStateHistory::range_of_num_samples_in(DiscreteLocation const& location) const {
+    return _range_of_num_samples_within(presences_in(location));
+}
+
+Interval<Natural> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
+    return _range_of_num_samples_within(presences_between(source,target));
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {

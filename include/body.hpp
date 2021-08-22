@@ -345,15 +345,21 @@ class RobotStateHistory {
     BodySamplesType const& samples(DiscreteLocation const& location) const;
 
     //! \brief The presences in a given \a location
-    List<RobotLocationPresence> presences(DiscreteLocation const& location) const;
+    List<RobotLocationPresence> presences_in(DiscreteLocation const& location) const;
     //! \brief The presences exiting into a given \a location
     List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
+    //! \brief The presences between a \a source and \a destination locations
+    List<RobotLocationPresence> presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const;
     //! \brief The range of number of samples acquired in a given location
-    Interval<Natural> range_of_num_samples(DiscreteLocation const& location) const;
+    Interval<Natural> range_of_num_samples_in(DiscreteLocation const& location) const;
+    //! \brief The range of number of samples that are acquired when in \a source going into \a target
+    Interval<Natural> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
 
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;
+    //! \brief The range of number of samples within a list of \a presences_in
+    Interval<Natural> _range_of_num_samples_within(List<RobotLocationPresence> const& presences) const;
 
   private:
     std::deque<RobotLocationPresence> _location_presences;
