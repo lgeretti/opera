@@ -259,7 +259,7 @@ public:
         Robot r(5, 10, {0,1}, {FloatType(1.0, Ariadne::dp)});
         auto history = r.make_history();
 
-        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third");
+        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth");
 
         TimestampType ts = 0u;
         history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)}},ts)); ts+= 1e8;
@@ -281,14 +281,17 @@ public:
         ARIADNE_TEST_EQUALS(history.presences(first).size(),2)
         ARIADNE_TEST_EQUALS(history.presences(second).size(),2)
         ARIADNE_TEST_EQUALS(history.presences(third).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences(fourth).size(),0)
 
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).size(),2)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(),2)
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(third).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(fourth).size(),0)
 
         ARIADNE_TEST_EQUALS(history.range_of_num_samples(first),Interval<Natural>(2u,3u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples(second),Interval<Natural>(2u,3u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples(third),Interval<Natural>(2u,2u))
+        ARIADNE_TEST_EQUALS(history.range_of_num_samples(fourth),Interval<Natural>(0u,0u))
     }
 };
 
