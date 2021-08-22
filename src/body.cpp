@@ -126,18 +126,33 @@ TimestampType const& HumanStateInstance::timestamp() const {
     return _timestamp;
 }
 
-DiscreteTransitionData::DiscreteTransitionData(DiscreteLocation const& source, TimestampType const& timestamp) :
-    _source(source), _timestamp(timestamp) { }
+RobotLocationPresence::RobotLocationPresence(DiscreteLocation const& location, DiscreteLocation const& exit_destination, TimestampType const& from, TimestampType const& to) :
+        _location(location), _exit_destination(exit_destination), _from(from), _to(to) { }
 
-DiscreteLocation const& DiscreteTransitionData::source() const {
-    return _source;
+DiscreteLocation const& RobotLocationPresence::location() const {
+    return _location;
 }
 
-TimestampType const& DiscreteTransitionData::timestamp() const {
-    return _timestamp;
+DiscreteLocation const& RobotLocationPresence::exit_destination() const {
+    return _exit_destination;
 }
 
-RobotStateHistory::RobotStateHistory(Robot const* robot) : _robot(robot) {
+TimestampType const& RobotLocationPresence::from() const {
+    return _from;
+}
+
+TimestampType const& RobotLocationPresence::to() const {
+    return _to;
+}
+
+std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
+    return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
+}
+
+RobotStateHistory::RobotStateHistory(Robot const* robot) :
+    _robot(robot), _current_location_states_buffer(List<List<BodySegmentSample>>()) {
+    for (SizeType i=0; i < _robot->num_segments(); ++i)
+        _current_location_states_buffer.push_back(List<BodySegmentSample>());
 }
 
 DiscreteLocation const& RobotStateHistory::current_location() const {
@@ -152,20 +167,32 @@ auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodyS
     return _location_states.get(location);
 }
 
-auto RobotStateHistory::entrances(DiscreteLocation const& location) const -> EntrancesQueueType const& {
-    return _location_entrances.get(location);
+List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLocation const& location) const {
+    List<RobotLocationPresence> result;
+    for (auto p : _location_presences)
+        if (p.exit_destination() == location)
+            result.append(p);
+    return result;
+}
+
+List<RobotLocationPresence> RobotStateHistory::presences(DiscreteLocation const& location) const {
+    List<RobotLocationPresence> result;
+    for (auto p : _location_presences)
+        if ((not p.location().values().empty()) and p.location() == location)
+            result.append(p);
+    return result;
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {
-    return floor((timestamp-_location_entrances.get(_current_location).back().timestamp()) / 1000 * _robot->package_frequency());
+    return floor((timestamp- _location_presences.back().to()) / 1e9 * _robot->package_frequency());
 }
 
 void RobotStateHistory::acquire(RobotStatePackage const& state) {
     /*
      * 1) If the location is different from the current one (including the first location inserted)
-     *   a) Put the buffered content (if it exists) in place of the current location content
-     *   b) Create a new empty buffer
-     *   c) Add the entrance (or create from scratch if a new location)
+     *   a) Save the buffered content
+     *   b) Create a new empty buffered content
+     *   c) Add the location presence
      *   d) Update the current location
      * 3) Check if the location has a history
      *   a) If not, adding each segment sample to the buffer
@@ -173,19 +200,14 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
      */
 
     if (_current_location.values().empty() or _current_location != state.location()) {
-        if (not _current_location_states_buffer.empty())
-            _location_states[_current_location] = std::move(_current_location_states_buffer);
+        _location_states[_current_location] = std::move(_current_location_states_buffer);
+
         _current_location_states_buffer = List<List<BodySegmentSample>>();
         for (SizeType i=0; i < _robot->num_segments(); ++i)
             _current_location_states_buffer.push_back(List<BodySegmentSample>());
 
-        if (_location_states.find(state.location()) == _location_states.end()) {
-            auto timestamps = std::deque<DiscreteTransitionData>();
-            timestamps.push_back(DiscreteTransitionData(_current_location,state.timestamp()));
-            _location_entrances.insert(make_pair(state.location(), timestamps));
-        } else {
-            _location_entrances[state.location()].push_back(DiscreteTransitionData(_current_location,state.timestamp()));
-        }
+        TimestampType entrance_timestamp = (_location_presences.empty() ? state.timestamp() : _location_presences.back().to());
+        _location_presences.push_back(RobotLocationPresence(_current_location, state.location(), entrance_timestamp, state.timestamp()));
 
         _current_location = state.location();
     }

@@ -32,7 +32,7 @@
 namespace Opera {
 
 using IdType = unsigned int;
-using TimestampType = long unsigned int;
+using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
@@ -297,25 +297,32 @@ class HumanStateInstance {
     Human const* _human;
 };
 
-//! \brief The data (source+timestamp) for a discrete transition
-class DiscreteTransitionData {
+//! \brief The presence of a robot in a given location
+class RobotLocationPresence {
   public:
-    //! \brief Construct from a \a source and a \a timestamp
-    DiscreteTransitionData(DiscreteLocation const& source, TimestampType const& timestamp);
-    //! \brief The source location of the transition
-    DiscreteLocation const& source() const;
-    //! \brief The timestamp of the transition
-    TimestampType const& timestamp() const;
+    //! \brief Construct from a \a source, \a exit_destination, \a from and \a to for entrance/exit in the source location
+    RobotLocationPresence(DiscreteLocation const& location, DiscreteLocation const& exit_destination, TimestampType const& from, TimestampType const& to);
+    //! \brief The location of presence
+    DiscreteLocation const& location() const;
+    //! \brief The destination location after exiting
+    DiscreteLocation const& exit_destination() const;
+    //! \brief The timestamp of entrance
+    TimestampType const& from() const;
+    //! \brief The timestamp of exit
+    TimestampType const& to() const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p);
   private:
-    DiscreteLocation const _source;
-    TimestampType const _timestamp;
+    DiscreteLocation const _location;
+    DiscreteLocation const _exit_destination;
+    TimestampType const _from;
+    TimestampType const _to;
 };
 
 //! \brief Holds the states reached by a robot up to now
 class RobotStateHistory {
     friend class Robot;
-    typedef std::deque<DiscreteTransitionData> EntrancesQueueType;
-    typedef Ariadne::Map<DiscreteLocation,EntrancesQueueType> LocationEntrancesType;
     typedef List<BodySegmentSample> SegmentTemporalSamplesType;
     typedef List<SegmentTemporalSamplesType> BodySamplesType;
     typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
@@ -334,18 +341,21 @@ class RobotStateHistory {
     //! \details Until the location changes, samples acquired are not registered
     bool has_samples(DiscreteLocation const& location) const;
 
-    //! \brief She samples in a given \a location
+    //! \brief The samples in a given \a location
     BodySamplesType const& samples(DiscreteLocation const& location) const;
 
-    //! \brief The entrances in a given \a location
-    EntrancesQueueType const& entrances(DiscreteLocation const& location) const;
+    //! \brief The presences exiting into a given \a location
+    List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
+
+    //! \brief The presences in a given \a location
+    List<RobotLocationPresence> presences(DiscreteLocation const& location) const;
 
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;
 
   private:
-    LocationEntrancesType _location_entrances;
+    std::deque<RobotLocationPresence> _location_presences;
     LocationSamplesType _location_states;
     DiscreteLocation _current_location;
     BodySamplesType _current_location_states_buffer;

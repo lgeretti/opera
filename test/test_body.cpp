@@ -92,7 +92,7 @@ public:
         ARIADNE_TEST_EQUALS(sa.centre().x,c.x)
         ARIADNE_TEST_EQUALS(sa.centre().y,c.y)
         ARIADNE_TEST_EQUALS(sa.centre().z,c.z)
-        ARIADNE_TEST_ASSERT(sa.radius()-2.194 < 1e-6)
+        ARIADNE_TEST_ASSERT(decide(sa.radius()-2.194 < 1e-6))
     }
 
     void test_bodysegment_update() {
@@ -190,10 +190,10 @@ public:
 
     void test_human_state_instance() {
         Human h(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
-        auto instance = h.make_instance(HumanStatePackage({{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5000u));
+        auto instance = h.make_instance(HumanStatePackage({{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e9));
 
         ARIADNE_TEST_EQUALS(instance.samples().size(),2)
-        ARIADNE_TEST_EQUALS(instance.timestamp(),5000)
+        ARIADNE_TEST_EQUALS(instance.timestamp(),5e9)
     }
 
     void test_robot_state_history() {
@@ -203,45 +203,51 @@ public:
 
         DiscreteLocation empty_location;
         ARIADNE_TEST_ASSERT(history.current_location().values().empty())
-        ARIADNE_TEST_FAIL(history.entrances(empty_location))
+        ARIADNE_TEST_ASSERT(history.presences(empty_location).empty())
+        ARIADNE_TEST_ASSERT(history.presences_exiting_into(empty_location).empty())
         ARIADNE_TEST_FAIL(history.samples(empty_location))
 
         DiscreteLocation first(robot|"first"), second(robot|"second");
 
-        history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5000u));
+        history.acquire(RobotStatePackage(first,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e9));
         ARIADNE_TEST_FAIL(history.samples(first))
         ARIADNE_TEST_ASSERT(not history.has_samples(first))
         ARIADNE_TEST_EQUALS(history.current_location(),first)
-        auto entrances = history.entrances(first);
+        auto entrances = history.presences_exiting_into(first);
         ARIADNE_TEST_EQUAL(entrances.size(),1)
-        ARIADNE_TEST_ASSERT(entrances.back().source().values().empty())
-        ARIADNE_TEST_EQUALS(entrances.back().timestamp(),5000)
-        history.acquire(RobotStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6000u));
-        ARIADNE_TEST_EQUALS(history.entrances(first).size(),1)
+        ARIADNE_TEST_ASSERT(entrances.back().location().values().empty())
+        ARIADNE_TEST_EQUALS(entrances.back().to(), 5e9)
+        history.acquire(RobotStatePackage(first,{{Point(0,0,1)},{Point(4,4,5)},{Point(0,3,0)},{Point(1,1,3)}},6e9));
 
-        history.acquire(RobotStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7000u));
+        history.acquire(RobotStatePackage(second,{{Point(0,0,1.5)},{Point(4,4,5.5)},{Point(0,3.5,0)},{Point(1,1.5,3)}},7e9));
         ARIADNE_TEST_EQUALS(history.current_location(),second)
         ARIADNE_TEST_ASSERT(not history.has_samples(second))
-        ARIADNE_TEST_EQUALS(history.entrances(second).size(),1)
-        ARIADNE_TEST_EQUALS(history.entrances(second).back().source(),first)
+        ARIADNE_TEST_EQUALS(history.presences(first).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 1)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().location(), first)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().from(), 5e9)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).back().to(), 7e9)
         ARIADNE_TEST_ASSERT(history.has_samples(first))
         auto samples = history.samples(first);
         ARIADNE_TEST_EQUALS(samples.size(),2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() == 0))
 
-        history.acquire(RobotStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8000u));
+        history.acquire(RobotStatePackage(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8e9));
+        ARIADNE_TEST_PRINT(history.presences_exiting_into(first))
         ARIADNE_TEST_ASSERT(history.has_samples(second))
-        ARIADNE_TEST_EQUALS(history.entrances(first).size(),2)
-        ARIADNE_TEST_EQUALS(history.entrances(first).back().source(),second)
+        ARIADNE_TEST_EQUALS(history.presences(second).size(),1)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).size(), 2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(first).back().location(), second)
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
         ARIADNE_TEST_EQUALS(history.samples(second).at(0).size(),1)
         ARIADNE_TEST_PRINT(history.samples(second))
-        history.acquire(RobotStatePackage(first,{{Point(1,0,2)},{Point(5,4,6)},{Point(1,4,0)},{Point(2,2,3)}},9000u));
+        history.acquire(RobotStatePackage(first,{{Point(1,0,2)},{Point(5,4,6)},{Point(1,4,0)},{Point(2,2,3)}},9e9));
 
-        history.acquire(RobotStatePackage(second,{{Point(1,0,1.5)},{Point(5,4,5.5)},{Point(1,3.5,0)},{Point(2,1.5,3)}},10000u));
+        history.acquire(RobotStatePackage(second,{{Point(1,0,1.5)},{Point(5,4,5.5)},{Point(1,3.5,0)},{Point(2,1.5,3)}},10e9));
         ARIADNE_TEST_EQUALS(history.samples(first).at(0).size(),2)
-        ARIADNE_TEST_EQUALS(history.entrances(second).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences(first).size(),2)
+        ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
     }
