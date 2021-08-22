@@ -184,7 +184,7 @@ List<RobotLocationPresence> RobotStateHistory::presences(DiscreteLocation const&
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {
-    return floor((timestamp- _location_presences.back().to()) / 1e9 * _robot->package_frequency());
+    return floor(double(timestamp- _location_presences.back().to()) / 1e9 * _robot->package_frequency());
 }
 
 void RobotStateHistory::acquire(RobotStatePackage const& state) {
@@ -214,10 +214,12 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
 
     bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
     SizeType j0 = (has_history_for_location ? 0 : 1);
+    SizeType update_idx = _update_index(state.timestamp());
+    SizeType updating_sample = (has_history_for_location and _location_states[_current_location].size() < update_idx);
     for (SizeType i=0; i<_robot->num_segments(); ++i) {
         auto head_pts = state.points().at(_robot->segment(i).head_id());
         auto tail_pts = state.points().at(_robot->segment(i).tail_id());
-        BodySegmentSample s = (has_history_for_location ? _location_states[_current_location].at(i).at(_update_index(state.timestamp())) :
+        BodySegmentSample s = (updating_sample ? _location_states[_current_location].at(i).at(update_idx) :
                                    _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
         s.update(head_pts,tail_pts,j0);
         _current_location_states_buffer.at(i).push_back(s);
