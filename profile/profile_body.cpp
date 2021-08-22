@@ -29,7 +29,7 @@ using namespace Opera;
 
 struct ProfileBody : public Profiler {
 
-    ProfileBody() : Profiler(1e6) { }
+    ProfileBody() : Profiler(1e5) { }
 
     void run() {
         profile_bodysegment_intersection();
