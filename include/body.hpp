@@ -314,7 +314,6 @@ class DiscreteTransitionData {
 //! \brief Holds the states reached by a robot up to now
 class RobotStateHistory {
     friend class Robot;
-    using BodySegmentId = IdType;
     typedef std::deque<DiscreteTransitionData> EntrancesQueueType;
     typedef Ariadne::Map<DiscreteLocation,EntrancesQueueType> LocationEntrancesType;
     typedef List<BodySegmentSample> SegmentTemporalSamplesType;

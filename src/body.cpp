@@ -175,9 +175,9 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
     if (_current_location.values().empty() or _current_location != state.location()) {
         if (not _current_location_states_buffer.empty())
             _location_states[_current_location] = std::move(_current_location_states_buffer);
-        _current_location_states_buffer = List<List<BodySegmentSampleBase>>();
+        _current_location_states_buffer = List<List<BodySegmentSample>>();
         for (SizeType i=0; i < _robot->num_segments(); ++i)
-            _current_location_states_buffer.push_back(List<BodySegmentSampleBase>());
+            _current_location_states_buffer.push_back(List<BodySegmentSample>());
 
         if (_location_states.find(state.location()) == _location_states.end()) {
             auto timestamps = std::deque<DiscreteTransitionData>();
