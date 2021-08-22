@@ -73,6 +73,9 @@ inline Vector operator*(Vector const& v1, Vector const& v2) {
 //! \brief The center of the segment joining two points
 Point center(Point const& p1, Point const& p2);
 
+//! \brief The minimum bounding box enclosing the two points \a p1 and \a p2
+BoundingType hull(Point const& p1, Point const& p2);
+
 //! \brief The minimum distance between a segment s1 (with head/tail points s1h and s1t) and segment s2
 //! (with head/tail points s2h and s2t)
 FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point const& s2t);

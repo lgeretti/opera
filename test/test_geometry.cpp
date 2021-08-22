@@ -35,6 +35,7 @@ public:
         ARIADNE_TEST_CALL(test_segment_distance())
         ARIADNE_TEST_CALL(test_point_distance())
         ARIADNE_TEST_CALL(test_center())
+        ARIADNE_TEST_CALL(test_hull())
         ARIADNE_TEST_CALL(test_circle_radius())
     }
 
@@ -74,6 +75,20 @@ public:
         ARIADNE_TEST_EQUALS(c.x,2.5)
         ARIADNE_TEST_EQUALS(c.y,2.1)
         ARIADNE_TEST_EQUALS(c.z,-1.0)
+    }
+
+    void test_hull() {
+        Point p1(4.0,3.0,-2.0);
+        Point p2(4.0,1.2,0);
+
+        auto h = hull(p1,p2);
+
+        ARIADNE_TEST_EQUALS(h[0].lower_bound(),4.0)
+        ARIADNE_TEST_EQUALS(h[0].upper_bound(),4.0)
+        ARIADNE_TEST_EQUALS(h[1].lower_bound(),1.2)
+        ARIADNE_TEST_EQUALS(h[1].upper_bound(),3.0)
+        ARIADNE_TEST_EQUALS(h[2].lower_bound(),-2.0)
+        ARIADNE_TEST_EQUALS(h[2].upper_bound(),0)
     }
 
     void test_circle_radius() {

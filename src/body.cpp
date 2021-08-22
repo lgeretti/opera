@@ -307,7 +307,7 @@ void BodySegmentSampleBase::_recalculate_centers_radius_bb() {
     _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));
     _tail_centre = Point(tc.at(0), tc.at(1), tc.at(2));
     _radius = max(circle_radius(_head_bounds),circle_radius(_tail_bounds));
-    _bb = widen(hull(_head_bounds,_tail_bounds),_segment->thickness());
+    _bb = widen(hull(_head_centre,_tail_centre),_radius+_segment->thickness());
 }
 
 BoundingType const& BodySegmentSampleBase::bounding_box() const {

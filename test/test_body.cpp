@@ -78,6 +78,7 @@ public:
         ARIADNE_TEST_EQUALS(tp.x,1)
         ARIADNE_TEST_EQUALS(tp.y,2)
         ARIADNE_TEST_EQUALS(tp.z,-1)
+        ARIADNE_TEST_EQUALS(s2.radius(),0)
         ARIADNE_TEST_EQUALS(bb.dimension(),3)
         ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-0.5)
         ARIADNE_TEST_EQUALS(bb[0].upper_bound(),1.5)
@@ -89,9 +90,9 @@ public:
 
     void test_bodysegment_update() {
 
-        FloatType thickness(0.5,Ariadne::dp);
+        FloatType thickness(1.0,Ariadne::dp);
 
-        Robot r(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r(5, 10, {0, 1}, {thickness});
         auto segment = r.segment(0);
 
         auto s1 = segment.create_sample();
@@ -127,6 +128,8 @@ public:
 
         s4.update(Point(-0.5, 1.0, 1.25), Point(1.0, 2.5, 0.0));
 
+        auto err = s4.radius();
+
         ARIADNE_TEST_EQUALS(s4.head_centre().x, -0.25)
         ARIADNE_TEST_EQUALS(s4.head_centre().y, 0.75)
         ARIADNE_TEST_EQUALS(s4.head_centre().z, 1.125)
@@ -135,12 +138,12 @@ public:
         ARIADNE_TEST_EQUALS(s4.tail_centre().z, -0.5)
 
         auto bb = s4.bounding_box();
-        ARIADNE_TEST_EQUALS(bb[0].lower_bound(),-1.5)
-        ARIADNE_TEST_EQUALS(bb[0].upper_bound(),2.0)
-        ARIADNE_TEST_EQUALS(bb[1].lower_bound(),-0.5)
-        ARIADNE_TEST_EQUALS(bb[1].upper_bound(),3.5)
-        ARIADNE_TEST_EQUALS(bb[2].lower_bound(),-2.0)
-        ARIADNE_TEST_EQUALS(bb[2].upper_bound(),2.25)
+        ARIADNE_TEST_EQUALS(bb[0].lower_bound(),s4.head_centre().x-err-thickness)
+        ARIADNE_TEST_EQUALS(bb[0].upper_bound(),s4.tail_centre().x+err+thickness)
+        ARIADNE_TEST_EQUALS(bb[1].lower_bound(),s4.head_centre().y-err-thickness)
+        ARIADNE_TEST_EQUALS(bb[1].upper_bound(),s4.tail_centre().y+err+thickness)
+        ARIADNE_TEST_EQUALS(bb[2].lower_bound(),s4.tail_centre().z-err-thickness)
+        ARIADNE_TEST_EQUALS(bb[2].upper_bound(),s4.head_centre().z+err+thickness)
     }
 
     void test_bodysegment_intersection() {

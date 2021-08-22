@@ -33,6 +33,7 @@ struct ProfileGeometry : public Profiler {
 
     void run() {
         profile_center();
+        profile_hull();
         profile_circle_radius();
         profile_segment_distance();
         profile_point_distance();
@@ -48,6 +49,16 @@ struct ProfileGeometry : public Profiler {
         }
 
         profile("Bounding box center",[&bbs](SizeType i){ (bbs.at(i).centre()); });
+    }
+
+    void profile_hull() {
+        Ariadne::List<Point> heads, tails;
+        for (SizeType i=0; i<num_tries(); ++i) {
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+        }
+
+        profile("Hull of two points",[&heads,&tails](SizeType i){ hull(heads.at(i),heads.at(i)); });
     }
 
     void profile_circle_radius() {

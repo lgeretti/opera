@@ -30,6 +30,12 @@ Point center(Point const& p1, Point const& p2) {
     return (p1+p2)/2;
 }
 
+BoundingType hull(Point const& p1, Point const& p2) {
+    return BoundingType({IntervalType(min(p1.x,p2.x),max(p1.x,p2.x)),
+                         IntervalType(min(p1.y,p2.y),max(p1.y,p2.y)),
+                         IntervalType(min(p1.z,p2.z),max(p1.z,p2.z))});
+}
+
 FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point const& s2t) {
 
     const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
