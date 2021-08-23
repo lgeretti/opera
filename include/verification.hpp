@@ -29,6 +29,50 @@
 
 namespace Opera {
 
+//! \brief A step (down) on the minimum distance
+class MinimumDistanceStep {
+  public:
+    //! \brief Construct from fields
+    MinimumDistanceStep(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index);
+    //! \brief The minimum distance from the spherical approximation sample
+    PositiveFloatType const& minimum_distance() const;
+    //! \brief The spherical approximation sample
+    SphericalApproximationSample const& sample() const;
+    //! \brief The maximum index for which this minimum distance holds
+    SizeType const& maximum_index() const;
+
+    //! \brief Increase the maximum index
+    void increase_maximum_index();
+
+  private:
+    PositiveFloatType const _minimum_distance;
+    SphericalApproximationSample const _sample;
+    SizeType _maximum_index;
+};
+
+//! \brief The full trace of verification information, in the continuous case
+class ContinuousVerificationTrace {
+  public:
+    //! \brief Construct with an initial step
+    ContinuousVerificationTrace(MinimumDistanceStep const& initial);
+
+    //! \brief The steps
+    List<MinimumDistanceStep> const& steps() const;
+    //! \brief Add a step
+    void add_step(MinimumDistanceStep const& step);
+
+    //! \brief The minimum distance by the latest step
+    PositiveFloatType const& current_minimum_distance() const;
+    //! \brief The current index verified by the latest step
+    SizeType const& current_index() const;
+
+    //! \brief Increase maximum index of the latest step
+    void increase_maximum_index();
+
+  private:
+    List<MinimumDistanceStep> _steps;
+};
+
 }
 
 #endif //OPERA_VERIFICATION_HPP

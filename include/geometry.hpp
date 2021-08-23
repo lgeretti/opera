@@ -70,6 +70,10 @@ inline Vector operator*(Vector const& v1, Vector const& v2) {
     return Vector({v1.y*v2.z-v1.z*v2.y, v1.z*v2.x-v1.x*v2.z, v1.x*v2.y-v1.y*v2.x});
 }
 
+inline bool operator==(Vector const& v1, Vector const& v2) {
+    return decide(v1.x == v2.x and v1.y == v2.y and v1.z == v2.z);
+}
+
 //! \brief The centre of the segment joining two points
 Point centre(Point const& p1, Point const& p2);
 
