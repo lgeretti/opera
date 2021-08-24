@@ -72,16 +72,20 @@ bool MinimumDistanceBarrierTrace::try_update_with(BodySegmentSample const& segme
 
 SizeType MinimumDistanceBarrierTrace::resume_index(SphericalApproximationSample const& other) const {
     if (is_empty()) return 0;
-
     auto deviation = distance(_spherical_approximation.centre(),other.centre());
     auto radius_difference = other.radius() - _spherical_approximation.radius();
     if (decide(radius_difference > 0)) deviation += radius_difference;
-    for (SizeType i=_barriers.size(); i>0; --i) {
-        if (decide(deviation < _barriers.at(i-1).minimum_distance())) {
-            return _barriers.at(i-1).maximum_index()+1;
-        }
+    SizeType lower=0;
+    SizeType upper=_barriers.size()-1;
+    if (decide(deviation > _barriers.at(lower).minimum_distance())) return 0;
+    if (decide(deviation <= _barriers.at(upper).minimum_distance())) return _barriers.at(upper).maximum_index()+1;
+    SizeType result = (upper+lower)/2;
+    while (upper>lower+1) {
+        if (decide(deviation > _barriers.at(result).minimum_distance())) upper = result;
+        else lower = result;
+        result = (upper+lower)/2;
     }
-    return 0;
+    return _barriers.at(result).maximum_index()+1;
 }
 
 bool MinimumDistanceBarrierTrace::is_empty() const {

@@ -117,7 +117,11 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(0,5,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
         for (auto s : robot_samples) if (not trace.try_update_with(s)) break;
 
