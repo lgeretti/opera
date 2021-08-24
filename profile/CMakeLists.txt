@@ -1,6 +1,7 @@
 set(PROFILE_FILES
     profile_geometry
     profile_body
+    profile_verification
 )
 
 foreach(PROFILE ${PROFILE_FILES})
