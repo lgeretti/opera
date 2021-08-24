@@ -35,8 +35,9 @@ struct ProfileGeometry : public Profiler {
         profile_centre();
         profile_hull();
         profile_circle_radius();
-        profile_segment_distance();
-        profile_point_distance();
+        profile_point_point_distance();
+        profile_point_segment_distance();
+        profile_segment_segment_distance();
     }
 
     void profile_centre() {
@@ -73,19 +74,17 @@ struct ProfileGeometry : public Profiler {
         profile("Bounding box circle error",[&](SizeType i){ circle_radius(bbs.at(i)); });
     }
 
-    void profile_segment_distance() {
-        Point s1h(1.0,3.0,-2.0);
-        Point s1t(4.0,1.2,0);
-        Ariadne::List<Point> heads, tails;
+    void profile_point_point_distance() {
+        Ariadne::List<Point> p1, p2;
         for (SizeType i=0; i<num_tries(); ++i) {
-            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
-            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            p1.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            p2.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Segment distance",[&](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
+        profile("Point distance",[&](SizeType i){ distance(p1.at(i),p2.at(i)); });
     }
 
-    void profile_point_distance() {
+    void profile_point_segment_distance() {
         Ariadne::List<Point> points, heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {
             points.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
@@ -95,6 +94,18 @@ struct ProfileGeometry : public Profiler {
 
         profile("Point distance using segment distance",[&](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
         profile("Point distance using dedicated distance",[&](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
+    }
+
+    void profile_segment_segment_distance() {
+        Point s1h(1.0,3.0,-2.0);
+        Point s1t(4.0,1.2,0);
+        Ariadne::List<Point> heads, tails;
+        for (SizeType i=0; i<num_tries(); ++i) {
+            heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+            tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
+        }
+
+        profile("Segment distance",[&](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
     }
 };
 

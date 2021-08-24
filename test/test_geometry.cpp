@@ -32,8 +32,9 @@ class TestGeometry {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_construct_point())
-        ARIADNE_TEST_CALL(test_segment_distance())
-        ARIADNE_TEST_CALL(test_point_distance())
+        ARIADNE_TEST_CALL(test_segment_segment_distance())
+        ARIADNE_TEST_CALL(test_point_segment_distance())
+        ARIADNE_TEST_CALL(test_point_point_distance())
         ARIADNE_TEST_CALL(test_centre())
         ARIADNE_TEST_CALL(test_hull())
         ARIADNE_TEST_CALL(test_circle_radius())
@@ -43,7 +44,7 @@ public:
         Point p(1.0,-2.1,0);
     }
 
-    void test_segment_distance() {
+    void test_segment_segment_distance() {
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(1,2,3),Point(1,2,3),Point(1,2,3)),0)
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(3,4,5),Point(1,2,3),Point(3,4,5)),0)
         ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(0,0,0),Point(0,0,0),Point(2,2,2)),0)
@@ -57,13 +58,19 @@ public:
         ARIADNE_TEST_EXECUTE(distance(Point(-0.9097,-0.4835,0.3973),Point(-0.2489,-0.1628,-0.5455),Point(0.3303,0.9305,-0.1387),Point(0.7753,0.3848,0.9415)))
     }
 
-    void test_point_distance() {
+    void test_point_segment_distance() {
         auto d1 = distance(Point(1.308,-2.690,1.567),Point(1.308,-2.690,1.567),Point(-1.174,4.631,-0.1193),Point(-4.892,-2.183,-3.825));
         ARIADNE_TEST_ASSERT(decide(distance(Point(1.308,-2.690,1.567),Point(-1.174,4.631,-0.1193),Point(-4.892,-2.183,-3.825))-d1 < 1e-8))
         auto d2 = distance(Point(-0.1053,-0.1488,-2.390),Point(-0.1053,-0.1488,-2.390),Point(2.964,-1.106,0.4021),Point(2.887,-3.345,2.290));
         ARIADNE_TEST_ASSERT(decide(distance(Point(-0.1053,-0.1488,-2.390),Point(2.964,-1.106,0.4021),Point(2.887,-3.345,2.290))-d2 < 1e-8))
         auto d3 = distance(Point(-1.560,3.773,-4.831),Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373));
         ARIADNE_TEST_ASSERT(decide(distance(Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373))-d3 < 1e-8))
+    }
+
+    void test_point_point_distance() {
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(1,2,3)),0)
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(-1,2,3)),2)
+        ARIADNE_TEST_EQUALS(distance(Point(1,2,3),Point(4,-2,3)),5)
     }
 
     void test_centre() {

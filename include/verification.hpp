@@ -46,9 +46,6 @@ class MinimumDistanceBarrier {
     //! \brief The maximum index for which this minimum distance holds
     SizeType const& maximum_index() const;
 
-    //! \brief Whether this barrier can be used also for the \a other spherical approximation sample
-    bool includes(SphericalApproximationSample const& other) const;
-
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s);
 
@@ -67,9 +64,9 @@ class MinimumDistanceBarrierTrace {
     List<MinimumDistanceBarrier> const& barriers() const;
     //! \brief Add a barrier
     void add_barrier(PositiveFloatType const& minimum_distance);
-    //! \brief Check the spherical approximation with a \a sample
-    //! \returns True if something was applied (update to the index or new barrier), false otherwise
-    bool try_check(BodySegmentSample const& sample);
+    //! \brief Check the spherical approximation with a \a sample, to update the last barrier or create a new one
+    //! \returns True if something was updated or created, false otherwise
+    bool try_update_with(BodySegmentSample const& sample);
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;

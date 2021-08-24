@@ -167,7 +167,7 @@ class SphericalApproximationSample {
 
     //! \brief Return the centre
     Point const& centre() const;
-    //! \brief Return the error
+    //! \brief Return the radius
     FloatType const& radius() const;
 
     //! \brief The distance from a sample
