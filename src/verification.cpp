@@ -89,6 +89,10 @@ SizeType const& MinimumDistanceBarrierTrace::current_index() const {
     return _barriers.back().maximum_index();
 }
 
+SizeType MinimumDistanceBarrierTrace::resume_index(SphericalApproximationSample const& sample) const {
+    return 0;
+}
+
 std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t) {
     return os << t.barriers();
 }

@@ -77,6 +77,11 @@ class MinimumDistanceBarrierTrace {
     PositiveFloatType const& current_minimum_distance() const;
     //! \brief The current index verified by the latest barrier
     SizeType const& current_index() const;
+    //! \brief The index from which we can resume checking the spherical \a sample
+    //! \details If the whole trace still holds, then the result is the current index +1.
+    //! A result of zero instead means starting from scratch with respect
+    //! to the samples used to generate this trace
+    SizeType resume_index(SphericalApproximationSample const& sample) const;
     //! \brief Whether the trace is currently empty
     bool is_empty() const;
 
@@ -89,10 +94,6 @@ class MinimumDistanceBarrierTrace {
   private:
     List<MinimumDistanceBarrier> _barriers;
 };
-
-//! \brief The index from which we can resume checking a segment \a sample according to a given \a trace
-//! \details Returning zero means starting from scratch
-SizeType resume_index(MinimumDistanceBarrierTrace const& trace, BodySegmentSample const& sample);
 
 }
 
