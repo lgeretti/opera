@@ -59,7 +59,7 @@ void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_d
     _barriers.append(MinimumDistanceBarrier(minimum_distance,sample,_next_index));
 }
 
-void MinimumDistanceBarrierTrace::apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample) {
+bool MinimumDistanceBarrierTrace::try_apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample) {
     auto current_distance = distance(spherical_sample,segment_sample);
     if (decide(current_distance != 0)) {
         if (decide(current_distance<current_minimum_distance())) {
@@ -67,8 +67,10 @@ void MinimumDistanceBarrierTrace::apply(SphericalApproximationSample const& sphe
         } else {
             _barriers.back().increase_maximum_index();
         }
+        ++_next_index;
+        return true;
     }
-    ++_next_index;
+    return false;
 }
 
 bool MinimumDistanceBarrierTrace::is_empty() const {

@@ -71,7 +71,8 @@ class MinimumDistanceBarrierTrace {
     //! \brief Add a barrier
     void add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
     //! \brief Apply by checking a \a spherical_sample with a \a segment_sample
-    void apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample);
+    //! \returns True if something was applied (update to the index or new barrier), false otherwise
+    bool try_apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample);
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;
