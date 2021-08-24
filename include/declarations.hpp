@@ -38,6 +38,7 @@ using Ariadne::SizeType;
 using Ariadne::dp;
 using Ariadne::Interval;
 using Ariadne::Natural;
+using Ariadne::StringStream;
 
 }
 

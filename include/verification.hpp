@@ -29,14 +29,17 @@
 
 namespace Opera {
 
-class ContinuousVerificationTrace;
+class MinimumDistanceBarrierTrace;
 
-//! \brief A step (down) on the minimum distance
-class MinimumDistanceStep {
-    friend ContinuousVerificationTrace;
+//! \brief A barrier on the minimum distance
+class MinimumDistanceBarrier {
+    friend MinimumDistanceBarrierTrace;
   protected:
     //! \brief Construct from fields
-    MinimumDistanceStep(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index);
+    MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index);
+
+    //! \brief Increase the maximum index
+    void increase_maximum_index();
   public:
     //! \brief The minimum distance from the spherical approximation sample
     PositiveFloatType const& minimum_distance() const;
@@ -45,11 +48,8 @@ class MinimumDistanceStep {
     //! \brief The maximum index for which this minimum distance holds
     SizeType const& maximum_index() const;
 
-    //! \brief Increase the maximum index
-    void increase_maximum_index();
-
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, MinimumDistanceStep const& s);
+    friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s);
 
   private:
     PositiveFloatType const _minimum_distance;
@@ -57,34 +57,37 @@ class MinimumDistanceStep {
     SizeType _maximum_index;
 };
 
-//! \brief The full trace of verification information, in the continuous case
-class ContinuousVerificationTrace {
+//! \brief The full trace of minimum distance barriers
+class MinimumDistanceBarrierTrace {
   public:
-    //! \brief Construct with an initial \a minimum_distance and corresponding \a sample
-    ContinuousVerificationTrace(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
+    //! \brief Construct empty
+    MinimumDistanceBarrierTrace();
 
-    //! \brief The steps
-    List<MinimumDistanceStep> const& steps() const;
-    //! \brief Add a step
-    void add_step(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
+    //! \brief The barriers
+    List<MinimumDistanceBarrier> const& barriers() const;
+    //! \brief Add a barrier
+    void add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
 
-    //! \brief The minimum distance by the latest step
+    //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;
-    //! \brief The current index verified by the latest step
+    //! \brief The current index verified by the latest barrier
     SizeType const& current_index() const;
 
-    //! \brief Increase index of the latest step
+    //! \brief Increase index of the latest barrier
     void increase_index();
 
+    //! \brief Whether the trace is currently empty
+    bool empty() const;
+
     //! \brief Print on the standard output
-    friend std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t);
+    friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t);
 
   private:
-    List<MinimumDistanceStep> _steps;
+    List<MinimumDistanceBarrier> _barriers;
 };
 
-//! \brief Return the trace of verification for a continuous history of \a robot_samples of a segment with respect to a \a human_sample of another segment
-ContinuousVerificationTrace verify_continuous(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
+//! \brief Return the trace of barriers for a history of \a robot_samples of a segment with respect to a \a human_sample of another segment
+MinimumDistanceBarrierTrace populate_barrier_trace(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
 
 }
 

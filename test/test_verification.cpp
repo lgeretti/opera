@@ -31,36 +31,36 @@ using namespace Opera;
 class TestVerification {
   public:
     void test() {
-        ARIADNE_TEST_CALL(test_minimum_distance_step())
-        ARIADNE_TEST_CALL(test_continuous_verification_trace_creation())
-        ARIADNE_TEST_CALL(test_continuous_verification_trace_multiple_samples())
+        ARIADNE_TEST_CALL(test_barrier_trace_creation())
+        ARIADNE_TEST_CALL(test_barrier())
+        ARIADNE_TEST_CALL(test_barrier_trace_multiple_samples())
     }
 
-    void test_minimum_distance_step() {
+    void test_barrier_trace_creation() {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        ContinuousVerificationTrace trace(distance,sa);
-        auto step = trace.steps().back();
-        ARIADNE_TEST_PRINT(step)
-        ARIADNE_TEST_ASSERT(decide(step.minimum_distance() == distance))
-        ARIADNE_TEST_EQUALS(step.sample().centre(),Point(1,1,1))
-        ARIADNE_TEST_EQUALS(step.maximum_index(),0)
-        step.increase_maximum_index();
-        ARIADNE_TEST_EQUALS(step.maximum_index(),1)
+        MinimumDistanceBarrierTrace trace;
+        ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
+        ARIADNE_TEST_FAIL(trace.current_index())
+        ARIADNE_TEST_FAIL(trace.current_minimum_distance())
+        ARIADNE_TEST_FAIL(trace.increase_index())
     }
 
-    void test_continuous_verification_trace_creation() {
+    void test_barrier() {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        ContinuousVerificationTrace trace(distance,sa);
-        ARIADNE_TEST_EQUALS(trace.current_index(),0)
-        ARIADNE_TEST_EQUALS(trace.steps().size(),1)
-        ARIADNE_TEST_PRINT(trace)
+        MinimumDistanceBarrierTrace trace;
+        trace.add_barrier(distance,sa);
+        auto barrier = trace.barriers().back();
+        ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
+        ARIADNE_TEST_EQUALS(barrier.sample().centre(),Point(1,1,1))
+        ARIADNE_TEST_EQUALS(barrier.maximum_index(),0)
+        ARIADNE_TEST_PRINT(barrier)
     }
 
-    void test_continuous_verification_trace_multiple_samples() {
+    void test_barrier_trace_multiple_samples() {
         Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h(1, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
@@ -73,9 +73,9 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
 
-        auto trace = verify_continuous(human_sample,robot_samples);
-        ARIADNE_TEST_EQUALS(trace.steps().size(),5)
-        ARIADNE_TEST_EQUALS(trace.steps().back().maximum_index(),4)
+        auto trace = populate_barrier_trace(human_sample,robot_samples);
+        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
+        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),3)
 
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -85,9 +85,9 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(-1,4,0),Point(0,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
 
-        trace = verify_continuous(human_sample,robot_samples);
-        ARIADNE_TEST_EQUALS(trace.steps().size(),5)
-        ARIADNE_TEST_EQUALS(trace.steps().back().maximum_index(),5)
+        trace = populate_barrier_trace(human_sample,robot_samples);
+        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
+        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),4)
 
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -98,17 +98,16 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(2,5,0),Point(3,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
 
-        trace = verify_continuous(human_sample,robot_samples);
-        ARIADNE_TEST_EQUALS(trace.steps().size(),4)
-        ARIADNE_TEST_EQUALS(trace.steps().back().maximum_index(),6)
-        ARIADNE_TEST_ASSERT(decide(trace.steps().back().minimum_distance()>0))
+        trace = populate_barrier_trace(human_sample,robot_samples);
+        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
+        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),6)
+        ARIADNE_TEST_ASSERT(decide(trace.barriers().back().minimum_distance()>0))
+        ARIADNE_TEST_PRINT(trace)
     }
 
 };
 
-
 int main() {
     TestVerification().test();
-
     return ARIADNE_TEST_FAILURES;
 }

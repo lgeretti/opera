@@ -26,71 +26,77 @@
 
 namespace Opera {
 
-MinimumDistanceStep::MinimumDistanceStep(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index) :
+MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index) :
     _minimum_distance(minimum_distance), _sample(sample), _maximum_index(maximum_index) { }
 
-PositiveFloatType const& MinimumDistanceStep::minimum_distance() const {
+PositiveFloatType const& MinimumDistanceBarrier::minimum_distance() const {
     return _minimum_distance;
 }
 
-SphericalApproximationSample const& MinimumDistanceStep::sample() const {
+SphericalApproximationSample const& MinimumDistanceBarrier::sample() const {
     return _sample;
 }
 
-SizeType const& MinimumDistanceStep::maximum_index() const {
+SizeType const& MinimumDistanceBarrier::maximum_index() const {
     return _maximum_index;
 }
 
-void MinimumDistanceStep::increase_maximum_index() {
+void MinimumDistanceBarrier::increase_maximum_index() {
     _maximum_index++;
 }
 
-std::ostream& operator<<(std::ostream& os, MinimumDistanceStep const& s) {
+std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
     return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
 }
 
-ContinuousVerificationTrace::ContinuousVerificationTrace(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) :
-    _steps({MinimumDistanceStep(minimum_distance,sample,0)}) { }
+MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace() : _barriers({}) { }
 
-List<MinimumDistanceStep> const& ContinuousVerificationTrace::steps() const {
-    return _steps;
+List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
+    return _barriers;
 }
 
-void ContinuousVerificationTrace::add_step(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) {
-    _steps.append(MinimumDistanceStep(minimum_distance,sample,current_index()+1));
+void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) {
+    SizeType idx = (_barriers.empty() ? 0 : current_index()+1);
+    _barriers.append(MinimumDistanceBarrier(minimum_distance,sample,idx));
 }
 
-PositiveFloatType const& ContinuousVerificationTrace::current_minimum_distance() const {
-    return _steps.back().minimum_distance();
+bool MinimumDistanceBarrierTrace::empty() const {
+    return _barriers.empty();
 }
 
-SizeType const& ContinuousVerificationTrace::current_index() const {
-    return _steps.back().maximum_index();
+PositiveFloatType const& MinimumDistanceBarrierTrace::current_minimum_distance() const {
+    ARIADNE_ASSERT(not empty())
+    return _barriers.back().minimum_distance();
 }
 
-void ContinuousVerificationTrace::increase_index() {
-    _steps.back().increase_maximum_index();
+SizeType const& MinimumDistanceBarrierTrace::current_index() const {
+    ARIADNE_ASSERT(not empty())
+    return _barriers.back().maximum_index();
 }
 
-std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t) {
-    return os << t.steps();
+void MinimumDistanceBarrierTrace::increase_index() {
+    ARIADNE_ASSERT(not empty())
+    _barriers.back().increase_maximum_index();
 }
 
-ContinuousVerificationTrace verify_continuous(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
+std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t) {
+    return os << t.barriers();
+}
 
+MinimumDistanceBarrierTrace populate_barrier_trace(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
     const SphericalApproximationSample sas = human_sample.spherical_approximation();
-    ContinuousVerificationTrace result(distance(sas,robot_samples.at(0)),sas);
-    PositiveFloatType minimum_distance = result.current_minimum_distance();
-    SizeType i=1;
-    while (decide(minimum_distance > 0) and i<robot_samples.size()) {
-        auto current_distance = distance(sas,robot_samples.at(i));
-        if (decide(current_distance<minimum_distance)) {
+    MinimumDistanceBarrierTrace result;
+    PositiveFloatType minimum_distance(cast_positive(cast_approximate(Ariadne::infty)));
+    for (auto sample : robot_samples) {
+        auto current_distance = distance(sas,sample);
+        if (decide(current_distance == 0))
+            break;
+        else if (decide(current_distance<minimum_distance)) {
             minimum_distance = current_distance;
-            result.add_step(minimum_distance,sas);
+            result.add_barrier(minimum_distance,sas);
         } else {
             result.increase_index();
         }
-        ++i;
     }
     return result;
 }
