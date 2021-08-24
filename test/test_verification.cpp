@@ -32,15 +32,17 @@ class TestVerification {
   public:
     void test() {
         ARIADNE_TEST_CALL(test_minimum_distance_step())
-        ARIADNE_TEST_CALL(test_continuous_verification_trace_manual_creation())
-        ARIADNE_TEST_CALL(test_continuous_verification_trace_creation_from_samples())
+        ARIADNE_TEST_CALL(test_continuous_verification_trace_creation())
+        ARIADNE_TEST_CALL(test_continuous_verification_trace_multiple_samples())
     }
 
     void test_minimum_distance_step() {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceStep step(distance,sa,0);
+        ContinuousVerificationTrace trace(distance,sa);
+        auto step = trace.steps().back();
+        ARIADNE_TEST_PRINT(step)
         ARIADNE_TEST_ASSERT(decide(step.minimum_distance() == distance))
         ARIADNE_TEST_EQUALS(step.sample().centre(),Point(1,1,1))
         ARIADNE_TEST_EQUALS(step.maximum_index(),0)
@@ -48,20 +50,17 @@ class TestVerification {
         ARIADNE_TEST_EQUALS(step.maximum_index(),1)
     }
 
-    void test_continuous_verification_trace_manual_creation() {
+    void test_continuous_verification_trace_creation() {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceStep step(distance,sa,3);
-        ContinuousVerificationTrace trace(step);
+        ContinuousVerificationTrace trace(distance,sa);
+        ARIADNE_TEST_EQUALS(trace.current_index(),0)
         ARIADNE_TEST_EQUALS(trace.steps().size(),1)
-        trace.increase_maximum_index();
-        ARIADNE_TEST_EQUALS(trace.steps().back().maximum_index(),4)
-        trace.add_step(MinimumDistanceStep(cast_positive(FloatType(0.25,dp)),sa,5));
-        ARIADNE_TEST_EQUALS(trace.steps().size(),2)
+        ARIADNE_TEST_PRINT(trace)
     }
 
-    void test_continuous_verification_trace_creation_from_samples() {
+    void test_continuous_verification_trace_multiple_samples() {
         Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h(1, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
 

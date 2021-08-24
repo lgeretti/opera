@@ -195,6 +195,7 @@ public:
         auto robot_sample = r.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
         auto human_sample = r.segment(0).create_sample(Point(1,5,0),Point(2,5,0));
         auto human_sas = human_sample.spherical_approximation();
+        ARIADNE_TEST_PRINT(human_sas)
         ARIADNE_TEST_EQUAL(human_sas.centre(),Point(1.5,5,0))
         ARIADNE_TEST_ASSERT(decide(human_sas.radius()-FloatType(2.062,dp) <= 1e-3))
         ARIADNE_TEST_ASSERT(decide(distance(human_sas,robot_sample)-FloatType(1.938,dp) <= 1e-3))

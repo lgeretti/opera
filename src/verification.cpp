@@ -49,18 +49,15 @@ std::ostream& operator<<(std::ostream& os, MinimumDistanceStep const& s) {
     return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
 }
 
-ContinuousVerificationTrace::ContinuousVerificationTrace(MinimumDistanceStep const& step) :
-    _steps(List<MinimumDistanceStep>())
-{
-    add_step(step);
-}
+ContinuousVerificationTrace::ContinuousVerificationTrace(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) :
+    _steps({MinimumDistanceStep(minimum_distance,sample,0)}) { }
 
 List<MinimumDistanceStep> const& ContinuousVerificationTrace::steps() const {
     return _steps;
 }
 
-void ContinuousVerificationTrace::add_step(MinimumDistanceStep const& step) {
-    _steps.append(step);
+void ContinuousVerificationTrace::add_step(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) {
+    _steps.append(MinimumDistanceStep(minimum_distance,sample,current_index()+1));
 }
 
 PositiveFloatType const& ContinuousVerificationTrace::current_minimum_distance() const {
@@ -71,7 +68,7 @@ SizeType const& ContinuousVerificationTrace::current_index() const {
     return _steps.back().maximum_index();
 }
 
-void ContinuousVerificationTrace::increase_maximum_index() {
+void ContinuousVerificationTrace::increase_index() {
     _steps.back().increase_maximum_index();
 }
 
@@ -82,16 +79,16 @@ std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t)
 ContinuousVerificationTrace verify_continuous(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
 
     const SphericalApproximationSample sas = human_sample.spherical_approximation();
-    ContinuousVerificationTrace result(MinimumDistanceStep(distance(sas,robot_samples.at(0)),sas,0));
+    ContinuousVerificationTrace result(distance(sas,robot_samples.at(0)),sas);
     PositiveFloatType minimum_distance = result.current_minimum_distance();
     SizeType i=1;
     while (decide(minimum_distance > 0) and i<robot_samples.size()) {
         auto current_distance = distance(sas,robot_samples.at(i));
         if (decide(current_distance<minimum_distance)) {
             minimum_distance = current_distance;
-            result.add_step(MinimumDistanceStep(minimum_distance,sas,i));
+            result.add_step(minimum_distance,sas);
         } else {
-            result.increase_maximum_index();
+            result.increase_index();
         }
         ++i;
     }

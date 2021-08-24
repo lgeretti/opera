@@ -29,11 +29,15 @@
 
 namespace Opera {
 
+class ContinuousVerificationTrace;
+
 //! \brief A step (down) on the minimum distance
 class MinimumDistanceStep {
-  public:
+    friend ContinuousVerificationTrace;
+  protected:
     //! \brief Construct from fields
     MinimumDistanceStep(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index);
+  public:
     //! \brief The minimum distance from the spherical approximation sample
     PositiveFloatType const& minimum_distance() const;
     //! \brief The spherical approximation sample
@@ -56,21 +60,21 @@ class MinimumDistanceStep {
 //! \brief The full trace of verification information, in the continuous case
 class ContinuousVerificationTrace {
   public:
-    //! \brief Construct with an initial step
-    ContinuousVerificationTrace(MinimumDistanceStep const& initial);
+    //! \brief Construct with an initial \a minimum_distance and corresponding \a sample
+    ContinuousVerificationTrace(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
 
     //! \brief The steps
     List<MinimumDistanceStep> const& steps() const;
     //! \brief Add a step
-    void add_step(MinimumDistanceStep const& step);
+    void add_step(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
 
     //! \brief The minimum distance by the latest step
     PositiveFloatType const& current_minimum_distance() const;
     //! \brief The current index verified by the latest step
     SizeType const& current_index() const;
 
-    //! \brief Increase maximum index of the latest step
-    void increase_maximum_index();
+    //! \brief Increase index of the latest step
+    void increase_index();
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t);
