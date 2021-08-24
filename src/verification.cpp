@@ -49,15 +49,14 @@ std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
     return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
 }
 
-MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace() : _barriers({}) { }
+MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace() : _next_index(0), _barriers({}) { }
 
 List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
     return _barriers;
 }
 
 void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) {
-    SizeType idx = (_barriers.empty() ? 0 : current_index()+1);
-    _barriers.append(MinimumDistanceBarrier(minimum_distance,sample,idx));
+    _barriers.append(MinimumDistanceBarrier(minimum_distance,sample,_next_index));
 }
 
 void MinimumDistanceBarrierTrace::apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample) {
@@ -69,6 +68,7 @@ void MinimumDistanceBarrierTrace::apply(SphericalApproximationSample const& sphe
             _barriers.back().increase_maximum_index();
         }
     }
+    ++_next_index;
 }
 
 bool MinimumDistanceBarrierTrace::is_empty() const {
@@ -76,6 +76,7 @@ bool MinimumDistanceBarrierTrace::is_empty() const {
 }
 
 void MinimumDistanceBarrierTrace::clear() {
+    _next_index = 0;
     _barriers.clear();
 }
 
@@ -84,9 +85,8 @@ PositiveFloatType const& MinimumDistanceBarrierTrace::current_minimum_distance()
     else return _barriers.back().minimum_distance();
 }
 
-SizeType const& MinimumDistanceBarrierTrace::current_index() const {
-    ARIADNE_ASSERT(not is_empty())
-    return _barriers.back().maximum_index();
+SizeType const& MinimumDistanceBarrierTrace::next_index() const {
+    return _next_index;
 }
 
 SizeType MinimumDistanceBarrierTrace::resume_index(SphericalApproximationSample const& sample) const {

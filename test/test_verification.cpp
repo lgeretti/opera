@@ -42,7 +42,7 @@ class TestVerification {
         PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace;
         ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
-        ARIADNE_TEST_FAIL(trace.current_index())
+        ARIADNE_TEST_EQUALS(trace.next_index(),0)
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
 
@@ -75,7 +75,7 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
         for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.current_index(),3)
+        ARIADNE_TEST_EQUALS(trace.next_index(),5)
 
         trace.clear();
         robot_samples.clear();
@@ -87,7 +87,7 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
         for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.current_index(),4)
+        ARIADNE_TEST_EQUALS(trace.next_index(),6)
 
         trace.clear();
         robot_samples.clear();
@@ -100,7 +100,7 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
         for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.current_index(),6)
+        ARIADNE_TEST_EQUALS(trace.next_index(),7)
         ARIADNE_TEST_ASSERT(decide(trace.current_minimum_distance()>0))
         ARIADNE_TEST_PRINT(trace)
     }

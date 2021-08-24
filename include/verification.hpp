@@ -75,8 +75,8 @@ class MinimumDistanceBarrierTrace {
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;
-    //! \brief The current index verified by the latest barrier
-    SizeType const& current_index() const;
+    //! \brief The next index to apply
+    SizeType const& next_index() const;
     //! \brief The index from which we can resume checking the spherical \a sample
     //! \details If the whole trace still holds, then the result is the current index +1.
     //! A result of zero instead means starting from scratch with respect
@@ -92,6 +92,7 @@ class MinimumDistanceBarrierTrace {
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t);
 
   private:
+    SizeType _next_index;
     List<MinimumDistanceBarrier> _barriers;
 };
 
