@@ -40,7 +40,7 @@ struct ProfileVerification : public Profiler {
         Human h(1, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace;
+        MinimumDistanceBarrierTrace trace(0u);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));

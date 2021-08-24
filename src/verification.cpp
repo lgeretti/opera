@@ -49,7 +49,7 @@ std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
     return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
 }
 
-MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace() : _next_index(0), _barriers({}) { }
+MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace(SizeType const& starting_next_index) : _next_index(starting_next_index), _barriers({}) { }
 
 List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
     return _barriers;

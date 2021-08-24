@@ -40,7 +40,7 @@ class TestVerification {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace;
+        MinimumDistanceBarrierTrace trace(0u);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
         ARIADNE_TEST_EQUALS(trace.next_index(),0)
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
@@ -50,7 +50,7 @@ class TestVerification {
         Human h(5, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace;
+        MinimumDistanceBarrierTrace trace(0u);
         trace.add_barrier(distance,sa);
         auto barrier = trace.barriers().back();
         ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
@@ -65,7 +65,7 @@ class TestVerification {
 
         auto human_spherical_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace;
+        MinimumDistanceBarrierTrace trace(0u);
         List<BodySegmentSample> robot_samples;
 
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));

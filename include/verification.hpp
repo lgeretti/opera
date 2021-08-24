@@ -63,8 +63,8 @@ class MinimumDistanceBarrier {
 //! \brief The full trace of minimum distance barriers
 class MinimumDistanceBarrierTrace {
   public:
-    //! \brief Construct empty
-    MinimumDistanceBarrierTrace();
+    //! \brief Construct from a starting next index
+    MinimumDistanceBarrierTrace(SizeType const& starting_next_index);
 
     //! \brief The barriers
     List<MinimumDistanceBarrier> const& barriers() const;
