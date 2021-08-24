@@ -75,7 +75,7 @@ class TestVerification {
 
         auto trace = populate_barrier_trace(human_sample,robot_samples);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),3)
+        ARIADNE_TEST_EQUALS(trace.current_index(),3)
 
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -87,7 +87,7 @@ class TestVerification {
 
         trace = populate_barrier_trace(human_sample,robot_samples);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),4)
+        ARIADNE_TEST_EQUALS(trace.current_index(),4)
 
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -100,8 +100,8 @@ class TestVerification {
 
         trace = populate_barrier_trace(human_sample,robot_samples);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.barriers().back().maximum_index(),6)
-        ARIADNE_TEST_ASSERT(decide(trace.barriers().back().minimum_distance()>0))
+        ARIADNE_TEST_EQUALS(trace.current_index(),6)
+        ARIADNE_TEST_ASSERT(decide(trace.current_minimum_distance()>0))
         ARIADNE_TEST_PRINT(trace)
     }
 
