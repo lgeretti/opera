@@ -34,7 +34,7 @@ public:
         ARIADNE_TEST_CALL(test_construct_point())
         ARIADNE_TEST_CALL(test_segment_distance())
         ARIADNE_TEST_CALL(test_point_distance())
-        ARIADNE_TEST_CALL(test_center())
+        ARIADNE_TEST_CALL(test_centre())
         ARIADNE_TEST_CALL(test_hull())
         ARIADNE_TEST_CALL(test_circle_radius())
     }
@@ -66,7 +66,7 @@ public:
         ARIADNE_TEST_ASSERT(decide(distance(Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373))-d3 < 1e-8))
     }
 
-    void test_center() {
+    void test_centre() {
         Point p1(1.0,3.0,-2.0);
         Point p2(4.0,1.2,0);
 

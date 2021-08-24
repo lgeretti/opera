@@ -169,6 +169,11 @@ class SphericalApproximationSample {
     Point const& centre() const;
     //! \brief Return the error
     FloatType const& radius() const;
+
+    //! \brief The distance from a sample
+    friend PositiveFloatType distance(SphericalApproximationSample const& sample, BodySegmentSample const& other);
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, SphericalApproximationSample const& s);
   private:
     Point const _centre;
     FloatType const _radius;
@@ -182,7 +187,7 @@ class BodySegmentSampleInterface {
     virtual Point const& tail_centre() const = 0;
 
     //! \brief Return the maximum spherical error in the segment head/tail positions,
-    //! as obtained from the centers with respect to the bounds
+    //! as obtained from the centres with respect to the bounds
     virtual FloatType const& error() const = 0;
 
     //! \brief The thickness of the segment
@@ -245,8 +250,8 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     void _update_head(Point const& head);
     //! \brief Update only the tail bounds, without recalculation of metrics
     void _update_tail(Point const& tail);
-    //! \brief Re-calculate the centers, error and bounding box from the bounds
-    void _recalculate_centers_radius_bb();
+    //! \brief Re-calculate the centres, error and bounding box from the bounds
+    void _recalculate_centres_radius_bb();
 
   private:
     BodySegment const* _segment;

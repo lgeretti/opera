@@ -35,6 +35,7 @@ public:
         ARIADNE_TEST_CALL(test_bodysegment_creation())
         ARIADNE_TEST_CALL(test_bodysegment_update())
         ARIADNE_TEST_CALL(test_bodysegment_intersection())
+        ARIADNE_TEST_CALL(test_spherical_approximation())
         ARIADNE_TEST_CALL(test_human_state_instance())
         ARIADNE_TEST_CALL(test_robot_state_history_basics())
         ARIADNE_TEST_CALL(test_robot_state_history_analytics())
@@ -187,6 +188,16 @@ public:
         ARIADNE_TEST_ASSERT(not s4.intersects(s5))
         ARIADNE_TEST_ASSERT(s4.intersects(s6))
         ARIADNE_TEST_ASSERT(not s1.intersects(s7))
+    }
+
+    void test_spherical_approximation() {
+        Robot r(5, 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        auto robot_sample = r.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto human_sample = r.segment(0).create_sample(Point(1,5,0),Point(2,5,0));
+        auto human_sas = human_sample.spherical_approximation();
+        ARIADNE_TEST_EQUAL(human_sas.centre(),Point(1.5,5,0))
+        ARIADNE_TEST_ASSERT(decide(human_sas.radius()-FloatType(2.062,dp) <= 1e-3))
+        ARIADNE_TEST_ASSERT(decide(distance(human_sas,robot_sample)-FloatType(1.938,dp) <= 1e-3))
     }
 
     void test_human_state_instance() {

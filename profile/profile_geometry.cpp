@@ -32,14 +32,14 @@ struct ProfileGeometry : public Profiler {
     ProfileGeometry() : Profiler(1e5) { }
 
     void run() {
-        profile_center();
+        profile_centre();
         profile_hull();
         profile_circle_radius();
         profile_segment_distance();
         profile_point_distance();
     }
 
-    void profile_center() {
+    void profile_centre() {
         Ariadne::List<BoundingType> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));

@@ -45,6 +45,10 @@ void MinimumDistanceStep::increase_maximum_index() {
     _maximum_index++;
 }
 
+std::ostream& operator<<(std::ostream& os, MinimumDistanceStep const& s) {
+    return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
+}
+
 ContinuousVerificationTrace::ContinuousVerificationTrace(MinimumDistanceStep const& step) :
     _steps(List<MinimumDistanceStep>())
 {
@@ -69,6 +73,29 @@ SizeType const& ContinuousVerificationTrace::current_index() const {
 
 void ContinuousVerificationTrace::increase_maximum_index() {
     _steps.back().increase_maximum_index();
+}
+
+std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t) {
+    return os << t.steps();
+}
+
+ContinuousVerificationTrace verify_continuous(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
+
+    const SphericalApproximationSample sas = human_sample.spherical_approximation();
+    ContinuousVerificationTrace result(MinimumDistanceStep(distance(sas,robot_samples.at(0)),sas,0));
+    PositiveFloatType minimum_distance = result.current_minimum_distance();
+    SizeType i=1;
+    while (decide(minimum_distance > 0) and i<robot_samples.size()) {
+        auto current_distance = distance(sas,robot_samples.at(i));
+        if (decide(current_distance<minimum_distance)) {
+            minimum_distance = current_distance;
+            result.add_step(MinimumDistanceStep(minimum_distance,sas,i));
+        } else {
+            result.increase_maximum_index();
+        }
+        ++i;
+    }
+    return result;
 }
 
 }

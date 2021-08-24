@@ -44,6 +44,9 @@ class MinimumDistanceStep {
     //! \brief Increase the maximum index
     void increase_maximum_index();
 
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, MinimumDistanceStep const& s);
+
   private:
     PositiveFloatType const _minimum_distance;
     SphericalApproximationSample const _sample;
@@ -69,9 +72,15 @@ class ContinuousVerificationTrace {
     //! \brief Increase maximum index of the latest step
     void increase_maximum_index();
 
+    //! \brief Print on the standard output
+    friend std::ostream& operator<<(std::ostream& os, ContinuousVerificationTrace const& t);
+
   private:
     List<MinimumDistanceStep> _steps;
 };
+
+//! \brief Return the trace of verification for a continuous history of \a robot_samples of a segment with respect to a \a human_sample of another segment
+ContinuousVerificationTrace verify_continuous(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
 
 }
 
