@@ -46,7 +46,7 @@ struct ProfileVerification : public Profiler {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
         }
 
-        profile("Apply to trace (decreasing distance)",[&trace,hs,rss](SizeType i){ trace.apply(hs,rss.at(i)); });
+        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.apply(hs,rss.at(i)); });
 
         trace.clear();
         rss.clear();
@@ -54,7 +54,7 @@ struct ProfileVerification : public Profiler {
             rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
         }
 
-        profile("Apply to trace (increasing distance)",[&trace,hs,rss](SizeType i){ trace.apply(hs,rss.at(i)); });
+        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.apply(hs,rss.at(i)); });
     }
 };
 

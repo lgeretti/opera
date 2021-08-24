@@ -47,8 +47,8 @@ struct ProfileBody : public Profiler {
         auto s2 = segment.create_sample(Point(0, 3, 0), Point(6, 6, 6));
         auto s3 = segment.create_sample(Point(0, 8, 0), Point(0, 10, 0));
 
-        profile("Box intersection",[s1,s3](SizeType i){ s1.intersects(s3); });
-        profile("Pill intersection",[s1,s2](SizeType i){ s1.intersects(s2); });
+        profile("Box intersection",[&](SizeType i){ s1.intersects(s3); });
+        profile("Pill intersection",[&](SizeType i){ s1.intersects(s2); });
     }
 
     void profile_bodysegment_sample_update() {
@@ -64,7 +64,7 @@ struct ProfileBody : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Sample update",[&s,heads,tails](SizeType i){ s.update(heads.at(i), tails.at(i)); });
+        profile("Sample update",[&](SizeType i){ s.update(heads.at(i), tails.at(i)); });
     }
 
     void profile_human_instance_acquirement() {
@@ -78,7 +78,7 @@ struct ProfileBody : public Profiler {
                                               10*i));
         }
 
-        profile("Make human state instance from package",[&h,pkgs](SizeType i){ h.make_instance(pkgs.at(i)); });
+        profile("Make human state instance from package",[&](SizeType i){ h.make_instance(pkgs.at(i)); });
     }
 
     void profile_robot_history_acquirement_and_update() {
@@ -95,7 +95,7 @@ struct ProfileBody : public Profiler {
                                                     10*i));
         }
 
-        profile("Acquire robot package for new location",[&history,pkgs](SizeType i){ history.acquire(pkgs.at(i)); });
+        profile("Acquire robot package for new location",[&](SizeType i){ history.acquire(pkgs.at(i)); });
 
         history.acquire(RobotStatePackage(DiscreteLocation(robot|"second"),
                                          {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
@@ -110,7 +110,7 @@ struct ProfileBody : public Profiler {
                                              10000020+10*i));
         }
 
-        profile("Acquire robot package for existing location",[&history,pkgs](SizeType i){ history.acquire(pkgs.at(i)); });
+        profile("Acquire robot package for existing location",[&](SizeType i){ history.acquire(pkgs.at(i)); });
     }
 };
 

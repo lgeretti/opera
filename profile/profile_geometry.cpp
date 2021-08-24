@@ -48,7 +48,7 @@ struct ProfileGeometry : public Profiler {
             bbs.push_back(hull(bx1,pt2));
         }
 
-        profile("Bounding box centre",[&bbs](SizeType i){ (bbs.at(i).centre()); });
+        profile("Bounding box centre",[&](SizeType i){ bbs.at(i).centre(); });
     }
 
     void profile_hull() {
@@ -58,7 +58,7 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Hull of two points",[&heads,&tails](SizeType i){ hull(heads.at(i),heads.at(i)); });
+        profile("Hull of two points",[&](SizeType i){ hull(heads.at(i),heads.at(i)); });
     }
 
     void profile_circle_radius() {
@@ -70,7 +70,7 @@ struct ProfileGeometry : public Profiler {
             bbs.push_back(hull(bx1,pt2));
         }
 
-        profile("Bounding box circle error",[&bbs](SizeType i){ circle_radius(bbs.at(i)); });
+        profile("Bounding box circle error",[&](SizeType i){ circle_radius(bbs.at(i)); });
     }
 
     void profile_segment_distance() {
@@ -82,7 +82,7 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Segment distance",[s1h,s1t,heads,tails](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
+        profile("Segment distance",[&](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
     }
 
     void profile_point_distance() {
@@ -93,8 +93,8 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Point distance using segment distance",[points,heads,tails](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
-        profile("Point distance using dedicated distance",[points,heads,tails](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
+        profile("Point distance using segment distance",[&](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
+        profile("Point distance using dedicated distance",[&](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
     }
 };
 
