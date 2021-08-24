@@ -40,13 +40,13 @@ struct ProfileVerification : public Profiler {
         Human h(1, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace(0u);
+        MinimumDistanceBarrierTrace trace(hs,0u);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
         }
 
-        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.try_apply(hs,rss.at(i)); });
+        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.try_check(rss.at(i)); });
 
         trace.clear();
         rss.clear();
@@ -54,7 +54,7 @@ struct ProfileVerification : public Profiler {
             rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
         }
 
-        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.try_apply(hs,rss.at(i)); });
+        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.try_check(rss.at(i)); });
     }
 };
 

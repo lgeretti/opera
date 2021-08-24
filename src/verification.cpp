@@ -26,15 +26,11 @@
 
 namespace Opera {
 
-MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample, SizeType const& maximum_index) :
-    _minimum_distance(minimum_distance), _sample(sample), _maximum_index(maximum_index) { }
+MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SizeType const& maximum_index) :
+    _minimum_distance(minimum_distance), _maximum_index(maximum_index) { }
 
 PositiveFloatType const& MinimumDistanceBarrier::minimum_distance() const {
     return _minimum_distance;
-}
-
-SphericalApproximationSample const& MinimumDistanceBarrier::sample() const {
-    return _sample;
 }
 
 SizeType const& MinimumDistanceBarrier::maximum_index() const {
@@ -46,24 +42,25 @@ void MinimumDistanceBarrier::increase_maximum_index() {
 }
 
 std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
-    return os << "(d:" << s.minimum_distance() << ",&s:" << &s.sample() << ",i:" << s.maximum_index() << ")";
+    return os << "(d:" << s.minimum_distance() << ",i:" << s.maximum_index() << ")";
 }
 
-MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace(SizeType const& starting_next_index) : _next_index(starting_next_index), _barriers({}) { }
+MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace(SphericalApproximationSample const& sample, SizeType const& starting_next_index) :
+    _spherical_approximation(sample), _next_index(starting_next_index), _barriers({}) { }
 
 List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
     return _barriers;
 }
 
-void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample) {
-    _barriers.append(MinimumDistanceBarrier(minimum_distance,sample,_next_index));
+void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_distance) {
+    _barriers.append(MinimumDistanceBarrier(minimum_distance,_next_index));
 }
 
-bool MinimumDistanceBarrierTrace::try_apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample) {
-    auto current_distance = distance(spherical_sample,segment_sample);
+bool MinimumDistanceBarrierTrace::try_check(BodySegmentSample const& segment_sample) {
+    auto current_distance = distance(_spherical_approximation,segment_sample);
     if (decide(current_distance != 0)) {
         if (decide(current_distance<current_minimum_distance())) {
-            add_barrier(current_distance,spherical_sample);
+            add_barrier(current_distance);
         } else {
             _barriers.back().increase_maximum_index();
         }
