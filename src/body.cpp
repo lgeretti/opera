@@ -253,7 +253,7 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
     /*
      * 1) If the location is different from the current one (including the first location inserted)
      *   a) Save the buffered content
-     *   b) Create a new empty buffered content
+     *   b) Create a new is_empty buffered content
      *   c) Add the location presence
      *   d) Update the current location
      * 3) Check if the location has a history

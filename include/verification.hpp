@@ -48,6 +48,9 @@ class MinimumDistanceBarrier {
     //! \brief The maximum index for which this minimum distance holds
     SizeType const& maximum_index() const;
 
+    //! \brief Whether this barrier can be used also for the \a other spherical approximation sample
+    bool includes(SphericalApproximationSample const& other) const;
+
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s);
 
@@ -67,17 +70,18 @@ class MinimumDistanceBarrierTrace {
     List<MinimumDistanceBarrier> const& barriers() const;
     //! \brief Add a barrier
     void add_barrier(PositiveFloatType const& minimum_distance, SphericalApproximationSample const& sample);
+    //! \brief Apply by checking a \a spherical_sample with a \a segment_sample
+    void apply(SphericalApproximationSample const& spherical_sample, BodySegmentSample const& segment_sample);
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;
     //! \brief The current index verified by the latest barrier
     SizeType const& current_index() const;
-
-    //! \brief Increase index of the latest barrier
-    void increase_index();
-
     //! \brief Whether the trace is currently empty
-    bool empty() const;
+    bool is_empty() const;
+
+    //! \brief Remove all barriers
+    void clear();
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t);
@@ -86,8 +90,9 @@ class MinimumDistanceBarrierTrace {
     List<MinimumDistanceBarrier> _barriers;
 };
 
-//! \brief Return the trace of barriers for a history of \a robot_samples of a segment with respect to a \a human_sample of another segment
-MinimumDistanceBarrierTrace populate_barrier_trace(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
+//! \brief The index from which we can resume checking a segment \a sample according to a given \a trace
+//! \details Returning zero means starting from scratch
+SizeType resume_index(MinimumDistanceBarrierTrace const& trace, BodySegmentSample const& sample);
 
 }
 

@@ -40,6 +40,8 @@ using Ariadne::Interval;
 using Ariadne::Natural;
 using Ariadne::StringStream;
 
+static const PositiveFloatType pa_infty = cast_positive(cast_approximate(Ariadne::infty));
+
 }
 
 #endif //OPERA_DECLARATIONS_HPP

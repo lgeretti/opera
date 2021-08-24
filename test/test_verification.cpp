@@ -43,8 +43,7 @@ class TestVerification {
         MinimumDistanceBarrierTrace trace;
         ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
         ARIADNE_TEST_FAIL(trace.current_index())
-        ARIADNE_TEST_FAIL(trace.current_minimum_distance())
-        ARIADNE_TEST_FAIL(trace.increase_index())
+        ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
 
     void test_barrier() {
@@ -64,19 +63,21 @@ class TestVerification {
         Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h(1, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
-        BodySegmentSample human_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto human_spherical_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
+        MinimumDistanceBarrierTrace trace;
         List<BodySegmentSample> robot_samples;
+
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
-
-        auto trace = populate_barrier_trace(human_sample,robot_samples);
+        for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
         ARIADNE_TEST_EQUALS(trace.current_index(),3)
 
+        trace.clear();
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
@@ -84,11 +85,11 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(-2,5,0),Point(-1,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-1,4,0),Point(0,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
-
-        trace = populate_barrier_trace(human_sample,robot_samples);
+        for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
         ARIADNE_TEST_EQUALS(trace.current_index(),4)
 
+        trace.clear();
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
@@ -97,8 +98,7 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(1,5,0),Point(2,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(2,5,0),Point(3,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
-
-        trace = populate_barrier_trace(human_sample,robot_samples);
+        for (auto s : robot_samples) trace.apply(human_spherical_sample,s);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
         ARIADNE_TEST_EQUALS(trace.current_index(),6)
         ARIADNE_TEST_ASSERT(decide(trace.current_minimum_distance()>0))

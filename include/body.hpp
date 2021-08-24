@@ -85,7 +85,7 @@ class Robot : public Body {
   public:
     //! \brief Construct from fields
     Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
-    //! \brief Create an empty history for the robot packages received
+    //! \brief Create an is_empty history for the robot packages received
     RobotStateHistory make_history() const;
 };
 
@@ -109,7 +109,7 @@ class BodySegment {
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
 
-    //! \brief Create an empty sample
+    //! \brief Create an is_empty sample
     BodySegmentSample create_sample() const;
 
     //! \brief Create a sample for the segment from a \a begin and \a end points
@@ -196,7 +196,7 @@ class BodySegmentSampleInterface {
     //! \brief Return the bounding box overapproximation
     virtual BoundingType const& bounding_box() const = 0;
 
-    //! \brief Whether the segment is empty, i.e., whether either head and tail are empty
+    //! \brief Whether the segment is empty, i.e., whether either head and tail are is_empty
     virtual bool is_empty() const = 0;
 
     //! \brief Update the head and tail bounds from the given points
