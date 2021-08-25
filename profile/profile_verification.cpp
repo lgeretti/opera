@@ -34,6 +34,7 @@ struct ProfileVerification : public Profiler {
     void run() {
         profile_apply_to_trace();
         profile_resume_index();
+        profile_resume_or_not();
     }
 
     void profile_apply_to_trace() {
@@ -59,14 +60,15 @@ struct ProfileVerification : public Profiler {
     }
 
     void profile_resume_index() {
-        const SizeType ns = 20;
+        const SizeType ns = 1000;
+        const SizeType override_num_tries = 100;
         Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h(1, 10, {0, 1}, {FloatType(0.5, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0)).spherical_approximation();
 
         List<MinimumDistanceBarrierTrace> ts;
         List<SphericalApproximationSample> beginning_sas, middle_sas, end_sas;
-        for (SizeType i=0; i<num_tries(); ++i) {
+        for (SizeType i=0; i<override_num_tries; ++i) {
             MinimumDistanceBarrierTrace trace(hs,0u);
             Point last_head(0,0,0);
             for (SizeType j=0; j<ns;++j) {
@@ -90,9 +92,50 @@ struct ProfileVerification : public Profiler {
             end_sas.append(h.segment(0).create_sample(end_head_sa,end_tail_sa).spherical_approximation());
         }
 
-        profile("Resume index (beginning of trace)",[&](SizeType i){ ts.at(i).resume_index(beginning_sas.at(i)); });
-        profile("Resume index (middle of trace)",[&](SizeType i){ ts.at(i).resume_index(middle_sas.at(i)); });
-        profile("Resume index (end of trace)",[&](SizeType i){ ts.at(i).resume_index(end_sas.at(i)); });
+        profile("Resume index (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_index(beginning_sas.at(i)); },override_num_tries);
+        profile("Resume index (middle of trace)",[&](SizeType i){ ts.at(i).resume_index(middle_sas.at(i)); },override_num_tries);
+        profile("Resume index (near end of trace)",[&](SizeType i){ ts.at(i).resume_index(end_sas.at(i)); },override_num_tries);
+    }
+
+    void profile_resume_or_not() {
+        const SizeType ns = 1000;
+        const SizeType override_num_tries = 1;
+        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h(1, 10, {0, 1}, {FloatType(0.5, Ariadne::dp)});
+        auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0)).spherical_approximation();
+
+        List<BodySegmentSample> rss;
+        for (SizeType i=0; i<ns; ++i) {
+            rss.append(r.segment(0).create_sample(Point(i,0,0),Point(i,2,0)));
+        }
+        List<BodySegmentSample> hss;
+        for (SizeType i=ns; i>0; --i) {
+            hss.append(h.segment(0).create_sample(Point(ns+i,0,0),Point(ns+i,2,0)));
+        }
+
+        profile("Using resuming for segments intersection detection",[&](SizeType i){
+            SizeType resume_idx = 0;
+            for (SizeType i=0; i<ns; ++i) {
+                //std::cout << "i:" << i;
+                auto hs = hss.at(i).spherical_approximation();
+                MinimumDistanceBarrierTrace trace(hs,resume_idx);
+                bool update_trace = true;
+                for (SizeType j=resume_idx; j<ns; ++j) {
+                    if (update_trace and not trace.try_update_with(rss.at(j)))
+                        update_trace = false;
+                    if (hss.at(i).intersects(rss.at(j))) break;
+                }
+                resume_idx = trace.next_index();
+            }
+        },override_num_tries);
+
+        profile("Not using resuming for segments intersection detection",[&](SizeType i){
+            for (SizeType i=0; i<ns; ++i) {
+                for (SizeType j=i; j<ns; ++j) {
+                    if (hss.at(i).intersects(rss.at(j))) break;
+                }
+            }
+        },override_num_tries);
     }
 };
 

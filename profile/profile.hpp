@@ -49,12 +49,17 @@ class Profiler {
 
     Randomiser const& rnd() const { return _rnd; }
 
-    void profile(std::string msg, std::function<void(SizeType)> function) {
+    void profile(std::string msg, std::function<void(SizeType)> function, SizeType num_tries) {
         _sw.restart();
-        for (SizeType i=0; i<_num_tries; ++i) function(i);
+        for (SizeType i=0; i<num_tries; ++i) function(i);
         _sw.click();
-        std::cout << msg << " completed in " << ((double)_sw.duration().count())/_num_tries*1000 << " ns on average" << std::endl;
+        std::cout << msg << " completed in " << ((double)_sw.duration().count())/num_tries*1000 << " ns on average" << std::endl;
     }
+
+    void profile(std::string msg, std::function<void(SizeType)> function) {
+        profile(msg,function,_num_tries);
+    }
+
   private:
     Ariadne::Stopwatch<Ariadne::Microseconds> _sw;
     Randomiser _rnd;
