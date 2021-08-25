@@ -82,11 +82,14 @@ class MinimumDistanceBarrierTrace {
     //! \brief Remove all barriers
     void clear();
 
+    //! \brief Reset the trace according to resuming obtained from \a human_sample with respect to \a robot_samples
+    void reset(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
+
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t);
 
   private:
-    SphericalApproximationSample const _spherical_approximation;
+    SphericalApproximationSample _spherical_approximation;
     SizeType _next_index;
     List<MinimumDistanceBarrier> _barriers;
 };

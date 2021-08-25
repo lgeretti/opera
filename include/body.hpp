@@ -175,8 +175,8 @@ class SphericalApproximationSample {
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, SphericalApproximationSample const& s);
   private:
-    Point const _centre;
-    FloatType const _radius;
+    Point _centre;
+    FloatType _radius;
 };
 
 class BodySegmentSampleInterface {

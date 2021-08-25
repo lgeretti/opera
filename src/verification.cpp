@@ -88,6 +88,14 @@ SizeType MinimumDistanceBarrierTrace::resume_index(SphericalApproximationSample 
     return _barriers.at(result).maximum_index()+1;
 }
 
+void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
+    auto sas = human_sample.spherical_approximation();
+    _next_index = resume_index(sas);
+    _spherical_approximation = sas;
+    _barriers.clear();
+    if (_next_index > 0) _barriers.append(MinimumDistanceBarrier(distance(_spherical_approximation,robot_samples.at(_next_index-1)),_next_index-1));
+}
+
 bool MinimumDistanceBarrierTrace::is_empty() const {
     return _barriers.empty();
 }

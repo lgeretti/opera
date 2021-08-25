@@ -98,7 +98,7 @@ struct ProfileVerification : public Profiler {
     }
 
     void profile_resume_or_not() {
-        const SizeType ns = 1000;
+        const SizeType ns = 800;
         const SizeType override_num_tries = 1;
         Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h(1, 10, {0, 1}, {FloatType(0.5, Ariadne::dp)});
@@ -115,17 +115,18 @@ struct ProfileVerification : public Profiler {
 
         profile("Using resuming for segments intersection detection",[&](SizeType i){
             SizeType resume_idx = 0;
+            MinimumDistanceBarrierTrace trace(hss.at(0).spherical_approximation(),0);
             for (SizeType i=0; i<ns; ++i) {
-                //std::cout << "i:" << i;
-                auto hs = hss.at(i).spherical_approximation();
-                MinimumDistanceBarrierTrace trace(hs,resume_idx);
                 bool update_trace = true;
                 for (SizeType j=resume_idx; j<ns; ++j) {
                     if (update_trace and not trace.try_update_with(rss.at(j)))
                         update_trace = false;
                     if (hss.at(i).intersects(rss.at(j))) break;
                 }
-                resume_idx = trace.next_index();
+                if (i<ns-1) {
+                    trace.reset(hss.at(i+1),rss);
+                    resume_idx = trace.next_index();
+                }
             }
         },override_num_tries);
 
