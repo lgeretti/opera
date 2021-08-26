@@ -30,9 +30,8 @@ using Ariadne::Map;
 
 namespace Opera {
 
-Body::Body(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
-    _id(id), _package_frequency(package_frequency) {
-    ARIADNE_ASSERT_MSG(package_frequency > 0, "The package frequency must be strictly positive")
+Body::Body(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    _id(id) {
     ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
 
     for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i)
@@ -48,10 +47,6 @@ IdType const& Body::id() const {
     return _id;
 }
 
-SizeType const& Body::package_frequency() const {
-    return _package_frequency;
-}
-
 BodySegment const& Body::segment(SizeType const& idx) const {
     return *_segments.at(idx);
 }
@@ -61,7 +56,7 @@ SizeType Body::num_segments() const {
 }
 
 std::ostream& operator<<(std::ostream& os, Body const& b) {
-    os << "(id=" << b.id() << ", package_frequency=" << b.package_frequency() << ", segments=[";
+    os << "(id=" << b.id() << ", segments=[";
     for (SizeType i=0; i<b.num_segments()-1; ++i) {
         os << b.segment(i) << ",";
     }
@@ -69,8 +64,8 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
     return os;
 }
 
-Human::Human(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
-    Body(id,package_frequency,points_ids,thicknesses) { }
+Human::Human(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    Body(id,points_ids,thicknesses) { }
 
 HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
 
@@ -89,7 +84,13 @@ HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
 }
 
 Robot::Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
-    Body(id,package_frequency,points_ids,thicknesses) { }
+    Body(id,points_ids,thicknesses), _package_frequency(package_frequency) {
+    ARIADNE_ASSERT_MSG(package_frequency > 0, "The package frequency must be strictly positive")
+}
+
+SizeType const& Robot::package_frequency() const {
+    return _package_frequency;
+}
 
 RobotStateHistory Robot::make_history() const {
     return RobotStateHistory(this);

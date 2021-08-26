@@ -45,12 +45,10 @@ class RobotStateHistory;
 class Body {
   protected:
     //! \brief Construct from fields
-    Body(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Body(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
   public:
     //! \brief The body identifier
     IdType const& id() const;
-    //! \brief The frequency of packages sent by the body, in Hz
-    SizeType const& package_frequency() const;
 
     //! \brief Return the segment indexed by \a idx
     BodySegment const& segment(SizeType const& idx) const;
@@ -66,7 +64,6 @@ class Body {
 
   private:
     IdType const _id;
-    SizeType const _package_frequency;
   protected:
     List<BodySegment*> _segments;
 };
@@ -75,7 +72,7 @@ class Body {
 class Human : public Body {
   public:
     //! \brief Construct from fields
-    Human(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Human(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief Create a state instance from the package
     HumanStateInstance make_instance(HumanStatePackage const& pkg) const;
 };
@@ -87,6 +84,10 @@ class Robot : public Body {
     Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief Create an is_empty history for the robot packages received
     RobotStateHistory make_history() const;
+    //! \brief The frequency of packages sent by the robot, in Hz
+    SizeType const& package_frequency() const;
+  private:
+    SizeType const _package_frequency;
 };
 
 class BodySegmentSample;
@@ -390,7 +391,7 @@ class RobotStateHistory {
     LocationSamplesType _location_states;
     DiscreteLocation _current_location;
     BodySamplesType _current_location_states_buffer;
-    Body const* _robot;
+    Robot const* _robot;
 };
 
 }

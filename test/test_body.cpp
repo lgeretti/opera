@@ -42,14 +42,17 @@ public:
     }
 
     void test_body_creation() {
-        Human h(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h(5, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
 
         ARIADNE_TEST_PRINT(h)
         ARIADNE_TEST_EQUALS(h.id(),5)
-        ARIADNE_TEST_EQUALS(h.package_frequency(), 10)
         ARIADNE_TEST_EQUALS(h.num_segments(),2)
 
-        ARIADNE_TEST_CONSTRUCT(Robot,r,(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)}))
+        Robot r(2, 10, {0,1}, {FloatType(0.5,Ariadne::dp)});
+        ARIADNE_TEST_PRINT(r)
+        ARIADNE_TEST_EQUALS(r.id(),2)
+        ARIADNE_TEST_EQUALS(r.num_segments(),1)
+        ARIADNE_TEST_EQUALS(r.package_frequency(), 10)
     }
 
     void test_bodysegment_creation() {
@@ -202,7 +205,7 @@ public:
     }
 
     void test_human_state_instance() {
-        Human h(5, 10, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h(5, {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
         auto instance = h.make_instance(HumanStatePackage({{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e8));
 
         ARIADNE_TEST_EQUALS(instance.samples().size(),2)
