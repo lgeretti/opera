@@ -57,8 +57,8 @@ class MinimumDistanceBarrier {
 //! \brief The full trace of minimum distance barriers
 class MinimumDistanceBarrierTrace {
   public:
-    //! \brief Construct from a spherical approximation \a sample and a starting next index
-    MinimumDistanceBarrierTrace(SphericalApproximationSample const& sample, SizeType const& starting_next_index);
+    //! \brief Construct from a spherical approximation \a sample
+    MinimumDistanceBarrierTrace(SphericalApproximationSample const& sample);
 
     //! \brief The barriers
     List<MinimumDistanceBarrier> const& barriers() const;

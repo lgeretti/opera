@@ -31,6 +31,7 @@ using namespace Opera;
 class TestVerification {
   public:
     void test() {
+
         ARIADNE_TEST_CALL(test_barrier_trace_create())
         ARIADNE_TEST_CALL(test_barrier())
         ARIADNE_TEST_CALL(test_barrier_trace_populate())
@@ -41,9 +42,9 @@ class TestVerification {
         Human h(5, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace(sa,5u);
+        MinimumDistanceBarrierTrace trace(sa);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
-        ARIADNE_TEST_EQUALS(trace.next_index(),5)
+        ARIADNE_TEST_EQUALS(trace.next_index(),0)
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
 
@@ -51,7 +52,7 @@ class TestVerification {
         Human h(5, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace(sa,0u);
+        MinimumDistanceBarrierTrace trace(sa);
         trace.add_barrier(distance);
         auto barrier = trace.barriers().back();
         ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
@@ -65,7 +66,7 @@ class TestVerification {
 
         auto human_spherical_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace(human_spherical_sample,0u);
+        MinimumDistanceBarrierTrace trace(human_spherical_sample);
         List<BodySegmentSample> robot_samples;
 
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -112,7 +113,7 @@ class TestVerification {
 
         auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace(hs1,0u);
+        MinimumDistanceBarrierTrace trace(hs1);
         List<BodySegmentSample> robot_samples;
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));

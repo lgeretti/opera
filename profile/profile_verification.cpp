@@ -42,7 +42,7 @@ struct ProfileVerification : public Profiler {
         Human h(1, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
-        MinimumDistanceBarrierTrace trace(hs,0u);
+        MinimumDistanceBarrierTrace trace(hs);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
@@ -69,7 +69,7 @@ struct ProfileVerification : public Profiler {
         List<MinimumDistanceBarrierTrace> ts;
         List<SphericalApproximationSample> beginning_sas, middle_sas, end_sas;
         for (SizeType i=0; i<override_num_tries; ++i) {
-            MinimumDistanceBarrierTrace trace(hs,0u);
+            MinimumDistanceBarrierTrace trace(hs);
             Point last_head(0,0,0);
             for (SizeType j=0; j<ns;++j) {
                 Point new_head(last_head.x+rnd().get(0.99,1.01),last_head.y+rnd().get(0.99,1.01),a_zero);
@@ -115,7 +115,7 @@ struct ProfileVerification : public Profiler {
 
         profile("Using resuming for segments intersection detection",[&](SizeType i){
             SizeType resume_idx = 0;
-            MinimumDistanceBarrierTrace trace(hss.at(0).spherical_approximation(),0);
+            MinimumDistanceBarrierTrace trace(hss.at(0).spherical_approximation());
             for (SizeType i=0; i<ns; ++i) {
                 bool update_trace = true;
                 for (SizeType j=resume_idx; j<ns; ++j) {
