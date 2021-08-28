@@ -35,42 +35,101 @@ using namespace rapidjson;
 
 BodyDeserialiser::BodyDeserialiser(String const& filename) {
 
-    using namespace rapidjson;
-
     std::ifstream ifs(filename);
     ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << filename << "' file for reading.")
     IStreamWrapper isw(ifs);
     _document.ParseStream(isw);
 
     ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
-
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    _document.Accept(writer);
-    std::cout << buffer.GetString() << std::endl;
-
-    buffer.Clear();
-    Writer<StringBuffer> writer2(buffer);
-    _document.Accept(writer2);
-    std::cout << buffer.GetString() << std::endl;
-
-    std::ofstream ofs { "output.json" };
-    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file for writing.")
-    OStreamWrapper osw(ofs);
-    Writer<OStreamWrapper> writer3(osw);
-    _document.Accept(writer3);
 }
 
 bool BodyDeserialiser::is_human() const {
-    return false;
+    return _document["isHuman"].GetBool();
+}
+
+List<SizeType> BodyDeserialiser::_get_point_ids() const {
+    List<SizeType> result;
+    auto segments_array = _document["pointIds"].GetArray();
+    for (SizeType i=0; i<segments_array.Size(); ++i) {
+        auto point_ids_array = segments_array[i].GetArray();
+        result.append(point_ids_array[0].GetUint());
+        result.append(point_ids_array[1].GetUint());
+    }
+    return result;
+}
+
+List<FloatType> BodyDeserialiser::_get_thicknesses() const {
+    List<FloatType> result;
+    auto thicknesses_array = _document["thicknesses"].GetArray();
+    for (SizeType i=0; i<thicknesses_array.Size(); ++i) {
+        result.append(FloatType(thicknesses_array[i].GetDouble(),dp));
+    }
+    return result;
 }
 
 Human BodyDeserialiser::make_human() const {
-    return Human("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+    ARIADNE_ASSERT(is_human())
+    return Human(_document["id"].GetString(), _get_point_ids(), _get_thicknesses());
 }
 
 Robot BodyDeserialiser::make_robot() const {
-    return Robot("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+    ARIADNE_ASSERT(not is_human())
+    return Robot(_document["id"].GetString(), _document["packageFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
+}
+
+std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d) {
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    d._document.Accept(writer);
+    return os << buffer.GetString();
+}
+
+BodySerialiser::BodySerialiser(String const& filename) : _filename(filename) { }
+
+void BodySerialiser::_serialise(Body const& body, bool is_human) const {
+
+    Document document;
+    document.SetObject();
+    Document::AllocatorType& allocator = document.GetAllocator();
+
+    Value id;
+    id.SetString(body.id().c_str(),body.id().length());
+    document.AddMember("id",id,allocator);
+    document.AddMember("isHuman",Value().SetBool(is_human),allocator);
+
+    Value thicknesses;
+    Value point_ids;
+    thicknesses.SetArray();
+    point_ids.SetArray();
+    for (SizeType i=0; i<body.num_segments(); ++i) {
+        auto const& s = body.segment(i);
+        thicknesses.PushBack(Value().SetDouble(s.thickness().get_d()),allocator);
+        Value points;
+        points.SetArray();
+        points.PushBack(Value().SetUint(s.head_id()),allocator);
+        points.PushBack(Value().SetUint(s.tail_id()),allocator);
+        point_ids.PushBack(points,allocator);
+    }
+    document.AddMember("pointIds",point_ids,allocator);
+    document.AddMember("thicknesses",thicknesses,allocator);
+
+    _save(document);
+}
+
+void BodySerialiser::serialise(Robot const& robot) const {
+    _serialise(robot,false);
+}
+
+void BodySerialiser::serialise(Human const& human) const {
+    _serialise(human,true);
+}
+
+void BodySerialiser::_save(Document const& document) const {
+    std::ofstream ofs(_filename);
+    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << _filename << "' for writing.")
+    OStreamWrapper osw(ofs);
+    Writer<OStreamWrapper> writer(osw);
+    document.Accept(writer);
 }
 
 }

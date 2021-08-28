@@ -43,8 +43,41 @@ class BodyDeserialiser {
     Human make_human() const;
     //! \brief Make a robot out of the parsed content
     Robot make_robot() const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d);
+
+  private:
+
+    //! \brief Get the point ids from the document
+    List<SizeType> _get_point_ids() const;
+    //! \brief Get the thicknesses from the document
+    List<FloatType> _get_thicknesses() const;
+
   private:
     rapidjson::Document _document;
+};
+
+//! \brief Utility for making a JSON description file from a human or robot
+class BodySerialiser {
+  public:
+    //! \brief Construct providing the filename to save into
+    BodySerialiser(String const& filename);
+
+    //! \brief Serialise human
+    void serialise(Human const& human) const;
+    //! \brief Serialise robot
+    void serialise(Robot const& robot) const;
+
+  private:
+
+    void _serialise(Body const& body, bool is_human) const;
+
+    //! \brief Save the \a document
+    void _save(rapidjson::Document const& document) const;
+
+  private:
+    String const _filename;
 };
 
 }
