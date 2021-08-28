@@ -26,6 +26,7 @@
 #define OPERA_UTILITY_HPP
 
 #include <ariadne/utility/string.hpp>
+#include "config.hpp"
 
 using Ariadne::String;
 

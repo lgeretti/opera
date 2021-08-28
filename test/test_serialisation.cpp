@@ -23,7 +23,6 @@
  */
 
 #include "test.hpp"
-#include "config.hpp"
 #include "utility.hpp"
 #include "serialisation.hpp"
 
