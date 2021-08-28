@@ -49,11 +49,9 @@ BodyDeserialiser::BodyDeserialiser(String const& filename) {
     _document.Accept(writer);
     std::cout << buffer.GetString() << std::endl;
 
-    _document[ "isHuman" ] = "false";
-
     buffer.Clear();
     Writer<StringBuffer> writer2(buffer);
-    _document.Accept(writer);
+    _document.Accept(writer2);
     std::cout << buffer.GetString() << std::endl;
 
     std::ofstream ofs { "output.json" };
