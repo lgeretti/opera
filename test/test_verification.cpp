@@ -39,7 +39,7 @@ class TestVerification {
     }
 
     void test_barrier_trace_create() {
-        Human h(5, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace(sa);
@@ -49,7 +49,7 @@ class TestVerification {
     }
 
     void test_barrier() {
-        Human h(5, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("r0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
         PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace(sa);
@@ -61,8 +61,8 @@ class TestVerification {
     }
 
     void test_barrier_trace_populate() {
-        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h(1, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
         auto human_spherical_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
@@ -108,8 +108,8 @@ class TestVerification {
     }
 
     void test_barrier_trace_resume_index() {
-        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h(1, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
         auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 

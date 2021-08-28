@@ -40,7 +40,7 @@ struct ProfileBody : public Profiler {
 
     void profile_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        Robot r(0, 10, {0, 1}, {thickness});
+        Robot r("r0", 10, {0, 1}, {thickness});
         auto segment = r.segment(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
@@ -53,7 +53,7 @@ struct ProfileBody : public Profiler {
 
     void profile_bodysegment_sample_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Robot r(0, 10, {0, 1}, {thickness});
+        Robot r("r0", 10, {0, 1}, {thickness});
         auto segment = r.segment(0);
 
         auto s = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
@@ -69,7 +69,7 @@ struct ProfileBody : public Profiler {
 
     void profile_human_instance_acquirement() {
         FloatType thickness(1.0,Ariadne::dp);
-        Human h(0, {0, 1}, {thickness});
+        Human h("h0", {0, 1}, {thickness});
 
         Ariadne::List<HumanStatePackage> pkgs;
         for (SizeType i=0; i<num_tries(); ++i) {
@@ -83,7 +83,7 @@ struct ProfileBody : public Profiler {
 
     void profile_robot_history_acquirement_and_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Robot r(0, 10, {0, 1}, {thickness});
+        Robot r("r0", 10, {0, 1}, {thickness});
         Ariadne::StringVariable robot("robot");
         auto history = r.make_history();
 

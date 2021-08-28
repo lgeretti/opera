@@ -32,6 +32,7 @@
 namespace Opera {
 
 using IdType = unsigned int;
+using BodyIdType = Ariadne::String;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::DiscreteLocation;
@@ -45,10 +46,10 @@ class RobotStateHistory;
 class Body {
   protected:
     //! \brief Construct from fields
-    Body(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Body(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
   public:
     //! \brief The body identifier
-    IdType const& id() const;
+    BodyIdType const& id() const;
 
     //! \brief Return the segment indexed by \a idx
     BodySegment const& segment(SizeType const& idx) const;
@@ -63,7 +64,7 @@ class Body {
     virtual ~Body();
 
   private:
-    IdType const _id;
+    BodyIdType const _id;
   protected:
     List<BodySegment*> _segments;
 };
@@ -72,7 +73,7 @@ class Body {
 class Human : public Body {
   public:
     //! \brief Construct from fields
-    Human(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Human(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief Create a state instance from the package
     HumanStateInstance make_instance(HumanStatePackage const& pkg) const;
 };
@@ -81,7 +82,7 @@ class Human : public Body {
 class Robot : public Body {
   public:
     //! \brief Construct from fields
-    Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Robot(BodyIdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief Create an is_empty history for the robot packages received
     RobotStateHistory make_history() const;
     //! \brief The frequency of packages sent by the robot, in Hz

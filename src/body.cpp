@@ -30,7 +30,7 @@ using Ariadne::Map;
 
 namespace Opera {
 
-Body::Body(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+    Body::Body(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
     _id(id) {
     ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
 
@@ -43,7 +43,7 @@ Body::~Body() {
         delete(s);
 }
 
-IdType const& Body::id() const {
+BodyIdType const& Body::id() const {
     return _id;
 }
 
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
     return os;
 }
 
-Human::Human(IdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+Human::Human(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
     Body(id,points_ids,thicknesses) { }
 
 HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
@@ -83,7 +83,7 @@ HumanStateInstance Human::make_instance(HumanStatePackage const& pkg) const {
     return HumanStateInstance(this, samples, pkg.timestamp());
 }
 
-Robot::Robot(IdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+Robot::Robot(BodyIdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
     Body(id,points_ids,thicknesses), _package_frequency(package_frequency) {
     ARIADNE_ASSERT_MSG(package_frequency > 0, "The package frequency must be strictly positive")
 }

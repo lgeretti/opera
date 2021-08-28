@@ -38,8 +38,8 @@ struct ProfileVerification : public Profiler {
     }
 
     void profile_apply_to_trace() {
-        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h(1, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
 
         MinimumDistanceBarrierTrace trace(hs);
@@ -62,8 +62,8 @@ struct ProfileVerification : public Profiler {
     void profile_resume_index() {
         const SizeType ns = 1000;
         const SizeType override_num_tries = 100;
-        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h(1, {0, 1}, {FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(0.5, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0)).spherical_approximation();
 
         List<MinimumDistanceBarrierTrace> ts;
@@ -100,8 +100,8 @@ struct ProfileVerification : public Profiler {
     void profile_resume_or_not() {
         const SizeType ns = 800;
         const SizeType override_num_tries = 1;
-        Robot r(0, 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h(1, {0, 1}, {FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(0.5, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0)).spherical_approximation();
 
         List<BodySegmentSample> rss;
