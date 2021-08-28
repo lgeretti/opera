@@ -1,5 +1,5 @@
 /***************************************************************************
- *            serialisation.cpp
+ *            test_serialisation.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,33 +22,27 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "test.hpp"
+
 #include "serialisation.hpp"
-#include <fstream>
 
-namespace Opera {
+using namespace Opera;
 
-BodyDeserialiser::BodyDeserialiser(String const& filename) {
-    std::ifstream ifs;
-    ifs.open(filename);
-    Json::CharReaderBuilder builder;
-    builder["collectComments"] = true;
-    JSONCPP_STRING errs;
-    if (!parseFromStream(builder, ifs, &_root, &errs)) {
-        std::cout << errs << std::endl;
-    } else
-        std::cout << _root << std::endl;
-}
+class TestSerialisation {
+public:
+    void test() {
+        ARIADNE_TEST_CALL(test_bodydeserialiser_create())
+    }
 
-bool BodyDeserialiser::is_human() const {
-    return false;
-}
+    void test_bodydeserialiser_create() {
+        BodyDeserialiser s("../resources/json/presentation/human0.json");
+    }
 
-Human BodyDeserialiser::make_human() const {
-    return Human("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
-}
+};
 
-Robot BodyDeserialiser::make_robot() const {
-    return Robot("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-}
 
+int main() {
+    TestSerialisation().test();
+
+    return ARIADNE_TEST_FAILURES;
 }
