@@ -86,8 +86,10 @@ std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d) {
 
 BodySerialiser::BodySerialiser(String const& filename) : _filename(filename) { }
 
-void BodySerialiser::_serialise(Body const& body, bool is_human) const {
+void BodySerialiser::serialise(Body const& body) const {
 
+    auto robot_ptr = dynamic_cast<Robot const*>(&body);
+    bool is_human = (robot_ptr == nullptr);
     Document document;
     document.SetObject();
     Document::AllocatorType& allocator = document.GetAllocator();
@@ -114,14 +116,6 @@ void BodySerialiser::_serialise(Body const& body, bool is_human) const {
     document.AddMember("thicknesses",thicknesses,allocator);
 
     _save(document);
-}
-
-void BodySerialiser::serialise(Robot const& robot) const {
-    _serialise(robot,false);
-}
-
-void BodySerialiser::serialise(Human const& human) const {
-    _serialise(human,true);
 }
 
 void BodySerialiser::_save(Document const& document) const {

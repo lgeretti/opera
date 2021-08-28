@@ -64,14 +64,10 @@ class BodySerialiser {
     //! \brief Construct providing the filename to save into
     BodySerialiser(String const& filename);
 
-    //! \brief Serialise human
-    void serialise(Human const& human) const;
-    //! \brief Serialise robot
-    void serialise(Robot const& robot) const;
+    //! \brief Serialise the body
+    void serialise(Body const& body) const;
 
   private:
-
-    void _serialise(Body const& body, bool is_human) const;
 
     //! \brief Save the \a document
     void _save(rapidjson::Document const& document) const;
