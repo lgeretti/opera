@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_serialisation.cpp
+ *            utility.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,28 +22,22 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
-#include "config.hpp"
-#include "utility.hpp"
-#include "serialisation.hpp"
+#ifndef OPERA_UTILITY_HPP
+#define OPERA_UTILITY_HPP
 
-using namespace Opera;
+#include <ariadne/utility/string.hpp>
 
-class TestSerialisation {
-public:
-    void test() {
-        ARIADNE_TEST_CALL(test_bodydeserialiser_create())
+using Ariadne::String;
+
+namespace Opera {
+
+class Resources {
+  public:
+    static String path(String const& filename) {
+        return String(RESOURCES_PATH) + filename;
     }
-
-    void test_bodydeserialiser_create() {
-        BodyDeserialiser s(Resources::path("json/presentation/human0.json"));
-    }
-
 };
 
-
-int main() {
-    TestSerialisation().test();
-
-    return ARIADNE_TEST_FAILURES;
 }
+
+#endif //OPERA_UTILITY_HPP

@@ -13,6 +13,9 @@ find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(LibRDKafka REQUIRED)
 
+set(RESOURCES_PATH ${PROJECT_SOURCE_DIR}/resources/)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/include/config.hpp)
+
 include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
 
 add_subdirectory(src)
