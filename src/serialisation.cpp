@@ -22,21 +22,45 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "serialisation.hpp"
 #include <fstream>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/ostreamwrapper.h>
+#include "serialisation.hpp"
 
 namespace Opera {
 
+using namespace rapidjson;
+
 BodyDeserialiser::BodyDeserialiser(String const& filename) {
-    std::ifstream ifs;
-    ifs.open(filename);
-    Json::CharReaderBuilder builder;
-    builder["collectComments"] = true;
-    JSONCPP_STRING errs;
-    if (!parseFromStream(builder, ifs, &_root, &errs)) {
-        std::cout << errs << std::endl;
-    } else
-        std::cout << _root << std::endl;
+
+    using namespace rapidjson;
+
+    std::ifstream ifs(filename);
+    ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << filename << "' file for reading.")
+    IStreamWrapper isw(ifs);
+    _document.ParseStream(isw);
+
+    ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
+
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    _document.Accept(writer);
+    std::cout << buffer.GetString() << std::endl;
+
+    _document[ "isHuman" ] = "false";
+
+    buffer.Clear();
+    Writer<StringBuffer> writer2(buffer);
+    _document.Accept(writer);
+    std::cout << buffer.GetString() << std::endl;
+
+    std::ofstream ofs { "output.json" };
+    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file for writing.")
+    OStreamWrapper osw(ofs);
+    Writer<OStreamWrapper> writer3(osw);
+    _document.Accept(writer3);
 }
 
 bool BodyDeserialiser::is_human() const {

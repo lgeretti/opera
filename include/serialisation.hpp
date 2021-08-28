@@ -25,7 +25,7 @@
 #ifndef OPERA_SERIALISATION_HPP
 #define OPERA_SERIALISATION_HPP
 
-#include <json/json.h>
+#include <rapidjson/document.h>
 #include "body.hpp"
 
 namespace Opera {
@@ -44,7 +44,7 @@ class BodyDeserialiser {
     //! \brief Make a robot out of the parsed content
     Robot make_robot() const;
   private:
-    Json::Value _root;
+    rapidjson::Document _document;
 };
 
 }
