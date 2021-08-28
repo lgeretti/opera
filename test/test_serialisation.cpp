@@ -35,7 +35,7 @@ public:
     }
 
     void test_bodydeserialiser_create() {
-        BodyDeserialiser s("../resources/json/presentation/human0.json");
+        BodyDeserialiser s("../../resources/json/presentation/human0.json");
     }
 
 };
