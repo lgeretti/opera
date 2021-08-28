@@ -8,7 +8,7 @@ set(UNIT_TESTS
 
 foreach(TEST ${UNIT_TESTS})
     add_executable(${TEST} ${TEST}.cpp)
-    target_link_libraries(${TEST} OPERA_SRC ${ARIADNE_LIBRARIES})
+    target_link_libraries(${TEST} OPERA_SRC ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${JSONCPP_LIBRARY})
     add_test(${TEST} ${TEST})
 endforeach()
 

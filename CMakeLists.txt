@@ -13,14 +13,14 @@ find_package(Ariadne REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(LibRDKafka REQUIRED)
 
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR} ${JSONCPP_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(profile)
 
 add_executable(opera src/opera.cpp)
 
-target_link_libraries(opera OPERA_SRC ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
+target_link_libraries(opera OPERA_SRC ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${JSONCPP_LIBRARY})
 
 option(COVERAGE "Enable coverage reporting" OFF)
 add_library(coverage_config INTERFACE)

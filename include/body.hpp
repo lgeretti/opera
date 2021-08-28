@@ -27,6 +27,7 @@
 
 #include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
+#include <ariadne/utility/string.hpp>
 #include "geometry.hpp"
 
 namespace Opera {
@@ -37,6 +38,7 @@ using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
+using Ariadne::String;
 
 class BodySegment;
 class HumanStateInstance;
