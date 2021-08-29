@@ -39,6 +39,7 @@ using Ariadne::dp;
 using Ariadne::Interval;
 using Ariadne::Natural;
 using Ariadne::StringStream;
+using Ariadne::StringVariable;
 
 static const PositiveFloatType pa_infty = cast_positive(cast_approximate(Ariadne::infty));
 static const FloatType a_zero = FloatType(0,dp);

@@ -36,14 +36,19 @@ class MinimumDistanceBarrier {
     friend MinimumDistanceBarrierTrace;
   protected:
     //! \brief Construct from fields
-    MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SizeType const& maximum_index);
-
+    MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index);
     //! \brief Increase the maximum index
     void increase_maximum_index();
+    //! \brief Set the maximum index to zero (used when the location changes)
+    void reset_maximum_index();
+    //! \brief Change the location
+    void set_farthest_location(DiscreteLocation const& location);
   public:
     //! \brief The minimum distance from the spherical approximation sample
     PositiveFloatType const& minimum_distance() const;
-    //! \brief The maximum index for which this minimum distance holds
+    //! \brief The farthest location with this minimum distance
+    DiscreteLocation const& farthest_location() const;
+    //! \brief The maximum index in the farthest location for which this minimum distance holds
     SizeType const& maximum_index() const;
 
     //! \brief Print on the standard output
@@ -51,45 +56,53 @@ class MinimumDistanceBarrier {
 
   private:
     PositiveFloatType const _minimum_distance;
+    DiscreteLocation _farthest_location;
     SizeType _maximum_index;
 };
 
-//! \brief The full trace of minimum distance barriers
+//! \brief The full trace of minimum distance barriers for a human-robot segment pair
 class MinimumDistanceBarrierTrace {
   public:
-    //! \brief Construct from a human \a sample
-    MinimumDistanceBarrierTrace(BodySegmentSample const& sample);
+    //! \brief Construct from an initial \a human_sample and the \a robot_segment_id
+    MinimumDistanceBarrierTrace(BodySegmentSample const& human_sample, IdType const& robot_segment_id);
+
+    //! \brief The segment id for the human
+    IdType const& human_segment_id() const;
+    //! \brief The segment id for the robot
+    IdType const& robot_segment_id() const;
 
     //! \brief The barriers
     List<MinimumDistanceBarrier> const& barriers() const;
     //! \brief Add a barrier
-    void add_barrier(PositiveFloatType const& minimum_distance);
-    //! \brief Check the spherical approximation with a robot \a sample, to update the last barrier or create a new one
+    void add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance);
+    //! \brief Check the spherical approximation with a robot \a sample in \a location, to update the last barrier or create a new one
     //! \returns True if something was updated or created, false otherwise
-    bool try_update_with(BodySegmentSample const& sample);
+    bool try_update_with(DiscreteLocation const& location, BodySegmentSample const& robot_sample);
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;
     //! \brief The next index to apply
     SizeType const& next_index() const;
-    //! \brief The index from which we can resume checking an \a other spherical approximation
+    //! \brief The element in the trace from which we can resume checking an \a other spherical approximation
     //! \details If the whole trace still holds, then the result is next index
-    //! A result of zero instead means starting from scratch with respect to the samples used to generate this trace
-    // TODO: make private
-    SizeType resume_index(SphericalApproximationSample const& other) const;
+    //! A result of -1 instead means starting from scratch with respect to the samples used to generate this trace
+    int resume_element(SphericalApproximationSample const& other) const;
     //! \brief Whether the trace is currently empty
     bool is_empty() const;
 
     //! \brief Remove all barriers
     void clear();
 
-    //! \brief Reset the trace according to resuming obtained from \a human_sample with respect to \a robot_samples
-    void reset(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples);
+    //! \brief Reset the trace according to resuming obtained from \a human_sample with respect to \a history
+    //! \details The history is necessary in order to reconstruct the distance from the new human sample
+    void reset(BodySegmentSample const& human_sample, RobotStateHistory const& history);
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t);
 
   private:
+    IdType const _human_segment_id;
+    IdType const _robot_segment_id;
     SphericalApproximationSample _spherical_approximation;
     SizeType _next_index;
     List<MinimumDistanceBarrier> _barriers;

@@ -42,13 +42,14 @@ struct ProfileVerification : public Profiler {
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
-        MinimumDistanceBarrierTrace trace(hs);
+        DiscreteLocation first(StringVariable(r.id())|"first");
+        MinimumDistanceBarrierTrace trace(hs,0);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
         }
 
-        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.try_update_with(rss.at(i)); });
+        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.try_update_with(first,rss.at(i)); });
 
         trace.clear();
         rss.clear();
@@ -56,7 +57,7 @@ struct ProfileVerification : public Profiler {
             rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
         }
 
-        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.try_update_with(rss.at(i)); });
+        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.try_update_with(first,rss.at(i)); });
     }
 
     void profile_resume_index() {
@@ -66,15 +67,16 @@ struct ProfileVerification : public Profiler {
         Human h("h0", {0, 1}, {FloatType(0.5, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
 
+        DiscreteLocation first(StringVariable(r.id())|"first");
         List<MinimumDistanceBarrierTrace> ts;
         List<SphericalApproximationSample> beginning_sas, middle_sas, end_sas;
         for (SizeType i=0; i<override_num_tries; ++i) {
-            MinimumDistanceBarrierTrace trace(hs);
+            MinimumDistanceBarrierTrace trace(hs,0);
             Point last_head(0,0,0);
             for (SizeType j=0; j<ns;++j) {
                 Point new_head(last_head.x+rnd().get(0.99,1.01),last_head.y+rnd().get(0.99,1.01),a_zero);
                 Point new_tail(new_head.x+2,new_head.y,new_head.z);
-                trace.try_update_with(r.segment(0).create_sample(new_head,new_tail));
+                trace.try_update_with(first,r.segment(0).create_sample(new_head,new_tail));
                 last_head = new_head;
             }
             ts.append(trace);
@@ -92,39 +94,46 @@ struct ProfileVerification : public Profiler {
             end_sas.append(h.segment(0).create_sample(end_head_sa,end_tail_sa).spherical_approximation());
         }
 
-        profile("Resume index (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_index(beginning_sas.at(i)); },override_num_tries);
-        profile("Resume index (middle of trace)",[&](SizeType i){ ts.at(i).resume_index(middle_sas.at(i)); },override_num_tries);
-        profile("Resume index (near end of trace)",[&](SizeType i){ ts.at(i).resume_index(end_sas.at(i)); },override_num_tries);
+        profile("Resume index (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_element(beginning_sas.at(i)); },override_num_tries);
+        profile("Resume index (middle of trace)",[&](SizeType i){ ts.at(i).resume_element(middle_sas.at(i)); },override_num_tries);
+        profile("Resume index (near end of trace)",[&](SizeType i){ ts.at(i).resume_element(end_sas.at(i)); },override_num_tries);
     }
 
     void profile_resume_or_not() {
-        const SizeType ns = 800;
+        const SizeType ns = 1000;
         const SizeType override_num_tries = 1;
         Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h("h0", {0, 1}, {FloatType(0.5, Ariadne::dp)});
-        auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0)).spherical_approximation();
+        auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
 
-        List<BodySegmentSample> rss;
+        DiscreteLocation first(StringVariable(r.id())|"first");
+        DiscreteLocation second(StringVariable(r.id())|"second");
+        MinimumDistanceBarrierTrace trace(hs,0);
+        auto history = r.make_history();
         for (SizeType i=0; i<ns; ++i) {
-            rss.append(r.segment(0).create_sample(Point(i,0,0),Point(i,2,0)));
+            history.acquire(RobotStatePackage(first,{{Point(i,0,0)},{Point(i,2,0)}},i*1e8));
         }
+        history.acquire(RobotStatePackage(second,{{Point(ns,0,0)},{Point(ns,2,0)}},ns*1e8));
+
         List<BodySegmentSample> hss;
         for (SizeType i=ns; i>0; --i) {
             hss.append(h.segment(0).create_sample(Point(ns+i,0,0),Point(ns+i,2,0)));
         }
 
+        auto const& samples = history.samples(first).at(trace.robot_segment_id());
+
         profile("Using resuming for segments intersection detection",[&](SizeType i){
             SizeType resume_idx = 0;
-            MinimumDistanceBarrierTrace trace(hss.at(0));
+            MinimumDistanceBarrierTrace trace(hss.at(0),0);
             for (SizeType i=0; i<ns; ++i) {
                 bool update_trace = true;
                 for (SizeType j=resume_idx; j<ns; ++j) {
-                    if (update_trace and not trace.try_update_with(rss.at(j)))
+                    if (update_trace and not trace.try_update_with(first,samples.at(j)))
                         update_trace = false;
-                    if (hss.at(i).intersects(rss.at(j))) break;
+                    if (hss.at(i).intersects(samples.at(j))) break;
                 }
                 if (i<ns-1) {
-                    trace.reset(hss.at(i+1),rss);
+                    trace.reset(hss.at(i+1),history);
                     resume_idx = trace.next_index();
                 }
             }
@@ -133,7 +142,7 @@ struct ProfileVerification : public Profiler {
         profile("Not using resuming for segments intersection detection",[&](SizeType i){
             for (SizeType i=0; i<ns; ++i) {
                 for (SizeType j=i; j<ns; ++j) {
-                    if (hss.at(i).intersects(rss.at(j))) break;
+                    if (hss.at(i).intersects(samples.at(j))) break;
                 }
             }
         },override_num_tries);

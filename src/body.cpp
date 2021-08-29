@@ -292,15 +292,15 @@ void RobotStateHistory::acquire(RobotStatePackage const& state) {
 BodySegment::BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
     _body(body), _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
 
-IdType BodySegment::id() const {
+IdType const& BodySegment::id() const {
     return _id;
 }
 
-IdType BodySegment::head_id() const {
+IdType const& BodySegment::head_id() const {
     return _head_id;
 }
 
-IdType BodySegment::tail_id() const {
+IdType const& BodySegment::tail_id() const {
     return _tail_id;
 }
 
@@ -336,6 +336,10 @@ BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment, Point c
         _tail_bounds({FloatIntervalType(tail.x), FloatIntervalType(tail.y), FloatIntervalType(tail.z)}),
         _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp) {
     _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
+}
+
+IdType const& BodySegmentSampleBase::segment_id() const {
+    return _segment->id();
 }
 
 Point const& BodySegmentSampleBase::head_centre() const {

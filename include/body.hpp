@@ -102,13 +102,13 @@ class BodySegment {
     BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness);
   public:
     //! \brief Identifier for the segment within the specific body
-    IdType id() const;
+    IdType const& id() const;
 
     //! \brief Identifier for the head
-    IdType head_id() const;
+    IdType const& head_id() const;
 
     //! \brief Identifier for the tail
-    IdType tail_id() const;
+    IdType const& tail_id() const;
 
     //! \brief Return the thickness of the body segment around the geometrical segment
     FloatType const& thickness() const;
@@ -185,6 +185,9 @@ class SphericalApproximationSample {
 
 class BodySegmentSampleInterface {
   public:
+    //! \brief Return the identifier of the segment
+    virtual IdType const& segment_id() const = 0;
+
     //! \brief Return the centre point for the head of the segment
     virtual Point const& head_centre() const = 0;
     //! \brief Return the centre point for the tail of the segment
@@ -231,6 +234,9 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     //! \brief Create non-valid
     BodySegmentSampleBase(BodySegment const* segment);
   public:
+
+    IdType const& segment_id() const override;
+
     Point const& head_centre() const override;
     Point const& tail_centre() const override;
 
@@ -275,6 +281,7 @@ class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
   public:
     using Ariadne::Handle<BodySegmentSampleInterface>::Handle;
 
+    IdType const& segment_id() const { return this->_ptr->segment_id(); };
     Point const& head_centre() const { return this->_ptr->head_centre(); };
     Point const& tail_centre() const { return this->_ptr->tail_centre(); };
     FloatType error() const { return this->_ptr->error(); }

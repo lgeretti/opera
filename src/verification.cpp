@@ -26,43 +26,69 @@
 
 namespace Opera {
 
-MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, SizeType const& maximum_index) :
-    _minimum_distance(minimum_distance), _maximum_index(maximum_index) { }
+    MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index) :
+    _minimum_distance(minimum_distance), _farthest_location(farthest_location), _maximum_index(maximum_index) { }
 
 PositiveFloatType const& MinimumDistanceBarrier::minimum_distance() const {
     return _minimum_distance;
+}
+
+DiscreteLocation const& MinimumDistanceBarrier::farthest_location() const {
+    return _farthest_location;
 }
 
 SizeType const& MinimumDistanceBarrier::maximum_index() const {
     return _maximum_index;
 }
 
+void MinimumDistanceBarrier::set_farthest_location(DiscreteLocation const& location) {
+    _farthest_location = location;
+}
+
 void MinimumDistanceBarrier::increase_maximum_index() {
     _maximum_index++;
 }
 
-std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
-    return os << "(d:" << s.minimum_distance() << ",i:" << s.maximum_index() << ")";
+void MinimumDistanceBarrier::reset_maximum_index() {
+    _maximum_index = 0;
 }
 
-MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace(BodySegmentSample const& sample) :
-    _spherical_approximation(sample.spherical_approximation()), _next_index(0), _barriers({}) { }
+std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrier const& s) {
+        return os << "(d:" << s.minimum_distance() << ", l:" << s.farthest_location() << ", i:" << s.maximum_index() << ")";
+}
+
+MinimumDistanceBarrierTrace::MinimumDistanceBarrierTrace(BodySegmentSample const& human_sample, IdType const& robot_segment_id) :
+    _human_segment_id(human_sample.segment_id()), _robot_segment_id(robot_segment_id),
+    _spherical_approximation(human_sample.spherical_approximation()),
+    _next_index(0), _barriers({}) { }
+
+IdType const& MinimumDistanceBarrierTrace::human_segment_id() const {
+    return _human_segment_id;
+}
+
+IdType const& MinimumDistanceBarrierTrace::robot_segment_id() const {
+    return _robot_segment_id;
+}
 
 List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
     return _barriers;
 }
 
-void MinimumDistanceBarrierTrace::add_barrier(PositiveFloatType const& minimum_distance) {
-    _barriers.append(MinimumDistanceBarrier(minimum_distance,_next_index));
+void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance) {
+    _barriers.append(MinimumDistanceBarrier(minimum_distance,farthest_location,_next_index));
 }
 
-bool MinimumDistanceBarrierTrace::try_update_with(BodySegmentSample const& segment_sample) {
+bool MinimumDistanceBarrierTrace::try_update_with(DiscreteLocation const& location, BodySegmentSample const& segment_sample) {
     auto current_distance = distance(_spherical_approximation,segment_sample);
     if (decide(current_distance != 0)) {
         if (decide(current_distance<current_minimum_distance())) {
-            add_barrier(current_distance);
+            add_barrier(location,current_distance);
         } else {
-            _barriers.back().increase_maximum_index();
+            if (location != _barriers.back().farthest_location()) {
+                _barriers.back().set_farthest_location(location);
+                _barriers.back().reset_maximum_index();
+            } else
+                _barriers.back().increase_maximum_index();
         }
         ++_next_index;
         return true;
@@ -70,30 +96,37 @@ bool MinimumDistanceBarrierTrace::try_update_with(BodySegmentSample const& segme
     return false;
 }
 
-SizeType MinimumDistanceBarrierTrace::resume_index(SphericalApproximationSample const& other) const {
-    if (is_empty()) return 0;
+int MinimumDistanceBarrierTrace::resume_element(SphericalApproximationSample const& other) const {
+    if (is_empty()) return -1;
     auto deviation = distance(_spherical_approximation.centre(),other.centre());
     auto radius_difference = other.radius() - _spherical_approximation.radius();
     if (decide(radius_difference > 0)) deviation += radius_difference;
     SizeType lower=0;
     SizeType upper=_barriers.size()-1;
-    if (decide(deviation > _barriers.at(lower).minimum_distance())) return 0;
-    if (decide(deviation <= _barriers.at(upper).minimum_distance())) return _barriers.at(upper).maximum_index()+1;
+    if (decide(deviation > _barriers.at(lower).minimum_distance())) return -1;
+    if (decide(deviation <= _barriers.at(upper).minimum_distance())) return upper;
     SizeType result = (upper+lower)/2;
     while (upper>lower+1) {
         if (decide(deviation > _barriers.at(result).minimum_distance())) upper = result;
         else lower = result;
         result = (upper+lower)/2;
     }
-    return _barriers.at(result).maximum_index()+1;
+    return result;
 }
 
-void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, List<BodySegmentSample> const& robot_samples) {
+void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, RobotStateHistory const& history) {
+    ARIADNE_ASSERT(human_sample.segment_id() == _human_segment_id)
     auto sas = human_sample.spherical_approximation();
-    _next_index = resume_index(sas);
+    int resume = resume_element(sas);
+    _next_index = (resume >= 0 ? _barriers.at(resume).maximum_index()+1 : 0);
     _spherical_approximation = sas;
-    _barriers.clear();
-    if (_next_index > 0) _barriers.append(MinimumDistanceBarrier(distance(_spherical_approximation,robot_samples.at(_next_index-1)),_next_index-1));
+    if (_next_index > 0) {
+        auto location = _barriers.at(resume).farthest_location();
+        _barriers.clear();
+        _barriers.append(MinimumDistanceBarrier(
+                distance(_spherical_approximation,history.samples(location).at(_robot_segment_id).at(_next_index-1)),
+                location,_next_index-1));
+    }
 }
 
 bool MinimumDistanceBarrierTrace::is_empty() const {
