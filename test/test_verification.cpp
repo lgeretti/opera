@@ -36,13 +36,14 @@ class TestVerification {
         ARIADNE_TEST_CALL(test_barrier())
         ARIADNE_TEST_CALL(test_barrier_trace_populate())
         ARIADNE_TEST_CALL(test_barrier_trace_resume_index())
+        ARIADNE_TEST_CALL(test_barrier_trace_reset())
     }
 
     void test_barrier_trace_create() {
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
+        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace(sa);
+        MinimumDistanceBarrierTrace trace(hs);
         ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
         ARIADNE_TEST_EQUALS(trace.next_index(),0)
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
@@ -50,9 +51,9 @@ class TestVerification {
 
     void test_barrier() {
         Human h("r0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        auto sa = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2)).spherical_approximation();
+        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
-        MinimumDistanceBarrierTrace trace(sa);
+        MinimumDistanceBarrierTrace trace(hs);
         trace.add_barrier(distance);
         auto barrier = trace.barriers().back();
         ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
@@ -64,9 +65,9 @@ class TestVerification {
         Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
-        auto human_spherical_sample = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
+        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
-        MinimumDistanceBarrierTrace trace(human_spherical_sample);
+        MinimumDistanceBarrierTrace trace(hs);
         List<BodySegmentSample> robot_samples;
 
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -111,7 +112,7 @@ class TestVerification {
         Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
-        auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0)).spherical_approximation();
+        auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
         MinimumDistanceBarrierTrace trace(hs1);
         List<BodySegmentSample> robot_samples;
@@ -142,6 +143,31 @@ class TestVerification {
         idx = trace.resume_index(hs4);
         ARIADNE_TEST_PRINT(idx)
         ARIADNE_TEST_EQUALS(idx,0u)
+    }
+
+    void test_barrier_trace_reset() {
+        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+
+        auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+
+        MinimumDistanceBarrierTrace trace(hs1);
+        List<BodySegmentSample> robot_samples;
+        robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(0,5,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
+        robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
+        for (auto s : robot_samples) if (not trace.try_update_with(s)) break;
+
+        auto hs2 = h.segment(0).create_sample(Point(0,1,0),Point(2,1,0));
+
+        trace.reset(hs2,robot_samples);
+        ARIADNE_TEST_ASSERT(trace.next_index()>0)
     }
 };
 

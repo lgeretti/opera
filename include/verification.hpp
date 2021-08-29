@@ -57,14 +57,14 @@ class MinimumDistanceBarrier {
 //! \brief The full trace of minimum distance barriers
 class MinimumDistanceBarrierTrace {
   public:
-    //! \brief Construct from a spherical approximation \a sample
-    MinimumDistanceBarrierTrace(SphericalApproximationSample const& sample);
+    //! \brief Construct from a human \a sample
+    MinimumDistanceBarrierTrace(BodySegmentSample const& sample);
 
     //! \brief The barriers
     List<MinimumDistanceBarrier> const& barriers() const;
     //! \brief Add a barrier
     void add_barrier(PositiveFloatType const& minimum_distance);
-    //! \brief Check the spherical approximation with a \a sample, to update the last barrier or create a new one
+    //! \brief Check the spherical approximation with a robot \a sample, to update the last barrier or create a new one
     //! \returns True if something was updated or created, false otherwise
     bool try_update_with(BodySegmentSample const& sample);
 
@@ -75,6 +75,7 @@ class MinimumDistanceBarrierTrace {
     //! \brief The index from which we can resume checking an \a other spherical approximation
     //! \details If the whole trace still holds, then the result is next index
     //! A result of zero instead means starting from scratch with respect to the samples used to generate this trace
+    // TODO: make private
     SizeType resume_index(SphericalApproximationSample const& other) const;
     //! \brief Whether the trace is currently empty
     bool is_empty() const;
