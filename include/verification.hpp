@@ -71,8 +71,10 @@ class MinimumDistanceBarrierTrace {
     //! \brief The segment id for the robot
     IdType const& robot_segment_id() const;
 
-    //! \brief The barriers
-    List<MinimumDistanceBarrier> const& barriers() const;
+    //! \brief The barrier at the given \a idx
+    MinimumDistanceBarrier const& barrier(SizeType const& idx) const;
+    //! \brief The number of barriers
+    SizeType size() const;
     //! \brief Add a barrier
     void add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance);
     //! \brief Check the spherical approximation with a robot \a sample in \a location, to update the last barrier or create a new one
@@ -89,9 +91,6 @@ class MinimumDistanceBarrierTrace {
     int resume_element(SphericalApproximationSample const& other) const;
     //! \brief Whether the trace is currently empty
     bool is_empty() const;
-
-    //! \brief Remove all barriers
-    void clear();
 
     //! \brief Reset the trace according to resuming obtained from \a human_sample with respect to \a history
     //! \details The history is necessary in order to reconstruct the distance from the new human sample

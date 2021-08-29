@@ -70,8 +70,12 @@ IdType const& MinimumDistanceBarrierTrace::robot_segment_id() const {
     return _robot_segment_id;
 }
 
-List<MinimumDistanceBarrier> const& MinimumDistanceBarrierTrace::barriers() const {
-    return _barriers;
+MinimumDistanceBarrier const& MinimumDistanceBarrierTrace::barrier(SizeType const& idx) const {
+    return _barriers.at(idx);
+}
+
+SizeType MinimumDistanceBarrierTrace::size() const {
+    return _barriers.size();
 }
 
 void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance) {
@@ -126,16 +130,13 @@ void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, R
         _barriers.append(MinimumDistanceBarrier(
                 distance(_spherical_approximation,history.samples(location).at(_robot_segment_id).at(_next_index-1)),
                 location,_next_index-1));
+    } else {
+        _barriers.clear();
     }
 }
 
 bool MinimumDistanceBarrierTrace::is_empty() const {
     return _barriers.empty();
-}
-
-void MinimumDistanceBarrierTrace::clear() {
-    _next_index = 0;
-    _barriers.clear();
 }
 
 PositiveFloatType const& MinimumDistanceBarrierTrace::current_minimum_distance() const {
@@ -148,7 +149,7 @@ SizeType const& MinimumDistanceBarrierTrace::next_index() const {
 }
 
 std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t) {
-    return os << t.barriers();
+    return os << t._barriers;
 }
 
 }

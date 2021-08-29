@@ -43,21 +43,21 @@ struct ProfileVerification : public Profiler {
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
         DiscreteLocation first(StringVariable(r.id())|"first");
-        MinimumDistanceBarrierTrace trace(hs,0);
+        MinimumDistanceBarrierTrace trace1(hs,0);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
         }
 
-        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace.try_update_with(first,rss.at(i)); });
+        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace1.try_update_with(first,rss.at(i)); });
 
-        trace.clear();
+        MinimumDistanceBarrierTrace trace2(hs,0);
         rss.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
             rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
         }
 
-        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace.try_update_with(first,rss.at(i)); });
+        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace2.try_update_with(first,rss.at(i)); });
     }
 
     void profile_resume_index() {

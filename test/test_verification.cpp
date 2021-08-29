@@ -35,7 +35,7 @@ class TestVerification {
         ARIADNE_TEST_CALL(test_barrier_trace_create())
         ARIADNE_TEST_CALL(test_barrier())
         ARIADNE_TEST_CALL(test_barrier_trace_populate())
-        ARIADNE_TEST_CALL(test_barrier_trace_resume_index())
+        ARIADNE_TEST_CALL(test_barrier_trace_resume_element())
         ARIADNE_TEST_CALL(test_barrier_trace_reset())
     }
 
@@ -47,7 +47,8 @@ class TestVerification {
         ARIADNE_TEST_PRINT(trace)
         ARIADNE_TEST_EQUALS(trace.human_segment_id(),1)
         ARIADNE_TEST_EQUALS(trace.robot_segment_id(),3)
-        ARIADNE_TEST_EQUALS(trace.barriers().size(),0)
+        ARIADNE_TEST_EQUALS(trace.size(),0)
+        ARIADNE_TEST_ASSERT(trace.is_empty())
         ARIADNE_TEST_EQUALS(trace.next_index(),0)
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
@@ -59,7 +60,8 @@ class TestVerification {
         DiscreteLocation loc(StringVariable(h.id())|"first");
         MinimumDistanceBarrierTrace trace(hs,0);
         trace.add_barrier(loc,distance);
-        auto barrier = trace.barriers().back();
+        ARIADNE_TEST_ASSERT(not trace.is_empty())
+        auto barrier = trace.barrier(0);
         ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
         ARIADNE_TEST_EQUALS(barrier.farthest_location(),loc)
         ARIADNE_TEST_EQUALS(barrier.maximum_index(),0)
@@ -73,7 +75,7 @@ class TestVerification {
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
         DiscreteLocation loc(StringVariable(r.id())|"first");
-        MinimumDistanceBarrierTrace trace(hs,0);
+        MinimumDistanceBarrierTrace trace1(hs,0);
         List<BodySegmentSample> robot_samples;
 
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
@@ -81,12 +83,13 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
-        for (auto s : robot_samples) if (not trace.try_update_with(loc,s)) break;
-        ARIADNE_TEST_ASSERT(not trace.try_update_with(loc,robot_samples.at(4)))
-        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.next_index(),4)
+        for (auto s : robot_samples) if (not trace1.try_update_with(loc,s)) break;
+        ARIADNE_TEST_ASSERT(not trace1.try_update_with(loc,robot_samples.at(4)))
+        ARIADNE_TEST_EQUALS(trace1.size(),4)
+        ARIADNE_TEST_EQUALS(trace1.next_index(),4)
+        ARIADNE_TEST_PRINT(trace1)
 
-        trace.clear();
+        MinimumDistanceBarrierTrace trace2(hs,0);
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
@@ -94,11 +97,12 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(-2,5,0),Point(-1,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-1,4,0),Point(0,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
-        for (auto s : robot_samples) if (not trace.try_update_with(loc,s)) break;
-        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.next_index(),5)
+        for (auto s : robot_samples) if (not trace2.try_update_with(loc,s)) break;
+        ARIADNE_TEST_EQUALS(trace2.size(),4)
+        ARIADNE_TEST_EQUALS(trace2.next_index(),5)
+        ARIADNE_TEST_PRINT(trace2)
 
-        trace.clear();
+        MinimumDistanceBarrierTrace trace3(hs,0);
         robot_samples.clear();
         robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
         robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
@@ -107,23 +111,24 @@ class TestVerification {
         robot_samples.append(r.segment(0).create_sample(Point(1,5,0),Point(2,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(2,5,0),Point(3,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
-        for (auto s : robot_samples) if (not trace.try_update_with(loc,s)) break;
-        ARIADNE_TEST_EQUALS(trace.barriers().size(),4)
-        ARIADNE_TEST_EQUALS(trace.next_index(),7)
-        ARIADNE_TEST_ASSERT(decide(trace.current_minimum_distance()>0))
-        ARIADNE_TEST_PRINT(trace)
+        for (auto s : robot_samples) if (not trace3.try_update_with(loc,s)) break;
+        ARIADNE_TEST_EQUALS(trace3.size(),4)
+        ARIADNE_TEST_EQUALS(trace3.next_index(),7)
+        ARIADNE_TEST_ASSERT(decide(trace3.current_minimum_distance()>0))
+        ARIADNE_TEST_PRINT(trace3)
     }
 
-    void test_barrier_trace_resume_index() {
+    void test_barrier_trace_resume_element() {
         Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
-        auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 
-        /*
-                DiscreteLocation first(StringVariable(r.id())|"first");
+        DiscreteLocation first(StringVariable(r.id())|"first");
         DiscreteLocation second(StringVariable(r.id())|"second");
-                 auto history = r.make_history();
+        DiscreteLocation third(StringVariable(r.id())|"third");
+        MinimumDistanceBarrierTrace trace(hs1,0);
+        auto history = r.make_history();
         history.acquire(RobotStatePackage(first,{{Point(-3,7,0)},{Point(-2,7,0)}},0));
         history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(-1,6,0)}},1e8));
         history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},2e8));
@@ -134,35 +139,20 @@ class TestVerification {
         history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},7e8));
         history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},8e8));
         history.acquire(RobotStatePackage(second,{{Point(1,3,0)},{Point(2,3,0)}},9e8));
-        ARIADNE_TEST_PRINT(history.samples(first))
-        for (auto s : history.samples(first)) if (not trace.try_update_with(first,s.at(trace.robot_segment_id()))) break;
-         */
-
-        DiscreteLocation first(StringVariable(r.id())|"first");
-        DiscreteLocation second(StringVariable(r.id())|"second");
-        MinimumDistanceBarrierTrace trace(hs1,0);
-        auto history = r.make_history();
-        history.acquire(RobotStatePackage(first,{{Point(-3,7,0)},{Point(-2,7,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(-1,6,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},0));
-        history.acquire(RobotStatePackage(second,{{Point(1,3,0)},{Point(2,3,0)}},0));
+        history.acquire(RobotStatePackage(third,{{Point(2,3,0)},{Point(3,3,0)}},10e8));
         for (auto s : history.samples(first).at(trace.robot_segment_id())) if (not trace.try_update_with(first,s)) break;
+        for (auto s : history.samples(second).at(trace.robot_segment_id())) if (not trace.try_update_with(second,s)) break;
+        ARIADNE_TEST_PRINT(trace)
 
-        auto hs2 = h.segment(0).create_sample(Point(0,0.1,0),Point(2,0.1,0)).spherical_approximation();
+        auto hs2 = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0)).spherical_approximation();
         auto element = trace.resume_element(hs2);
-        ARIADNE_TEST_EQUALS(trace.barriers().at(element).maximum_index()+1,trace.next_index())
+        ARIADNE_TEST_EQUALS(element,trace.size()-1)
 
-        auto hs3 = h.segment(0).create_sample(Point(0,1,0),Point(2,1,0)).spherical_approximation();
+        auto hs3 = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0)).spherical_approximation();
         element = trace.resume_element(hs3);
-        ARIADNE_TEST_ASSERT(trace.barriers().at(element).maximum_index()+1 < trace.next_index())
+        ARIADNE_TEST_ASSERT(element < trace.size()-1)
 
-        auto hs4 = h.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)).spherical_approximation();
+        auto hs4 = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0)).spherical_approximation();
         element = trace.resume_element(hs4);
         ARIADNE_TEST_EQUALS(element,-1)
     }
@@ -171,27 +161,46 @@ class TestVerification {
         Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
         Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
 
-        auto hs1 = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 
         DiscreteLocation first(StringVariable(r.id())|"first");
         DiscreteLocation second(StringVariable(r.id())|"second");
-        MinimumDistanceBarrierTrace trace(hs1,0);
+        DiscreteLocation third(StringVariable(r.id())|"third");
+        MinimumDistanceBarrierTrace trace1(hs1,0);
         auto history = r.make_history();
         history.acquire(RobotStatePackage(first,{{Point(-3,7,0)},{Point(-2,7,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(-1,6,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},0));
-        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},0));
-        history.acquire(RobotStatePackage(second,{{Point(1,3,0)},{Point(2,3,0)}},0));
-        for (auto s : history.samples(first).at(trace.robot_segment_id())) if (not trace.try_update_with(first,s)) break;
+        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(-1,6,0)}},1e8));
+        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},2e8));
+        history.acquire(RobotStatePackage(first,{{Point(-2,6,0)},{Point(0,5,0)}},3e8));
+        history.acquire(RobotStatePackage(first,{{Point(-1,5,0)},{Point(0,5,0)}},4e8));
+        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},5e8));
+        history.acquire(RobotStatePackage(first,{{Point(0,4,0)},{Point(1,4,0)}},6e8));
+        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},7e8));
+        history.acquire(RobotStatePackage(first,{{Point(1,3,0)},{Point(2,3,0)}},8e8));
+        history.acquire(RobotStatePackage(second,{{Point(1,3,0)},{Point(2,3,0)}},9e8));
+        history.acquire(RobotStatePackage(third,{{Point(2,3,0)},{Point(3,3,0)}},10e8));
+        for (auto s : history.samples(first).at(trace1.robot_segment_id())) if (not trace1.try_update_with(first,s)) break;
+        for (auto s : history.samples(second).at(trace1.robot_segment_id())) if (not trace1.try_update_with(second,s)) break;
 
-        auto hs2 = h.segment(0).create_sample(Point(0,1,0),Point(2,1,0));
-        trace.reset(hs2,history);
-        ARIADNE_TEST_ASSERT(trace.next_index()>0)
+        MinimumDistanceBarrierTrace trace2 = trace1;
+        MinimumDistanceBarrierTrace trace3 = trace1;
+
+        auto hs1_new = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0));
+        ARIADNE_TEST_PRINT(trace1)
+        trace1.reset(hs1_new,history);
+        ARIADNE_TEST_PRINT(trace1)
+        ARIADNE_TEST_EQUALS(trace1.barrier(trace1.size()-1).farthest_location(),second)
+        ARIADNE_TEST_EQUALS(trace1.barrier(trace1.size()-1).maximum_index(),0)
+
+        auto hs2_new = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0));
+        trace2.reset(hs2_new,history);
+        ARIADNE_TEST_PRINT(trace2)
+        ARIADNE_TEST_EQUALS(trace2.barrier(trace2.size()-1).farthest_location(),first)
+
+        auto hs3_new = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0));
+        trace3.reset(hs3_new,history);
+        ARIADNE_TEST_ASSERT(trace3.is_empty())
+
     }
 };
 
