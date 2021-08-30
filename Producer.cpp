@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <csignal>
 #include <cstring>
-
+#include <tuple>
 
 #include <librdkafka/rdkafkacpp.h>
 
@@ -39,6 +39,14 @@ struct notifica{
   unsigned int robotSegmentId;
   std::string discreteState;
   long unsigned int minimumCollisionTime;
+
+};
+
+struct statoIbrido{
+    std::string bodyId;         // identificativo di corpo
+    std::string discreteState;  // vettore di valori di variabili discrete (si applica solo al robot e rappresenta lo stato discreto, ossia la modalità operativa)
+    std::vector<std::list<std::tuple<double, double, double>>> continuosState; // vettore di liste di coordinate x-y-z [double] per ognuno dei punti; la posizione nel vettore è l'identificativo del punto; la dimensione di una lista può essere nulla se manca un valore (nel caso acquisizione solo tramite videocamere) o multipla nel caso di sorgenti multiple
+    unsigned long int timestamp; // il timestamp [long unsigned int]
 
 };
 
@@ -114,7 +122,46 @@ std::string encoderPresentazione(presentazione * prs){
   return str;
 }
 
+std::string encoderStatoIbrido(statoIbrido * si){
+    std::string str;
 
+    str.append((si->bodyId));
+    str.append(";");
+    str.append((si->discreteState));
+    str.append(";");
+    
+    for(int i=0; i<si->continuosState.size(); i++){
+        for (std::tuple<double, double, double> j : si->continuosState[i]) {
+            str.append(std::to_string(std::get<0>(j))); // x
+            str.append(" ");
+            str.append(std::to_string(std::get<1>(j))); // y
+            str.append(" ");
+            str.append(std::to_string(std::get<2>(j))); // z
+            str.append(" ");
+        }
+        str.append("£");
+    }
+
+    str.append(";");
+    str.append(std::to_string(si->timestamp));
+    str.append(";");
+
+    return str;
+}
+
+void printStatoIbrido(statoIbrido si){
+  std::cout<<"bodyId: "<<si.bodyId<<"\n";
+  std::cout<<"discreteState: "<<si.discreteState<<"\n";
+  
+  std::cout<<"continuosState:\n";
+  for(int i = 0; i< si.continuosState.size(); i++){
+    std::cout<<"list "<<i<<":\n";
+    for (std::tuple<double, double, double> j : si.continuosState[i]) {
+      std::cout<<"["<<std::get<0>(j)<<", "<<std::get<1>(j)<<", "<<std::get<2>(j)<<"]\n";
+    }
+  }
+  std::cout<<"timestamp: "<<si.timestamp<<"\n";  
+}
 
 
 static volatile sig_atomic_t run = 1;

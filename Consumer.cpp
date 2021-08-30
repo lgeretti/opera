@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <csignal>
 #include <cstring>
+#include <tuple>
 
 #include <librdkafka/rdkafkacpp.h>
 
@@ -31,6 +32,14 @@ struct notifica{
   unsigned int robotSegmentId;
   std::string discreteState;
   long unsigned int minimumCollisionTime;
+
+};
+
+struct statoIbrido{
+    std::string bodyId;         // identificativo di corpo
+    std::string discreteState;  // vettore di valori di variabili discrete (si applica solo al robot e rappresenta lo stato discreto, ossia la modalità operativa)
+    std::vector<std::list<std::tuple<double, double, double>>> continuosState; // vettore di liste di coordinate x-y-z [double] per ognuno dei punti; la posizione nel vettore è l'identificativo del punto; la dimensione di una lista può essere nulla se manca un valore (nel caso acquisizione solo tramite videocamere) o multipla nel caso di sorgenti multiple
+    unsigned long int timestamp; // il timestamp [long unsigned int]
 
 };
 
@@ -194,6 +203,114 @@ notifica decoderNotifica(std::string str){
   return ntf;
 };
 
+statoIbrido decoderStatoIbrido(std::string str){
+  statoIbrido si;
+  si.continuosState.clear();
+
+  std::string delimiter = ";";
+  int del_dim = delimiter.length(); // dimensione delimitatore
+  int pos_delim;
+  int fieldNumber = 0;  // utilizzato per sapere a che campo siamo 
+  std::string substring;
+
+  std::string delim_coordinate = " ";
+  int del_coordinate_dim = delim_coordinate.length();
+  int pos_delim_coordinate;
+  std::list<std::tuple<double, double, double>> lista_tupla;
+  std::string coordinate0String;
+  std::string coordinate1String;
+  std::string coordinate2String;
+
+  std::string delim_list = "£";
+  int del_list_dim = delim_list.length();
+  int pos_delim_list;
+  double numberlist;
+  std::string list_substring;
+  //questo while gira fino a quando il .find non ritorna npos (ovvero quando non trova nessun ";")
+  while(str.find(delimiter) != std::string::npos){
+    pos_delim = str.find(delimiter);
+    // std::cout<<"Iterazione numero"<<fieldNumber<<"\n";  // debug !!  
+    // std::cout<<"Pos_delim = "<<pos_delim<<"\n";         // debug !!
+    
+    substring = str.substr(0, pos_delim);   // prendo la sottostringa fino a ";"
+    std::cout<<"Substring:"<<substring<< "\n";
+    switch (fieldNumber)
+    {
+    case 0:
+      /* bodyId string*/
+      si.bodyId = substring;
+      break;
+
+    case 1:
+      /* type string */
+      si.discreteState = substring;
+      break;
+
+    case 2:
+      /* continuosState vector<list<double, double, double>> */
+      pos_delim_list = substring.find(delim_list);
+      while(pos_delim_list  != std::string::npos ){
+        list_substring = substring.substr(0, pos_delim_list);
+        pos_delim_coordinate = list_substring.find(delim_coordinate);
+
+        while(pos_delim_coordinate  != std::string::npos ){
+
+          std::cout<<"List Substring:"<<list_substring<< "\n";
+
+          coordinate0String = list_substring.substr(0,pos_delim_coordinate); // prendo il numero (string to unsigned long stoul)
+          list_substring.erase(0, pos_delim_coordinate + del_coordinate_dim);
+          pos_delim_coordinate = list_substring.find(delim_coordinate);
+
+          std::cout<<list_substring<<"\n";
+
+          coordinate1String = list_substring.substr(0,pos_delim_coordinate);
+          list_substring.erase(0, pos_delim_coordinate + del_coordinate_dim);
+          pos_delim_coordinate = list_substring.find(delim_coordinate);
+
+          std::cout<<"2!\n";
+          std::cout<<list_substring<<"\n";
+
+          coordinate2String = list_substring.substr(0,pos_delim_coordinate);
+          list_substring.erase(0, pos_delim_coordinate + del_coordinate_dim);
+
+          std::cout<<"3!\n";
+          std::cout<<list_substring<<"\n";
+          
+          std::cout<<coordinate0String<<"\n";
+          std::cout<<coordinate1String<<"\n";
+          std::cout<<coordinate2String<<"\n";
+
+          lista_tupla.push_back(std::make_tuple(std::stod(coordinate0String),std::stod(coordinate1String),std::stod(coordinate2String)));
+          
+          pos_delim_coordinate = list_substring.find(delim_coordinate);
+
+          std::cout<<"4!\n";
+        }
+        si.continuosState.push_back(lista_tupla);
+
+        lista_tupla.clear();
+        substring.erase(0, pos_delim_list + del_list_dim);
+
+        pos_delim_list = substring.find(delim_list);
+      }
+      break;
+
+    case 3:
+      /* timestamp unsigned long int */
+      si.timestamp = std::stoul(substring);
+      break;
+
+    default:
+      break;
+    }
+
+    fieldNumber++;
+    str.erase(0,pos_delim + del_dim);       // rimuovo la prima sottostringa
+  }
+  std::cout<<"\n\n----Decode ended with success----\n\n";
+  return si;
+}
+
 void printPresentazione(presentazione prs){
   std::cout<<"Id: "<<prs.id<<"\n";
   std::cout<<"Human: ";
@@ -257,6 +374,21 @@ void msg_consume(RdKafka::Message* message, void* opaque) {
       std::cerr << "Consume failed: " << message->errstr() << std::endl;
       run = 0;
   }
+}
+
+
+void printStatoIbrido(statoIbrido si){
+  std::cout<<"bodyId: "<<si.bodyId<<"\n";
+  std::cout<<"discreteState: "<<si.discreteState<<"\n";
+  
+  std::cout<<"continuosState:\n";
+  for(int i = 0; i< si.continuosState.size(); i++){
+    std::cout<<"list "<<i<<":\n";
+    for (std::tuple<double, double, double> j : si.continuosState[i]) {
+      std::cout<<"["<<std::get<0>(j)<<", "<<std::get<1>(j)<<", "<<std::get<2>(j)<<"]\n";
+    }
+  }
+  std::cout<<"timestamp: "<<si.timestamp<<"\n";  
 }
 
 int main(){
