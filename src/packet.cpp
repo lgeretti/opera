@@ -29,8 +29,9 @@ namespace Opera {
 BodyStatePacket::BodyStatePacket(BodyIdType const& id, List<List<Point>> const& points, TimestampType const& timestamp) :
     _id(id), _points(points), _timestamp(timestamp) {}
 
-RobotStatePacket::RobotStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
-    BodyStatePacket(id,points,timestamp), _location(location) {}
+BodyIdType const& BodyStatePacket::id() const {
+    return _id;
+}
 
 List<List<Point>> const& BodyStatePacket::points() const {
     return _points;
@@ -39,6 +40,9 @@ List<List<Point>> const& BodyStatePacket::points() const {
 TimestampType const& BodyStatePacket::timestamp() const {
     return _timestamp;
 }
+
+RobotStatePacket::RobotStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
+    BodyStatePacket(id,points,timestamp), _location(location) {}
 
 DiscreteLocation const& RobotStatePacket::location() const {
     return _location;

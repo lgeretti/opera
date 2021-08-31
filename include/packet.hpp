@@ -57,10 +57,7 @@ class BodyStatePacket {
 };
 
 //! \brief A representation of an inbound packet for the state of a human body
-class HumanStatePacket : public BodyStatePacket {
-  public:
-    using BodyStatePacket::BodyStatePacket;
-};
+using HumanStatePacket = BodyStatePacket;
 
 //! \brief A representation of an inbound packet for the state of a robot body
 class RobotStatePacket : public BodyStatePacket {
