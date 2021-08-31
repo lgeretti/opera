@@ -26,15 +26,49 @@
 #define OPERA_DESERIALISATION_HPP
 
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/istreamwrapper.h>
+#include <filesystem>
+#include <fstream>
 #include "body.hpp"
 
 namespace Opera {
 
-//! \brief Utility for making a human or robot from a JSON description file
-class BodyDeserialiser {
+using namespace rapidjson;
+
+using FilePath = std::filesystem::path;
+
+//! \brief Base for a class deserialising a JSON file or string
+class DeserialiserBase {
   public:
-    //! \brief Construct by parsing a JSON \a filename
-    BodyDeserialiser(String const& filename);
+    DeserialiserBase(FilePath const& file) {
+        std::ifstream ifs(file);
+        ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << file << "' file for reading.")
+        IStreamWrapper isw(ifs);
+        _document.ParseStream(isw);
+        ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
+    }
+
+    DeserialiserBase(String const& string) {
+        _document.Parse(string.c_str());
+        ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
+    }
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, DeserialiserBase const& d) {
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        d._document.Accept(writer);
+        return os << buffer.GetString();
+    }
+  protected:
+    Document _document;
+};
+
+//! \brief Utility for making a human or robot from a JSON description file
+class BodyDeserialiser : public DeserialiserBase {
+  public:
+    using DeserialiserBase::DeserialiserBase;
 
     //! \brief If it is a human or alternatively a robot
     bool is_human() const;
@@ -44,18 +78,11 @@ class BodyDeserialiser {
     //! \brief Make a robot out of the parsed content
     Robot make_robot() const;
 
-    //! \brief Print to the standard output
-    friend std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d);
-
   private:
-
     //! \brief Get the point ids from the document
     List<SizeType> _get_point_ids() const;
     //! \brief Get the thicknesses from the document
     List<FloatType> _get_thicknesses() const;
-
-  private:
-    rapidjson::Document _document;
 };
 
 }

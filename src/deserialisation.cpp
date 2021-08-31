@@ -22,26 +22,11 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <fstream>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/ostreamwrapper.h>
 #include "deserialisation.hpp"
 
 namespace Opera {
 
 using namespace rapidjson;
-
-BodyDeserialiser::BodyDeserialiser(String const& filename) {
-
-    std::ifstream ifs(filename);
-    ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << filename << "' file for reading.")
-    IStreamWrapper isw(ifs);
-    _document.ParseStream(isw);
-
-    ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
-}
 
 bool BodyDeserialiser::is_human() const {
     return _document["isHuman"].GetBool();
@@ -75,13 +60,6 @@ Human BodyDeserialiser::make_human() const {
 Robot BodyDeserialiser::make_robot() const {
     ARIADNE_ASSERT(not is_human())
     return Robot(_document["id"].GetString(), _document["packageFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
-}
-
-std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d) {
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    d._document.Accept(writer);
-    return os << buffer.GetString();
 }
 
 }
