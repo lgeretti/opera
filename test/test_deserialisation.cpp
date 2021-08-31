@@ -31,18 +31,19 @@ using namespace Opera;
 class TestDeserialisation {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_bodydeserialiser_create())
-        ARIADNE_TEST_CALL(test_bodydeserialiser_make_human())
-        ARIADNE_TEST_CALL(test_bodydeserialiser_make_robot())
+        ARIADNE_TEST_CALL(test_body_create())
+        ARIADNE_TEST_CALL(test_body_make_human())
+        ARIADNE_TEST_CALL(test_body_make_robot())
+        ARIADNE_TEST_CALL(test_bodystatepacket_make())
     }
 
-    void test_bodydeserialiser_create() {
+    void test_body_create() {
         BodyDeserialiser d(FilePath(Resources::path("json/presentation/human0.json").c_str()));
         ARIADNE_TEST_ASSERT(d.is_human())
         ARIADNE_TEST_PRINT(d)
     }
 
-    void test_bodydeserialiser_make_human() {
+    void test_body_make_human() {
         BodyDeserialiser d1(FilePath(Resources::path("json/presentation/human0.json").c_str()));
         ARIADNE_TEST_FAIL(d1.make_robot())
         auto h1 = d1.make_human();
@@ -56,7 +57,7 @@ public:
         auto h2 = d2.make_human();
         ARIADNE_TEST_EQUALS(h1.id(),h2.id())
     }
-    void test_bodydeserialiser_make_robot() {
+    void test_body_make_robot() {
         BodyDeserialiser d1(FilePath(Resources::path("json/presentation/robot0.json").c_str()));
         ARIADNE_TEST_FAIL(d1.make_human())
         auto r1 = d1.make_robot();
@@ -70,6 +71,25 @@ public:
                             "}");
         auto r2 = d2.make_robot();
         ARIADNE_TEST_EQUALS(r1.id(),r2.id())
+    }
+
+    void test_bodystatepacket_make() {
+        DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
+        BodyStatePacketDeserialiser d(FilePath(Resources::path("json/state/robot0.json").c_str()));
+        auto p = d.make();
+        ARIADNE_TEST_EQUALS(p.id(),"r0")
+        ARIADNE_TEST_EQUALS(p.location(),loc)
+        ARIADNE_TEST_PRINT(p.points())
+        ARIADNE_TEST_EQUALS(p.points().size(),8)
+        ARIADNE_TEST_EQUALS(p.points().at(0).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(1).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(2).size(),2)
+        ARIADNE_TEST_EQUALS(p.points().at(3).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(4).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(5).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(6).size(),1)
+        ARIADNE_TEST_EQUALS(p.points().at(7).size(),1)
+        ARIADNE_TEST_EQUALS(p.timestamp(),328903284232)
     }
 };
 

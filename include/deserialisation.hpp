@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include "body.hpp"
+#include "packet.hpp"
 
 namespace Opera {
 
@@ -85,11 +86,14 @@ class BodyDeserialiser : public DeserialiserBase {
     List<FloatType> _get_thicknesses() const;
 };
 
-//! \brief Converter to a packet from a JSON description file
-//class PacketDeserialiser : public DeserialiserBase {
+//! \brief Converter to a BodyStatePacket from a JSON description file
+class BodyStatePacketDeserialiser : public DeserialiserBase {
+  public:
+    using DeserialiserBase::DeserialiserBase;
 
-
-//};
+    //! \brief Make the packet
+    BodyStatePacket make() const;
+};
 
 }
 

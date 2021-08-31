@@ -27,6 +27,7 @@
 namespace Opera {
 
 using namespace rapidjson;
+using Ariadne::Map;
 
 bool BodyDeserialiser::is_human() const {
     return _document["isHuman"].GetBool();
@@ -60,6 +61,26 @@ Human BodyDeserialiser::make_human() const {
 Robot BodyDeserialiser::make_robot() const {
     ARIADNE_ASSERT(not is_human())
     return Robot(_document["id"].GetString(), _document["packetFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
+}
+
+BodyStatePacket BodyStatePacketDeserialiser::make() const {
+    Map<StringVariable,String> discrete_state_values;
+    auto values = _document["discreteState"].GetObject();
+    for (auto it = values.begin(); it != values.end(); ++it)
+        discrete_state_values.insert(std::make_pair(StringVariable(it->name.GetString()),it->value.GetString()));
+    List<List<Point>> points;
+    auto points_array = _document["continuousState"].GetArray();
+    for (auto it = points_array.begin(); it != points_array.end(); ++it) {
+        auto point_samples = it->GetArray();
+        List<Point> samples;
+        for (auto s_it = point_samples.begin(); s_it != point_samples.end(); ++s_it) {
+            auto pt = s_it->GetArray();
+            samples.append(Point(pt[0].GetDouble(),pt[1].GetDouble(),pt[2].GetDouble()));
+        }
+        points.append(samples);
+    }
+
+    return BodyStatePacket(_document["bodyId"].GetString(),DiscreteLocation(discrete_state_values),points,_document["timestamp"].GetUint64());
 }
 
 }
