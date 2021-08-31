@@ -26,32 +26,64 @@
 #define OPERA_SERIALISATION_HPP
 
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/ostreamwrapper.h>
 #include <filesystem>
+#include <fstream>
 #include "body.hpp"
 
 namespace Opera {
 
+using namespace rapidjson;
+
 using FilePath = std::filesystem::path;
 
-//! \brief Utility for making a JSON description file from a human or robot
-class BodySerialiser {
+//! \brief Interface for serialisation into a file or a string
+template<class T> class SerialiserInterface {
   public:
-    //! \brief Construct with the body
-    BodySerialiser(Body const& body);
-
     //! \brief Serialise into file
-    void to_file(FilePath const& file) const;
-
+    virtual void to_file(FilePath const& file) const = 0;
     //! \brief Serialise into String
-    String to_string() const;
+    virtual String to_string() const = 0;
+};
 
-  private:
+//! \brief Base implementation of serialisation, from a rapidjson Document
+template<class T> class SerialiserBase : public SerialiserInterface<T> {
+  public:
+    //! \brief Pass the object by const reference
+    SerialiserBase(T const& o) : obj(o) { }
 
-    //! \brief Convert the body to a JSON document
-    rapidjson::Document _to_document() const;
+    //! \brief Convert the object into a rapidjson document
+    virtual Document to_document() const = 0;
 
-  private:
-    Body const& _body;
+  public:
+    void to_file(FilePath const& file) const override {
+        auto document = to_document();
+        std::ofstream ofs(file);
+        ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << file << "' for writing.")
+        OStreamWrapper osw(ofs);
+        Writer<OStreamWrapper> writer(osw);
+        document.Accept(writer);
+    }
+
+    String to_string() const override {
+        auto document = to_document();
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        document.Accept(writer);
+        return buffer.GetString();
+    }
+
+  protected:
+    T const& obj;
+};
+
+//! \brief Utility for making a JSON description file from a human or robot
+class BodySerialiser : public SerialiserBase<Body> {
+  public:
+    using SerialiserBase::SerialiserBase;
+  protected:
+    Document to_document() const override;
 };
 
 }
