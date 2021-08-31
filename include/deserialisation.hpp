@@ -49,8 +49,8 @@ class DeserialiserBase {
         ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
 
-    DeserialiserBase(String const& string) {
-        _document.Parse(string.c_str());
+    DeserialiserBase(const char* text) {
+        _document.Parse(text);
         ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
 

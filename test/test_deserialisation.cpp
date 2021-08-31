@@ -47,12 +47,12 @@ public:
         ARIADNE_TEST_FAIL(d1.make_robot())
         auto h1 = d1.make_human();
         ARIADNE_TEST_PRINT(h1)
-        BodyDeserialiser d2(String("{\n"
+        BodyDeserialiser d2("{\n"
                                    "  \"id\": \"h0\",\n"
                                    "  \"isHuman\": true,\n"
                                    "  \"pointIds\": [[14,12],[11,12],[5,7],[6,8],[7,9],[8,10],[1,2],[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[17,0],[17,5],[17,6],[17,11],[17,12]],\n"
                                    "  \"thicknesses\": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]\n"
-                                   "}"));
+                                   "}");
         auto h2 = d2.make_human();
         ARIADNE_TEST_EQUALS(h1.id(),h2.id())
     }
@@ -61,13 +61,13 @@ public:
         ARIADNE_TEST_FAIL(d1.make_human())
         auto r1 = d1.make_robot();
         ARIADNE_TEST_PRINT(r1)
-        BodyDeserialiser d2(String("{\n"
+        BodyDeserialiser d2("{\n"
                             "  \"id\": \"r0\",\n"
                             "  \"isHuman\": false,\n"
                             "  \"packageFrequency\": 10,\n"
                             "  \"pointIds\": [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]],\n"
                             "  \"thicknesses\": [1,1,1,1,1,1,1]\n"
-                            "}"));
+                            "}");
         auto r2 = d2.make_robot();
         ARIADNE_TEST_EQUALS(r1.id(),r2.id())
     }
