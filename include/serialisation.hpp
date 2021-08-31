@@ -36,19 +36,22 @@ using FilePath = std::filesystem::path;
 //! \brief Utility for making a JSON description file from a human or robot
 class BodySerialiser {
   public:
-    //! \brief Construct providing the path to save into
-    BodySerialiser(FilePath const& file);
+    //! \brief Construct with the body
+    BodySerialiser(Body const& body);
 
-    //! \brief Serialise the body
-    void serialise(Body const& body) const;
+    //! \brief Serialise into file
+    void to_file(FilePath const& file) const;
 
-  private:
-
-    //! \brief Save the \a document
-    void _save(rapidjson::Document const& document) const;
+    //! \brief Serialise into String
+    String to_string() const;
 
   private:
-    FilePath const _filepath;
+
+    //! \brief Convert the body to a JSON document
+    rapidjson::Document _to_document() const;
+
+  private:
+    Body const& _body;
 };
 
 }

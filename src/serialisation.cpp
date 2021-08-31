@@ -32,18 +32,39 @@ namespace Opera {
 
 using namespace rapidjson;
 
-BodySerialiser::BodySerialiser(FilePath const& filepath) : _filepath(filepath) { }
+BodySerialiser::BodySerialiser(Body const& body) : _body(body) { }
 
-void BodySerialiser::serialise(Body const& body) const {
+void BodySerialiser::to_file(FilePath const& file) const {
 
-    auto robot_ptr = dynamic_cast<Robot const*>(&body);
+    auto document = _to_document();
+
+    std::ofstream ofs(file);
+    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << file << "' for writing.")
+    OStreamWrapper osw(ofs);
+    Writer<OStreamWrapper> writer(osw);
+    document.Accept(writer);
+}
+
+String BodySerialiser::to_string() const {
+
+    auto document = _to_document();
+
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    document.Accept(writer);
+    return buffer.GetString();
+}
+
+rapidjson::Document BodySerialiser::_to_document() const {
+
+    auto robot_ptr = dynamic_cast<Robot const*>(&_body);
     bool is_human = (robot_ptr == nullptr);
     Document document;
     document.SetObject();
     Document::AllocatorType& allocator = document.GetAllocator();
 
     Value id;
-    id.SetString(body.id().c_str(),body.id().length());
+    id.SetString(_body.id().c_str(),_body.id().length());
     document.AddMember("id",id,allocator);
     document.AddMember("isHuman",Value().SetBool(is_human),allocator);
 
@@ -51,8 +72,8 @@ void BodySerialiser::serialise(Body const& body) const {
     Value point_ids;
     thicknesses.SetArray();
     point_ids.SetArray();
-    for (SizeType i=0; i<body.num_segments(); ++i) {
-        auto const& s = body.segment(i);
+    for (SizeType i=0; i<_body.num_segments(); ++i) {
+        auto const& s = _body.segment(i);
         thicknesses.PushBack(Value().SetDouble(s.thickness().get_d()),allocator);
         Value points;
         points.SetArray();
@@ -63,15 +84,7 @@ void BodySerialiser::serialise(Body const& body) const {
     document.AddMember("pointIds",point_ids,allocator);
     document.AddMember("thicknesses",thicknesses,allocator);
 
-    _save(document);
-}
-
-void BodySerialiser::_save(Document const& document) const {
-    std::ofstream ofs(_filepath);
-    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << _filepath << "' for writing.")
-    OStreamWrapper osw(ofs);
-    Writer<OStreamWrapper> writer(osw);
-    document.Accept(writer);
+    return document;
 }
 
 }
