@@ -25,7 +25,7 @@
 #ifndef OPERA_VERIFICATION_HPP
 #define OPERA_VERIFICATION_HPP
 
-#include "body.hpp"
+#include "state.hpp"
 
 namespace Opera {
 

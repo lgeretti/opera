@@ -1,6 +1,7 @@
 set(PROFILE_FILES
     profile_geometry
     profile_body
+    profile_state
     profile_verification
 )
 

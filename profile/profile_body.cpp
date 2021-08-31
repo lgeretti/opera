@@ -34,8 +34,6 @@ struct ProfileBody : public Profiler {
     void run() {
         profile_bodysegment_intersection();
         profile_bodysegment_sample_update();
-        profile_human_instance_acquirement();
-        profile_robot_history_acquirement_and_update();
     }
 
     void profile_bodysegment_intersection() {
@@ -65,52 +63,6 @@ struct ProfileBody : public Profiler {
         }
 
         profile("Sample update",[&](SizeType i){ s.update(heads.at(i), tails.at(i)); });
-    }
-
-    void profile_human_instance_acquirement() {
-        FloatType thickness(1.0,Ariadne::dp);
-        Human h("h0", {0, 1}, {thickness});
-
-        Ariadne::List<HumanStatePackage> pkgs;
-        for (SizeType i=0; i<num_tries(); ++i) {
-            pkgs.push_back(HumanStatePackage({{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
-                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                              10*i));
-        }
-
-        profile("Make human state instance from package",[&](SizeType i){ h.make_instance(pkgs.at(i)); });
-    }
-
-    void profile_robot_history_acquirement_and_update() {
-        FloatType thickness(1.0,Ariadne::dp);
-        Robot r("r0", 10, {0, 1}, {thickness});
-        Ariadne::StringVariable robot("robot");
-        auto history = r.make_history();
-
-        Ariadne::List<RobotStatePackage> pkgs;
-        for (SizeType i=0; i<num_tries(); ++i) {
-            pkgs.push_back(RobotStatePackage(DiscreteLocation(robot|"first"),
-                                            {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
-                                                    {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                                    10*i));
-        }
-
-        profile("Acquire robot package for new location",[&](SizeType i){ history.acquire(pkgs.at(i)); });
-
-        history.acquire(RobotStatePackage(DiscreteLocation(robot|"second"),
-                                         {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
-                                          {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                          10000010));
-
-        pkgs.clear();
-        for (SizeType i=0; i<num_tries(); ++i) {
-            pkgs.push_back(RobotStatePackage(DiscreteLocation(robot|"first"),
-                                            {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
-                                             {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                             10000020+10*i));
-        }
-
-        profile("Acquire robot package for existing location",[&](SizeType i){ history.acquire(pkgs.at(i)); });
     }
 };
 

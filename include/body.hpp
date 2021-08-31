@@ -41,15 +41,12 @@ using Ariadne::SizeType;
 using Ariadne::String;
 
 class BodySegment;
-class HumanStateInstance;
-class HumanStatePackage;
-class RobotStateHistory;
 
 class Body {
-  protected:
+  public:
     //! \brief Construct from fields
     Body(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
-  public:
+
     //! \brief The body identifier
     BodyIdType const& id() const;
 
@@ -74,23 +71,18 @@ class Body {
 //! \brief A human is a body able to get a singular state
 class Human : public Body {
   public:
-    //! \brief Construct from fields
-    Human(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
-    //! \brief Create a state instance from the package
-    HumanStateInstance make_instance(HumanStatePackage const& pkg) const;
+    using Body::Body;
 };
 
 //! \brief A robot is a body able to have its history
 class Robot : public Body {
   public:
     //! \brief Construct from fields
-    Robot(BodyIdType const& id, SizeType const& package_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
-    //! \brief Create an is_empty history for the robot packages received
-    RobotStateHistory make_history() const;
-    //! \brief The frequency of packages sent by the robot, in Hz
-    SizeType const& package_frequency() const;
+    Robot(BodyIdType const& id, SizeType const& packet_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    //! \brief The frequency of packets sent by the robot, in Hz
+    SizeType const& packet_frequency() const;
   private:
-    SizeType const _package_frequency;
+    SizeType const _packet_frequency;
 };
 
 class BodySegmentSample;
@@ -128,40 +120,6 @@ class BodySegment {
     IdType const _tail_id;
     FloatType const _thickness;
     Body const* _body;
-};
-
-//! \brief A representation of an inbound package for the state of a body
-class BodyStatePackage {
-  protected:
-    //! \brief Construct from a list of samples for each point, and a \a timestamp
-    BodyStatePackage(List<List<Point>> const& points, TimestampType const& timestamp);
-  public:
-    //! \brief The points for each segment
-    //! \details These will be always even, at least two (head and tail) but multiple points may be present
-    List<List<Point>> const& points() const;
-    //! \brief The timestamp associated with the package
-    TimestampType const& timestamp() const;
-  private:
-    List<List<Point>> const _points;
-    TimestampType const _timestamp;
-};
-
-//! \brief A representation of an inbound package for the state of a human body
-class HumanStatePackage : public BodyStatePackage {
-  public:
-    //! \brief Construct from a list of samples for each point, and a \a timestamp
-    HumanStatePackage(List<List<Point>> const& points, TimestampType const& timestamp);
-};
-
-//! \brief A representation of an inbound package for the state of a robot body
-class RobotStatePackage : public BodyStatePackage {
-  public:
-    //! \brief Construct from a \a location, a list of samples for each point, and a \a timestamp
-    RobotStatePackage(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
-    //! \brief The location
-    DiscreteLocation const& location() const;
-  private:
-    DiscreteLocation const _location;
 };
 
 //! \brief An approximation of a segment sample with a sphere
@@ -294,114 +252,6 @@ class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
     SphericalApproximationSample spherical_approximation() const { return this->_ptr->spherical_approximation(); }
     friend FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2)  { return distance(s1.const_reference(),s2.const_reference()); }
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) { return os << s.const_reference(); }
-};
-
-//! \brief Holds the state of a human
-class HumanStateInstance {
-    friend class Human;
-  protected:
-    //! \brief Construct from a human pointer and the fields
-    HumanStateInstance(Human const* human, List<BodySegmentSample> const& samples, TimestampType const& timestamp);
-  public:
-    //! \brief The samples for each segment
-    List<BodySegmentSample> const& samples() const;
-    //! \brief The timestamp of the instance
-    TimestampType const& timestamp() const;
-  private:
-    List<BodySegmentSample> const _samples;
-    TimestampType const _timestamp;
-    Human const* _human;
-};
-
-//! \brief The presence of a robot in a given location
-class RobotLocationPresence {
-  public:
-    //! \brief Construct from a \a source, \a exit_destination, \a from and \a to for entrance/exit in the source location
-    RobotLocationPresence(DiscreteLocation const& location, DiscreteLocation const& exit_destination, TimestampType const& from, TimestampType const& to);
-    //! \brief The location of presence
-    DiscreteLocation const& location() const;
-    //! \brief The destination location after exiting
-    DiscreteLocation const& exit_destination() const;
-    //! \brief The timestamp of entrance
-    TimestampType const& from() const;
-    //! \brief The timestamp of exit
-    TimestampType const& to() const;
-
-    //! \brief Print to the standard output
-    friend std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p);
-  private:
-    DiscreteLocation const _location;
-    DiscreteLocation const _exit_destination;
-    TimestampType const _from;
-    TimestampType const _to;
-};
-
-//! \brief The probability to get to a destination
-class RobotDestinationLikelihood {
-  public:
-    RobotDestinationLikelihood(DiscreteLocation const& destination, PositiveFloatType const& probability);
-
-    //! \brief The destination
-    DiscreteLocation const& destination() const;
-    //! \brief The probability
-    PositiveFloatType const& probability() const;
-
-    //! \brief Print to the standard output
-    friend std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l);
-
-  private:
-    DiscreteLocation const _destination;
-    PositiveFloatType const _probability;
-};
-
-//! \brief Holds the states reached by a robot up to now
-class RobotStateHistory {
-    friend class Robot;
-    typedef List<BodySegmentSample> SegmentTemporalSamplesType;
-    typedef List<SegmentTemporalSamplesType> BodySamplesType;
-    typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
-  protected:
-    RobotStateHistory(Robot const* robot);
-    RobotStateHistory(RobotStateHistory const& other) = delete;
-  public:
-    //! \brief Acquire the \a state to be ultimately held into the hystory
-    //! \details Hystory will not be effectively updated till the location changes
-    void acquire(RobotStatePackage const& state);
-
-    //! \brief The current location
-    DiscreteLocation const& current_location() const;
-
-    //! \brief Whether there are samples registered for the \a location
-    //! \details Until the location changes, samples acquired are not registered
-    bool has_samples(DiscreteLocation const& location) const;
-
-    //! \brief The samples in a given \a location
-    BodySamplesType const& samples(DiscreteLocation const& location) const;
-
-    //! \brief The presences in a given \a location
-    List<RobotLocationPresence> presences_in(DiscreteLocation const& location) const;
-    //! \brief The presences exiting into a given \a location
-    List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
-    //! \brief The presences between a \a source and \a destination locations
-    List<RobotLocationPresence> presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const;
-    //! \brief The range of number of samples acquired in a given location
-    Interval<Natural> range_of_num_samples_in(DiscreteLocation const& location) const;
-    //! \brief The range of number of samples that are acquired when in \a source going into \a target
-    Interval<Natural> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
-    //! \brief The destination for \a location, with the likelihood to be taken
-    List<RobotDestinationLikelihood> destination_likelihoods(DiscreteLocation const& location) const;
-  private:
-    //! \brief Find the index of the sample to update given the current \a timestamp
-    SizeType _update_index(TimestampType const& timestamp) const;
-    //! \brief The range of number of samples within a list of \a presences_in
-    Interval<Natural> _range_of_num_samples_within(List<RobotLocationPresence> const& presences) const;
-
-  private:
-    std::deque<RobotLocationPresence> _location_presences;
-    LocationSamplesType _location_states;
-    DiscreteLocation _current_location;
-    BodySamplesType _current_location_states_buffer;
-    Robot const* _robot;
 };
 
 }

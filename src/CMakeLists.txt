@@ -1,6 +1,8 @@
 add_library(OPERA_SRC OBJECT
    geometry.cpp
    body.cpp
+   packet.cpp
+   state.cpp
    serialisation.cpp
    deserialisation.cpp
    verification.cpp

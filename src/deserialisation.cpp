@@ -59,7 +59,7 @@ Human BodyDeserialiser::make_human() const {
 
 Robot BodyDeserialiser::make_robot() const {
     ARIADNE_ASSERT(not is_human())
-    return Robot(_document["id"].GetString(), _document["packageFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
+    return Robot(_document["id"].GetString(), _document["packetFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
 }
 
 }

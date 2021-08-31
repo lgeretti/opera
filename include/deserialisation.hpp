@@ -85,6 +85,8 @@ class BodyDeserialiser : public DeserialiserBase {
     List<FloatType> _get_thicknesses() const;
 };
 
+
+
 }
 
 #endif //OPERA_DESERIALISATION_HPP

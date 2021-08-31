@@ -64,7 +64,7 @@ public:
         BodyDeserialiser d2("{\n"
                             "  \"id\": \"r0\",\n"
                             "  \"isHuman\": false,\n"
-                            "  \"packageFrequency\": 10,\n"
+                            "  \"packetFrequency\": 10,\n"
                             "  \"pointIds\": [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]],\n"
                             "  \"thicknesses\": [1,1,1,1,1,1,1]\n"
                             "}");

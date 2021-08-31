@@ -109,11 +109,11 @@ struct ProfileVerification : public Profiler {
         DiscreteLocation first(StringVariable(r.id())|"first");
         DiscreteLocation second(StringVariable(r.id())|"second");
         MinimumDistanceBarrierTrace trace(hs,0);
-        auto history = r.make_history();
+        RobotStateHistory history(&r);
         for (SizeType i=0; i<ns; ++i) {
-            history.acquire(RobotStatePackage(first,{{Point(i,0,0)},{Point(i,2,0)}},i*1e8));
+            history.acquire(first,{{Point(i,0,0)},{Point(i,2,0)}},i*1e8);
         }
-        history.acquire(RobotStatePackage(second,{{Point(ns,0,0)},{Point(ns,2,0)}},ns*1e8));
+        history.acquire(second,{{Point(ns,0,0)},{Point(ns,2,0)}},ns*1e8);
 
         List<BodySegmentSample> hss;
         for (SizeType i=ns; i>0; --i) {
