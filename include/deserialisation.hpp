@@ -1,5 +1,5 @@
 /***************************************************************************
- *            serialisation.hpp
+ *            deserialisation.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,32 +22,42 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERA_SERIALISATION_HPP
-#define OPERA_SERIALISATION_HPP
+#ifndef OPERA_DESERIALISATION_HPP
+#define OPERA_DESERIALISATION_HPP
 
 #include <rapidjson/document.h>
 #include "body.hpp"
 
 namespace Opera {
 
-//! \brief Utility for making a JSON description file from a human or robot
-class BodySerialiser {
+//! \brief Utility for making a human or robot from a JSON description file
+class BodyDeserialiser {
   public:
-    //! \brief Construct providing the filename to save into
-    BodySerialiser(String const& filename);
+    //! \brief Construct by parsing a JSON \a filename
+    BodyDeserialiser(String const& filename);
 
-    //! \brief Serialise the body
-    void serialise(Body const& body) const;
+    //! \brief If it is a human or alternatively a robot
+    bool is_human() const;
+
+    //! \brief Make a human out of the parsed content
+    Human make_human() const;
+    //! \brief Make a robot out of the parsed content
+    Robot make_robot() const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, BodyDeserialiser const& d);
 
   private:
 
-    //! \brief Save the \a document
-    void _save(rapidjson::Document const& document) const;
+    //! \brief Get the point ids from the document
+    List<SizeType> _get_point_ids() const;
+    //! \brief Get the thicknesses from the document
+    List<FloatType> _get_thicknesses() const;
 
   private:
-    String const _filename;
+    rapidjson::Document _document;
 };
 
 }
 
-#endif //OPERA_SERIALISATION_HPP
+#endif //OPERA_DESERIALISATION_HPP

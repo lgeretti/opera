@@ -3,4 +3,5 @@ include/config.hpp
 build*
 .idea/
 cmake-build-debug/
+.DS_Store
 ~*

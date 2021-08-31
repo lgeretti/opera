@@ -200,7 +200,6 @@ class TestVerification {
         auto hs3_new = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0));
         trace3.reset(hs3_new,history);
         ARIADNE_TEST_ASSERT(trace3.is_empty())
-
     }
 };
 

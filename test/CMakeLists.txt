@@ -4,6 +4,7 @@ set(UNIT_TESTS
     test_geometry
     test_body
     test_serialisation
+    test_deserialisation
     test_verification
 )
 
