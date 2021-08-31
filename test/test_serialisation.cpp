@@ -37,12 +37,12 @@ public:
 
     void test_bodyserialiser_from_human() {
         Human h("human1", {0, 1, 3, 2}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
-        BodySerialiser(Resources::path("json/presentation/"+h.id()+".tmp.json")).serialise(h);
+        BodySerialiser(FilePath(Resources::path("json/presentation/"+h.id()+".tmp.json").c_str())).serialise(h);
     }
 
     void test_bodyserialiser_from_robot() {
         Robot r("robot1", 30, {0, 1, 3, 2, 4, 2}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
-        BodySerialiser(Resources::path("json/presentation/"+r.id()+".tmp.json")).serialise(r);
+        BodySerialiser(FilePath(Resources::path("json/presentation/"+r.id()+".tmp.json").c_str())).serialise(r);
     }
 };
 

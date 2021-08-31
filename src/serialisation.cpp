@@ -32,7 +32,7 @@ namespace Opera {
 
 using namespace rapidjson;
 
-BodySerialiser::BodySerialiser(String const& filename) : _filename(filename) { }
+BodySerialiser::BodySerialiser(FilePath const& filepath) : _filepath(filepath) { }
 
 void BodySerialiser::serialise(Body const& body) const {
 
@@ -67,8 +67,8 @@ void BodySerialiser::serialise(Body const& body) const {
 }
 
 void BodySerialiser::_save(Document const& document) const {
-    std::ofstream ofs(_filename);
-    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << _filename << "' for writing.")
+    std::ofstream ofs(_filepath);
+    ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << _filepath << "' for writing.")
     OStreamWrapper osw(ofs);
     Writer<OStreamWrapper> writer(osw);
     document.Accept(writer);

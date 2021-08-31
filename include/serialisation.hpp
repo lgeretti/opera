@@ -26,15 +26,18 @@
 #define OPERA_SERIALISATION_HPP
 
 #include <rapidjson/document.h>
+#include <filesystem>
 #include "body.hpp"
 
 namespace Opera {
 
+using FilePath = std::filesystem::path;
+
 //! \brief Utility for making a JSON description file from a human or robot
 class BodySerialiser {
   public:
-    //! \brief Construct providing the filename to save into
-    BodySerialiser(String const& filename);
+    //! \brief Construct providing the path to save into
+    BodySerialiser(FilePath const& file);
 
     //! \brief Serialise the body
     void serialise(Body const& body) const;
@@ -45,7 +48,7 @@ class BodySerialiser {
     void _save(rapidjson::Document const& document) const;
 
   private:
-    String const _filename;
+    FilePath const _filepath;
 };
 
 }
