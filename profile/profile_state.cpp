@@ -41,9 +41,9 @@ struct ProfileState : public Profiler {
         FloatType thickness(1.0,Ariadne::dp);
         Human h("h0", {0, 1}, {thickness});
 
-        Ariadne::List<HumanStatePacket> pkts;
+        Ariadne::List<BodyStatePacket> pkts;
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkts.push_back(HumanStatePacket(h.id(),{{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
+            pkts.push_back(BodyStatePacket(h.id(),{{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                               {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                               10*i));
         }
@@ -57,9 +57,9 @@ struct ProfileState : public Profiler {
         Ariadne::StringVariable robot("robot");
         RobotStateHistory history(&r);
 
-        Ariadne::List<RobotStatePacket> pkts;
+        Ariadne::List<BodyStatePacket> pkts;
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkts.push_back(RobotStatePacket(r.id(),DiscreteLocation(robot|"first"),
+            pkts.push_back(BodyStatePacket(r.id(),DiscreteLocation(robot|"first"),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                                     {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                                     10*i));
@@ -74,7 +74,7 @@ struct ProfileState : public Profiler {
 
         pkts.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkts.push_back(RobotStatePacket(r.id(),DiscreteLocation(robot|"first"),
+            pkts.push_back(BodyStatePacket(r.id(),DiscreteLocation(robot|"first"),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                              10000020+10*i));

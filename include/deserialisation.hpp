@@ -65,7 +65,7 @@ class DeserialiserBase {
     Document _document;
 };
 
-//! \brief Utility for making a human or robot from a JSON description file
+//! \brief Converter to a human or robot from a JSON description file
 class BodyDeserialiser : public DeserialiserBase {
   public:
     using DeserialiserBase::DeserialiserBase;
@@ -85,7 +85,11 @@ class BodyDeserialiser : public DeserialiserBase {
     List<FloatType> _get_thicknesses() const;
 };
 
+//! \brief Converter to a packet from a JSON description file
+//class PacketDeserialiser : public DeserialiserBase {
 
+
+//};
 
 }
 

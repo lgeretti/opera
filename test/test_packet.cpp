@@ -35,20 +35,21 @@ public:
         ARIADNE_TEST_CALL(test_robot_packet_create())
     }
 
-    void test_human_packet_create() {
-        HumanStatePacket h("h0",{{Point(0,0,0)},{Point(0,2,0)}},1e8);
-        ARIADNE_TEST_EQUALS(h.id(),"h0")
-        ARIADNE_TEST_EQUALS(h.points().size(),2)
-        ARIADNE_TEST_EQUALS(h.timestamp(),1e8)
-    }
-
     void test_robot_packet_create() {
         DiscreteLocation loc(StringVariable("r0")|"first");
-        RobotStatePacket r("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},2e8);
-        ARIADNE_TEST_EQUALS(r.id(),"r0")
-        ARIADNE_TEST_EQUALS(r.location(),loc)
-        ARIADNE_TEST_EQUALS(r.points().size(),3)
-        ARIADNE_TEST_EQUALS(r.timestamp(),2e8)
+        BodyStatePacket p("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},2e8);
+        ARIADNE_TEST_EQUALS(p.id(),"r0")
+        ARIADNE_TEST_EQUALS(p.location(),loc)
+        ARIADNE_TEST_EQUALS(p.points().size(),3)
+        ARIADNE_TEST_EQUALS(p.timestamp(),2e8)
+    }
+
+    void test_human_packet_create() {
+        BodyStatePacket p("h0",{{Point(0,0,0)},{Point(0,2,0)}},3e8);
+        ARIADNE_TEST_EQUALS(p.id(),"h0")
+        ARIADNE_TEST_ASSERT(p.location().values().empty())
+        ARIADNE_TEST_EQUALS(p.points().size(),2)
+        ARIADNE_TEST_EQUALS(p.timestamp(),3e8)
     }
 };
 
