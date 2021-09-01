@@ -38,13 +38,13 @@ public:
     }
 
     void test_body_create() {
-        BodyDeserialiser d(FilePath(Resources::path("json/presentation/human0.json").c_str()));
+        BodyDeserialiser d(Resources::path("json/presentation/human0.json"));
         ARIADNE_TEST_ASSERT(d.is_human())
         ARIADNE_TEST_PRINT(d)
     }
 
     void test_body_make_human() {
-        BodyDeserialiser d1(FilePath(Resources::path("json/presentation/human0.json").c_str()));
+        BodyDeserialiser d1(Resources::path("json/presentation/human0.json"));
         ARIADNE_TEST_FAIL(d1.make_robot())
         auto h1 = d1.make_human();
         ARIADNE_TEST_PRINT(h1)
@@ -58,7 +58,7 @@ public:
         ARIADNE_TEST_EQUALS(h1.id(),h2.id())
     }
     void test_body_make_robot() {
-        BodyDeserialiser d1(FilePath(Resources::path("json/presentation/robot0.json").c_str()));
+        BodyDeserialiser d1(Resources::path("json/presentation/robot0.json"));
         ARIADNE_TEST_FAIL(d1.make_human())
         auto r1 = d1.make_robot();
         ARIADNE_TEST_PRINT(r1)
@@ -75,7 +75,7 @@ public:
 
     void test_bodystatepacket_make() {
         DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
-        BodyStatePacketDeserialiser d(FilePath(Resources::path("json/state/robot0.json").c_str()));
+        BodyStatePacketDeserialiser d(Resources::path("json/state/robot0.json"));
         auto p = d.make();
         ARIADNE_TEST_EQUALS(p.id(),"r0")
         ARIADNE_TEST_EQUALS(p.location(),loc)

@@ -25,17 +25,20 @@
 #ifndef OPERA_UTILITY_HPP
 #define OPERA_UTILITY_HPP
 
+#include <filesystem>
 #include <ariadne/utility/string.hpp>
 #include "config.hpp"
 
 using Ariadne::String;
 
+using FilePath = std::filesystem::path;
+
 namespace Opera {
 
 class Resources {
   public:
-    static String path(String const& filename) {
-        return String(RESOURCES_PATH) + filename;
+    static FilePath path(String const& filename) {
+        return(String(RESOURCES_PATH) + filename).c_str();
     }
 };
 
