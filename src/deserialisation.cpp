@@ -35,21 +35,17 @@ bool BodyDeserialiser::is_human() const {
 
 List<SizeType> BodyDeserialiser::_get_point_ids() const {
     List<SizeType> result;
-    auto segments_array = _document["pointIds"].GetArray();
-    for (SizeType i=0; i<segments_array.Size(); ++i) {
-        auto point_ids_array = segments_array[i].GetArray();
-        result.append(point_ids_array[0].GetUint());
-        result.append(point_ids_array[1].GetUint());
+    for (auto& extremes : _document["pointIds"].GetArray()) {
+        result.append(extremes[0].GetUint());
+        result.append(extremes[1].GetUint());
     }
     return result;
 }
 
 List<FloatType> BodyDeserialiser::_get_thicknesses() const {
     List<FloatType> result;
-    auto thicknesses_array = _document["thicknesses"].GetArray();
-    for (SizeType i=0; i<thicknesses_array.Size(); ++i) {
-        result.append(FloatType(thicknesses_array[i].GetDouble(),dp));
-    }
+    for (auto& thickness : _document["thicknesses"].GetArray())
+        result.append(FloatType(thickness.GetDouble(),dp));
     return result;
 }
 
@@ -65,18 +61,13 @@ Robot BodyDeserialiser::make_robot() const {
 
 BodyStatePacket BodyStatePacketDeserialiser::make() const {
     Map<StringVariable,String> discrete_state_values;
-    auto values = _document["discreteState"].GetObject();
-    for (auto it = values.begin(); it != values.end(); ++it)
-        discrete_state_values.insert(std::make_pair(StringVariable(it->name.GetString()),it->value.GetString()));
+    for (auto& v : _document["discreteState"].GetObject())
+        discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
     List<List<Point>> points;
-    auto points_array = _document["continuousState"].GetArray();
-    for (auto it = points_array.begin(); it != points_array.end(); ++it) {
-        auto point_samples = it->GetArray();
+    for (auto& point_samples : _document["continuousState"].GetArray()) {
         List<Point> samples;
-        for (auto s_it = point_samples.begin(); s_it != point_samples.end(); ++s_it) {
-            auto pt = s_it->GetArray();
+        for (auto& pt : point_samples.GetArray())
             samples.append(Point(pt[0].GetDouble(),pt[1].GetDouble(),pt[2].GetDouble()));
-        }
         points.append(samples);
     }
 

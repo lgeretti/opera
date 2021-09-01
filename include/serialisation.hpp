@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include "body.hpp"
+#include "packet.hpp"
 
 namespace Opera {
 
@@ -78,11 +79,19 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     T const& obj;
 };
 
-//! \brief Utility for making a JSON description file from a human or robot
+//! \brief Utility for making a JSON description from a human or robot
 class BodySerialiser : public SerialiserBase<Body> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:
+    Document to_document() const override;
+};
+
+//! \brief Utility for making a JSON description from a state packet
+class BodyStatePacketSerialiser : public SerialiserBase<BodyStatePacket> {
+public:
+    using SerialiserBase::SerialiserBase;
+protected:
     Document to_document() const override;
 };
 
