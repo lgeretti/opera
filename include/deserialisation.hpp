@@ -90,9 +90,16 @@ class BodyDeserialiser : public DeserialiserBase {
 class BodyStatePacketDeserialiser : public DeserialiserBase {
   public:
     using DeserialiserBase::DeserialiserBase;
-
     //! \brief Make the packet
     BodyStatePacket make() const;
+};
+
+//! \brief Convert to a CollisionNotificationPacket from a JSON description file
+class CollisionNotificationPacketDeserialiser : public DeserialiserBase {
+  public:
+    using DeserialiserBase::DeserialiserBase;
+    //! \brief Make the packet
+    CollisionNotificationPacket make() const;
 };
 
 }

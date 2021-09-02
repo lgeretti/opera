@@ -35,6 +35,7 @@ public:
         ARIADNE_TEST_CALL(test_body_make_human())
         ARIADNE_TEST_CALL(test_body_make_robot())
         ARIADNE_TEST_CALL(test_bodystatepacket_make())
+        ARIADNE_TEST_CALL(test_collisiondetectionpacket_make())
     }
 
     void test_body_create() {
@@ -91,11 +92,22 @@ public:
         ARIADNE_TEST_EQUALS(p.points().at(7).size(),1)
         ARIADNE_TEST_EQUALS(p.timestamp(),328903284232)
     }
-};
 
+    void test_collisiondetectionpacket_make() {
+        DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
+        CollisionNotificationPacketDeserialiser d(Resources::path("json/notification/notification0.json"));
+        auto p = d.make();
+        ARIADNE_TEST_EQUALS(p.human_id(),"h0")
+        ARIADNE_TEST_EQUALS(p.human_segment_id(),0)
+        ARIADNE_TEST_EQUALS(p.robot_id(),"r0")
+        ARIADNE_TEST_EQUALS(p.robot_segment_id(),3)
+        ARIADNE_TEST_EQUALS(p.discrete_state(),loc)
+        ARIADNE_TEST_EQUALS(p.lower_collision_time(),328903284232)
+        ARIADNE_TEST_EQUALS(p.upper_collision_time(),328905923301)
+    }
+};
 
 int main() {
     TestDeserialisation().test();
-
     return ARIADNE_TEST_FAILURES;
 }

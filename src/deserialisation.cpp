@@ -74,4 +74,18 @@ BodyStatePacket BodyStatePacketDeserialiser::make() const {
     return BodyStatePacket(_document["bodyId"].GetString(),DiscreteLocation(discrete_state_values),points,_document["timestamp"].GetUint64());
 }
 
+CollisionNotificationPacket CollisionNotificationPacketDeserialiser::make() const {
+    Map<StringVariable,String> discrete_state_values;
+    for (auto& v : _document["discreteState"].GetObject())
+        discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
+
+    return CollisionNotificationPacket(_document["human"]["bodyId"].GetString(),
+                                       _document["human"]["segmentId"].GetUint(),
+                                       _document["robot"]["bodyId"].GetString(),
+                                       _document["robot"]["segmentId"].GetUint(),
+                                       DiscreteLocation(discrete_state_values),
+                                       _document["collisionTime"]["lower"].GetUint64(),
+                                       _document["collisionTime"]["upper"].GetUint64());
+}
+
 }
