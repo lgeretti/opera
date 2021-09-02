@@ -38,7 +38,7 @@ namespace Opera {
 class Resources {
   public:
     static FilePath path(String const& filename) {
-        return(String(RESOURCES_PATH) + filename).c_str();
+        return (String(RESOURCES_PATH) + filename).c_str();
     }
 };
 

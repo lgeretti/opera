@@ -33,6 +33,7 @@ public:
     void test() {
         ARIADNE_TEST_CALL(test_human_packet_create())
         ARIADNE_TEST_CALL(test_robot_packet_create())
+        ARIADNE_TEST_CALL(test_notification_packet_create())
     }
 
     void test_robot_packet_create() {
@@ -50,6 +51,19 @@ public:
         ARIADNE_TEST_ASSERT(p.location().values().empty())
         ARIADNE_TEST_EQUALS(p.points().size(),2)
         ARIADNE_TEST_EQUALS(p.timestamp(),3e8)
+    }
+
+    void test_notification_packet_create() {
+        DiscreteLocation loc(StringVariable("r0")|"first");
+        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8);
+
+        ARIADNE_TEST_EQUALS(p.human_id(),"h0")
+        ARIADNE_TEST_EQUALS(p.human_segment_id(),1)
+        ARIADNE_TEST_EQUALS(p.robot_id(),"r0")
+        ARIADNE_TEST_EQUALS(p.robot_segment_id(),4)
+        ARIADNE_TEST_EQUALS(p.discrete_state(),loc)
+        ARIADNE_TEST_EQUALS(p.lower_collision_time(),2e8)
+        ARIADNE_TEST_EQUALS(p.upper_collision_time(),3e8)
     }
 };
 

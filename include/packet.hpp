@@ -61,6 +61,38 @@ class BodyStatePacket {
     TimestampType const _timestamp;
 };
 
+//! \brief A representation of an outbound packet for a detected collision
+class CollisionNotificationPacket {
+  public:
+    //! \brief Construct from fields
+    CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
+                                DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time);
+
+    //! \brief The identifier of the human
+    BodyIdType const& human_id() const;
+    //! \brief The identifier of the segment for the human
+    IdType const& human_segment_id() const;
+    //! \brief The identifier of the robot
+    BodyIdType const& robot_id() const;
+    //! \brief The identifier of the segment for the robot
+    IdType const& robot_segment_id() const;
+    //! \brief The discrete state of the robot
+    DiscreteLocation const& discrete_state() const;
+    //! \brief The lower bound on the collision time
+    TimestampType const& lower_collision_time() const;
+    //! \brief The upper bound on the collision time
+    TimestampType const& upper_collision_time() const;
+
+  private:
+    BodyIdType const _human_id;
+    IdType const _human_segment_id;
+    BodyIdType const _robot_id;
+    IdType const _robot_segment_id;
+    DiscreteLocation const _discrete_state;
+    TimestampType const _lower_collision_time;
+    TimestampType const _upper_collision_time;
+};
+
 }
 
 #endif //OPERA_PACKET_HPP

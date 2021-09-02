@@ -48,4 +48,37 @@ TimestampType const& BodyStatePacket::timestamp() const {
     return _timestamp;
 }
 
+CollisionNotificationPacket::CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
+                            DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time) :
+    _human_id(human_id), _human_segment_id(human_segment_id), _robot_id(robot_id), _robot_segment_id(robot_segment_id), _discrete_state(discrete_state),
+    _lower_collision_time(lower_collision_time), _upper_collision_time(upper_collision_time) { }
+
+BodyIdType const& CollisionNotificationPacket::human_id() const {
+    return _human_id;
+}
+
+IdType const& CollisionNotificationPacket::human_segment_id() const {
+    return _human_segment_id;
+}
+
+BodyIdType const& CollisionNotificationPacket::robot_id() const {
+    return _robot_id;
+}
+
+IdType const& CollisionNotificationPacket::robot_segment_id() const {
+    return _robot_segment_id;
+}
+
+DiscreteLocation const& CollisionNotificationPacket::discrete_state() const {
+    return _discrete_state;
+}
+
+TimestampType const& CollisionNotificationPacket::lower_collision_time() const {
+    return _lower_collision_time;
+}
+
+TimestampType const& CollisionNotificationPacket::upper_collision_time() const {
+    return _upper_collision_time;
+}
+
 }
