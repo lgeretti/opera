@@ -83,7 +83,7 @@ CollisionNotificationPacket CollisionNotificationPacketDeserialiser::make() cons
                                        _document["human"]["segmentId"].GetUint(),
                                        _document["robot"]["bodyId"].GetString(),
                                        _document["robot"]["segmentId"].GetUint(),
-                                       DiscreteLocation(discrete_state_values),
+                                       discrete_state_values,
                                        _document["collisionTime"]["lower"].GetUint64(),
                                        _document["collisionTime"]["upper"].GetUint64());
 }
