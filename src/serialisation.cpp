@@ -100,4 +100,40 @@ Document BodyStatePacketSerialiser::to_document() const {
     return document;
 }
 
+Document CollisionNotificationPacketSerialiser::to_document() const {
+
+    Document document;
+    document.SetObject();
+    Document::AllocatorType& allocator = document.GetAllocator();
+
+    Value human;
+    human.SetObject();
+    human.AddMember("bodyId",Value().SetString(obj.human_id().c_str(),obj.human_id().length(),allocator),allocator);
+    human.AddMember("segmentId",Value().SetUint(obj.human_segment_id()),allocator);
+    document.AddMember("human",human,allocator);
+
+    Value robot;
+    robot.SetObject();
+    robot.AddMember("bodyId",Value().SetString(obj.robot_id().c_str(),obj.robot_id().length(),allocator),allocator);
+    robot.AddMember("segmentId",Value().SetUint(obj.robot_segment_id()),allocator);
+    document.AddMember("robot",robot,allocator);
+
+    if (not obj.discrete_state().values().empty()) {
+        Value discreteState;
+        discreteState.SetObject();
+        for (auto v : obj.discrete_state().values()) {
+            discreteState.AddMember(Value().SetString(v.first.c_str(),v.first.length(),allocator),Value().SetString(v.second.c_str(),v.second.length(), allocator),allocator);
+        }
+        document.AddMember("discreteState",discreteState,allocator);
+    }
+
+    Value collision_time;
+    collision_time.SetObject();
+    collision_time.AddMember("lower",Value().SetUint64(obj.lower_collision_time()),allocator);
+    collision_time.AddMember("upper",Value().SetUint64(obj.upper_collision_time()),allocator);
+    document.AddMember("collisionTime",collision_time,allocator);
+
+    return document;
+}
+
 }

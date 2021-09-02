@@ -35,6 +35,7 @@ public:
         ARIADNE_TEST_CALL(test_body_from_robot())
         ARIADNE_TEST_CALL(test_bodystatepacket_human())
         ARIADNE_TEST_CALL(test_bodystatepacket_robot())
+        ARIADNE_TEST_CALL(test_collisionnotificationpacket())
     }
 
     void test_body_from_human() {
@@ -63,6 +64,13 @@ public:
         BodyStatePacketSerialiser serialiser(p);
         serialiser.to_file(Resources::path("json/examples/state/" + p.id() + ".tmp.json"));
         ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"bodyId\":\"robot0\",\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"continuousState\":[[],[[0.0,-1.0,0.1],[0.3,3.1,-1.2]],[]],\"timestamp\":93249042230}")
+    }
+
+    void test_collisionnotificationpacket() {
+        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301);
+        CollisionNotificationPacketSerialiser serialiser(p);
+        serialiser.to_file(Resources::path("json/examples/notification/notification0.tmp.json"));
+        ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"human\":{\"bodyId\":\"h0\",\"segmentId\":0},\"robot\":{\"bodyId\":\"r0\",\"segmentId\":3},\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"collisionTime\":{\"lower\":328903284232,\"upper\":328905923301}}")
     }
 };
 

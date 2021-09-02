@@ -87,9 +87,17 @@ class BodySerialiser : public SerialiserBase<Body> {
 
 //! \brief Utility for making a JSON description from a state packet
 class BodyStatePacketSerialiser : public SerialiserBase<BodyStatePacket> {
-public:
+  public:
     using SerialiserBase::SerialiserBase;
-protected:
+  protected:
+    rapidjson::Document to_document() const override;
+};
+
+//! \brief Utility for making a JSON description from a notification packet
+class CollisionNotificationPacketSerialiser : public SerialiserBase<CollisionNotificationPacket> {
+  public:
+    using SerialiserBase::SerialiserBase;
+  protected:
     rapidjson::Document to_document() const override;
 };
 
