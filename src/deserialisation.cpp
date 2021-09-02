@@ -61,8 +61,9 @@ Robot BodyDeserialiser::make_robot() const {
 
 BodyStatePacket BodyStatePacketDeserialiser::make() const {
     Map<StringVariable,String> discrete_state_values;
-    for (auto& v : _document["discreteState"].GetObject())
-        discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
+    if (_document.HasMember("discreteState"))
+        for (auto& v : _document["discreteState"].GetObject())
+            discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
     List<List<Point>> points;
     for (auto& point_samples : _document["continuousState"].GetArray()) {
         List<Point> samples;

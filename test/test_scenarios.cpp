@@ -38,11 +38,13 @@ class TestScenarios {
     }
 
     void test_acquire_human_samples() {
+        SizeType num_samples = 4259;
         Human h0 = BodyDeserialiser(Resources::path("json/scenarios/presentation_human.json")).make_human();
+
         List<BodyStatePacket> human_packets;
-        for (SizeType idx = 1; idx <= 4259; ++idx)
+        for (SizeType idx = 1; idx <= num_samples; ++idx)
             human_packets.append(BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(idx)+".json")).make());
-        ARIADNE_TEST_EQUALS(human_packets.size(),4259)
+        ARIADNE_TEST_EQUALS(human_packets.size(),num_samples)
     }
 
 };
