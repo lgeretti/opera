@@ -1,5 +1,5 @@
 /***************************************************************************
- *            verification.hpp
+ *            barrier.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,8 +22,8 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERA_VERIFICATION_HPP
-#define OPERA_VERIFICATION_HPP
+#ifndef OPERA_BARRIER_HPP
+#define OPERA_BARRIER_HPP
 
 #include "state.hpp"
 
@@ -109,4 +109,4 @@ class MinimumDistanceBarrierTrace {
 
 }
 
-#endif //OPERA_VERIFICATION_HPP
+#endif //OPERA_BARRIER_HPP

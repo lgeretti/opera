@@ -3,7 +3,7 @@ set(PROFILE_FILES
     profile_body
     profile_state
     profile_deserialisation
-    profile_verification
+    profile_barrier
 )
 
 foreach(PROFILE ${PROFILE_FILES})

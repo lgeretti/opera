@@ -27,7 +27,7 @@
 #include "utility.hpp"
 #include "packet.hpp"
 #include "deserialisation.hpp"
-#include "verification.hpp"
+#include "barrier.hpp"
 
 using namespace Opera;
 

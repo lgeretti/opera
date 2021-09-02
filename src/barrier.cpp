@@ -1,5 +1,5 @@
 /***************************************************************************
- *            verification.cpp
+ *            barrier.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,11 +22,11 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "verification.hpp"
+#include "barrier.hpp"
 
 namespace Opera {
 
-    MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index) :
+MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index) :
     _minimum_distance(minimum_distance), _farthest_location(farthest_location), _maximum_index(maximum_index) { }
 
 PositiveFloatType const& MinimumDistanceBarrier::minimum_distance() const {

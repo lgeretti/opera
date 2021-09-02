@@ -1,5 +1,5 @@
 /***************************************************************************
- *            profile_verification.hpp
+ *            profile_barrier.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,14 +22,14 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "verification.hpp"
+#include "barrier.hpp"
 #include "profile.hpp"
 
 using namespace Opera;
 
-struct ProfileVerification : public Profiler {
+struct ProfileBarrier : public Profiler {
 
-    ProfileVerification() : Profiler(1e5) { }
+    ProfileBarrier() : Profiler(1e5) { }
 
     void run() {
         profile_apply_to_trace();
@@ -150,5 +150,5 @@ struct ProfileVerification : public Profiler {
 };
 
 int main() {
-    ProfileVerification().run();
+    ProfileBarrier().run();
 }

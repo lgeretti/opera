@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_verification.cpp
+ *            test_barrier.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -24,11 +24,11 @@
 
 #include "test.hpp"
 
-#include "verification.hpp"
+#include "barrier.hpp"
 
 using namespace Opera;
 
-class TestVerification {
+class TestBarrier {
   public:
     void test() {
 
@@ -204,6 +204,6 @@ class TestVerification {
 };
 
 int main() {
-    TestVerification().test();
+    TestBarrier().test();
     return ARIADNE_TEST_FAILURES;
 }
