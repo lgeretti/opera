@@ -35,8 +35,6 @@
 
 namespace Opera {
 
-using namespace rapidjson;
-
 using FilePath = std::filesystem::path;
 
 //! \brief Base for a class deserialising a JSON file or string
@@ -45,7 +43,7 @@ class DeserialiserBase {
     DeserialiserBase(FilePath const& file) {
         std::ifstream ifs(file);
         ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << file << "' file for reading.")
-        IStreamWrapper isw(ifs);
+        rapidjson::IStreamWrapper isw(ifs);
         _document.ParseStream(isw);
         ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
@@ -55,15 +53,20 @@ class DeserialiserBase {
         ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
 
+    //! \brief Convert to string
+    String to_string() const {
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        _document.Accept(writer);
+        return buffer.GetString();
+    }
+
     //! \brief Print to the standard output
     friend std::ostream& operator<<(std::ostream& os, DeserialiserBase const& d) {
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
-        d._document.Accept(writer);
-        return os << buffer.GetString();
+        return os << d.to_string();
     }
   protected:
-    Document _document;
+    rapidjson::Document _document;
 };
 
 //! \brief Converter to a human or robot from a JSON description file

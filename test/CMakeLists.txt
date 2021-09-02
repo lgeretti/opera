@@ -8,6 +8,7 @@ set(UNIT_TESTS
     test_serialisation
     test_deserialisation
     test_verification
+    test_scenarios
 )
 
 foreach(TEST ${UNIT_TESTS})

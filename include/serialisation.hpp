@@ -35,8 +35,6 @@
 
 namespace Opera {
 
-using namespace rapidjson;
-
 using FilePath = std::filesystem::path;
 
 //! \brief Interface for serialisation into a file or a string
@@ -55,22 +53,22 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     SerialiserBase(T const& o) : obj(o) { }
 
     //! \brief Convert the object into a rapidjson document
-    virtual Document to_document() const = 0;
+    virtual rapidjson::Document to_document() const = 0;
 
   public:
     void to_file(FilePath const& file) const override {
         auto document = to_document();
         std::ofstream ofs(file);
         ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << file << "' for writing.")
-        OStreamWrapper osw(ofs);
-        Writer<OStreamWrapper> writer(osw);
+        rapidjson::OStreamWrapper osw(ofs);
+        rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
         document.Accept(writer);
     }
 
     String to_string() const override {
         auto document = to_document();
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         document.Accept(writer);
         return buffer.GetString();
     }
@@ -84,7 +82,7 @@ class BodySerialiser : public SerialiserBase<Body> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:
-    Document to_document() const override;
+    rapidjson::Document to_document() const override;
 };
 
 //! \brief Utility for making a JSON description from a state packet
@@ -92,7 +90,7 @@ class BodyStatePacketSerialiser : public SerialiserBase<BodyStatePacket> {
 public:
     using SerialiserBase::SerialiserBase;
 protected:
-    Document to_document() const override;
+    rapidjson::Document to_document() const override;
 };
 
 }
