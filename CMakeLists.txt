@@ -37,6 +37,7 @@ if(COVERAGE)
     else()
         target_link_libraries(coverage_config INTERFACE --coverage)
     endif()
+    target_link_libraries(opera PUBLIC coverage_config)
 endif()
 
 enable_testing()
