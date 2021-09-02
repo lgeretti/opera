@@ -7,7 +7,7 @@ set(PROFILE_FILES
 
 foreach(PROFILE ${PROFILE_FILES})
     add_executable(${PROFILE} ${PROFILE}.cpp)
-    target_link_libraries(${PROFILE} OPERA_SRC ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
+    target_link_libraries(${PROFILE} opera)
 endforeach()
 
 add_custom_target(profiles)
