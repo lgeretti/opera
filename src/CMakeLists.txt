@@ -9,5 +9,5 @@ add_library(OPERA_SRC OBJECT
 )
 
 if(COVERAGE)
-    target_link_libraries(OPERA_SRC PUBLIC coverage_config)
+    target_link_libraries(OPERA_SRC coverage_config)
 endif()
