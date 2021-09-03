@@ -34,10 +34,12 @@ class ProfileDeserialisation : public Profiler {
     ProfileDeserialisation() : Profiler(1e5) { }
 
     void run() {
-        profile_scenario_samples();
+        profile_bodysamplepacket();
+        profile_bodypresentationpacket();
+        profile_collisionnotificationpacket();
     }
 
-    void profile_scenario_samples() {
+    void profile_bodysamplepacket() {
         SizeType num_samples = 4259;
         profile("Deserialisation of a human sample JSON file into BodyStatePacket",[&](SizeType i){
             BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make();
@@ -51,6 +53,38 @@ class ProfileDeserialisation : public Profiler {
         profile("Deserialisation of a human sample JSON String into BodyStatePacket",[&](SizeType i){
             BodyStatePacketDeserialiser(json_texts.at(i).c_str()).make();
         },num_samples);
+    }
+
+    void profile_bodypresentationpacket() {
+        SizeType num_samples = 1000;
+        profile("Deserialisation of a robot presentation JSON file into BodyPresentationPacket",[&](SizeType i){
+            BodyPresentationPacketDeserialiser(Resources::path("json/examples/presentation/robot0.json")).make();
+            },num_samples);
+
+        List<String> json_texts;
+        profile("Deserialisation of a robot presentation JSON file into String",[&](SizeType i){
+            json_texts.append(BodyPresentationPacketDeserialiser(Resources::path("json/examples/presentation/robot0.json")).to_string());
+            },num_samples);
+
+        profile("Deserialisation of a robot presentation JSON String into BodyPresentationPacket",[&](SizeType i){
+            BodyPresentationPacketDeserialiser(json_texts.at(i).c_str()).make();
+            },num_samples);
+    }
+
+    void profile_collisionnotificationpacket() {
+        SizeType num_samples = 1000;
+        profile("Deserialisation of a collision notification JSON file into CollisionNotificationPacket",[&](SizeType i){
+            CollisionNotificationPacketDeserialiser(Resources::path("json/examples/notification/notification0.json")).make();
+            },num_samples);
+
+        List<String> json_texts;
+        profile("Deserialisation of a collision notification JSON file into String",[&](SizeType i){
+            json_texts.append(CollisionNotificationPacketDeserialiser(Resources::path("json/examples/notification/notification0.json")).to_string());
+            },num_samples);
+
+        profile("Deserialisation of a collision notification JSON String into CollisionNotificationPacket",[&](SizeType i){
+            CollisionNotificationPacketDeserialiser(json_texts.at(i).c_str()).make();
+            },num_samples);
     }
 
 };

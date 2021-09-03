@@ -35,10 +35,23 @@ class ProfileSerialisation : public Profiler {
     ProfileSerialisation() : Profiler(1e5) { }
 
     void run() {
-        profile_scenario_samples();
+        profile_bodypresentationpacket();
+        profile_bodystatepacket();
+        profile_collisionnotificationpacket();
     }
 
-    void profile_scenario_samples() {
+    void profile_bodypresentationpacket() {
+        SizeType num_samples = 1000;
+        List<BodyPresentationPacket> packets;
+        for (SizeType i=0; i<num_tries(); ++i)
+            packets.append(BodyPresentationPacketDeserialiser(Resources::path("json/examples/presentation/human0.json")).make());
+
+        profile("Serialisation of a BodyPresentationPacket into a human presentation JSON String",[&](SizeType i){
+            BodyPresentationPacketSerialiser(packets.at(i)).to_string();
+            },num_samples);
+    }
+
+    void profile_bodystatepacket() {
         SizeType num_samples = 4259;
 
         List<BodyStatePacket> packets;
@@ -50,6 +63,16 @@ class ProfileSerialisation : public Profiler {
         },num_samples);
     }
 
+    void profile_collisionnotificationpacket() {
+        SizeType num_samples = 1000;
+        List<CollisionNotificationPacket> packets;
+        for (SizeType i=0; i<num_tries(); ++i)
+            packets.append(CollisionNotificationPacketDeserialiser(Resources::path("json/examples/notification/notification0.json")).make());
+
+        profile("Serialisation of a CollisionNotificationPacket into a human presentation JSON String",[&](SizeType i){
+            CollisionNotificationPacketSerialiser(packets.at(i)).to_string();
+            },num_samples);
+    }
 };
 
 int main() {
