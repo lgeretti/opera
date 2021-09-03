@@ -3,6 +3,7 @@ set(PROFILE_FILES
     profile_body
     profile_state
     profile_deserialisation
+    profile_serialisation
     profile_barrier
 )
 

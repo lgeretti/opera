@@ -1,5 +1,5 @@
 /***************************************************************************
- *            profile_deserialisation.cpp
+ *            profile_serialisation.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -26,12 +26,13 @@
 
 #include "utility.hpp"
 #include "deserialisation.hpp"
+#include "serialisation.hpp"
 
 using namespace Opera;
 
-class ProfileDeserialisation : public Profiler {
+class ProfileSerialisation : public Profiler {
   public:
-    ProfileDeserialisation() : Profiler(1e5) { }
+    ProfileSerialisation() : Profiler(1e5) { }
 
     void run() {
         profile_scenario_samples();
@@ -39,22 +40,18 @@ class ProfileDeserialisation : public Profiler {
 
     void profile_scenario_samples() {
         SizeType num_samples = 4259;
-        profile("Deserialisation of a human sample JSON file into BodyStatePacket",[&](SizeType i){
-            BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make();
-        },num_samples);
 
-        List<String> json_texts;
-        profile("Deserialisation of a human sample JSON file into String",[&](SizeType i){
-            json_texts.append(BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).to_string());
-        },num_samples);
+        List<BodyStatePacket> packets;
+        for (SizeType i=0; i<num_samples; ++i)
+            packets.append(BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make());
 
-        profile("Deserialisation of a human sample JSON String into BodyStatePacket",[&](SizeType i){
-            BodyStatePacketDeserialiser(json_texts.at(i).c_str()).make();
+        profile("Serialisation of a BodyStatePacket into a human sample JSON String",[&](SizeType i){
+            BodyStatePacketSerialiser(packets.at(i)).to_string();
         },num_samples);
     }
 
 };
 
 int main() {
-    ProfileDeserialisation().run();
+    ProfileSerialisation().run();
 }
