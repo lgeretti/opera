@@ -1,11 +1,7 @@
-project(testKafka)
 cmake_minimum_required(VERSION 3.0)
 
+project(Opera VERSION 0.1)
 
-add_executable(testProducer testProducer.cpp)
-target_link_libraries(testProducer PUBLIC rdkafka++)
-
-<<<<<<< HEAD
 find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(LibRDKafka REQUIRED)
