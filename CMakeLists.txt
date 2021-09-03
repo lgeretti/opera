@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(LibRDKafka REQUIRED)
+find_package(Threads REQUIRED)
 
 set(RESOURCES_PATH ${PROJECT_SOURCE_DIR}/resources/)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/include/config.hpp)
@@ -22,7 +23,7 @@ add_subdirectory(src)
 add_subdirectory(profile)
 
 add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
-target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES})
+target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(operad src/operad.cpp)
 target_link_libraries(operad opera)
