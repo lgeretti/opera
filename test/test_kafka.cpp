@@ -1,10 +1,33 @@
+/***************************************************************************
+ *            test_kafka.cpp
+ *
+ *  Copyright  2021  Andrea Gagliardo, Sandro Ferrari, Luca Geretti
+ *
+ ****************************************************************************/
+
+/*
+ *  This file is part of Opera.
+ *
+ *  Opera is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Opera is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "test.hpp"
-#include "comunication_layer_kafka.hpp"
+#include "kafka.hpp"
 
 using namespace Opera;
 
-
-class TestComunicationLayer{
+class TestKafka{
 public: 
     void test(){
         ARIADNE_TEST_CALL(test_comunication_presentazione())
@@ -47,9 +70,7 @@ public:
 
 };
 
-
-
 int main() {
-    TestComunicationLayer().test();
+    TestKafka().test();
     return ARIADNE_TEST_FAILURES;
 }
