@@ -31,26 +31,45 @@ using namespace Opera;
 class TestPacket {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_human_packet_create())
-        ARIADNE_TEST_CALL(test_robot_packet_create())
+        ARIADNE_TEST_CALL(test_human_presentation_packet_create())
+        ARIADNE_TEST_CALL(test_robot_presentation_packet_create())
+        ARIADNE_TEST_CALL(test_human_state_packet_create())
+        ARIADNE_TEST_CALL(test_robot_state_packet_create())
         ARIADNE_TEST_CALL(test_notification_packet_create())
     }
 
-    void test_robot_packet_create() {
+    void test_human_presentation_packet_create() {
+        BodyPresentationPacket p("h0",{{0,1},{1,2}},{FloatType(1.0,dp),FloatType(0.5,dp)});
+        ARIADNE_TEST_EQUALS(p.id(),"h0")
+        ARIADNE_TEST_ASSERT(p.is_human())
+        ARIADNE_TEST_EQUALS(p.point_ids().size(),2)
+        ARIADNE_TEST_EQUALS(p.thicknesses().size(),2)
+    }
+
+    void test_robot_presentation_packet_create() {
+        BodyPresentationPacket p("r0",10,{{0,1},{1,2}},{FloatType(1.0,dp),FloatType(0.5,dp)});
+        ARIADNE_TEST_EQUALS(p.id(),"r0")
+        ARIADNE_TEST_ASSERT(not p.is_human())
+        ARIADNE_TEST_EQUALS(p.packet_frequency(),10)
+        ARIADNE_TEST_EQUALS(p.point_ids().size(),2)
+        ARIADNE_TEST_EQUALS(p.thicknesses().size(),2)
+    }
+
+    void test_human_state_packet_create() {
+        BodyStatePacket p("h0",{{Point(0,0,0)},{Point(0,2,0)}},3e8);
+        ARIADNE_TEST_EQUALS(p.id(),"h0")
+        ARIADNE_TEST_ASSERT(p.location().values().empty())
+        ARIADNE_TEST_EQUALS(p.points().size(),2)
+        ARIADNE_TEST_EQUALS(p.timestamp(),3e8)
+    }
+
+    void test_robot_state_packet_create() {
         DiscreteLocation loc(StringVariable("r0")|"first");
         BodyStatePacket p("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},2e8);
         ARIADNE_TEST_EQUALS(p.id(),"r0")
         ARIADNE_TEST_EQUALS(p.location(),loc)
         ARIADNE_TEST_EQUALS(p.points().size(),3)
         ARIADNE_TEST_EQUALS(p.timestamp(),2e8)
-    }
-
-    void test_human_packet_create() {
-        BodyStatePacket p("h0",{{Point(0,0,0)},{Point(0,2,0)}},3e8);
-        ARIADNE_TEST_EQUALS(p.id(),"h0")
-        ARIADNE_TEST_ASSERT(p.location().values().empty())
-        ARIADNE_TEST_EQUALS(p.points().size(),2)
-        ARIADNE_TEST_EQUALS(p.timestamp(),3e8)
     }
 
     void test_notification_packet_create() {

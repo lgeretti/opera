@@ -34,14 +34,41 @@ using IdType = unsigned int;
 using BodyIdType = Ariadne::String;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
+using Ariadne::Pair;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 using Ariadne::String;
 
+//! \brief A representation of an inbound packet for the presentation of a body
+class BodyPresentationPacket {
+  public:
+    //! \brief Construct for a human
+    BodyPresentationPacket(BodyIdType const& id, List<Pair<IdType,IdType>> const& point_ids, List<FloatType> const& thicknesses);
+    //! \brief Construct for a robot
+    BodyPresentationPacket(BodyIdType const& id, SizeType const& packet_frequency, List<Pair<IdType,IdType>> const& point_ids, List<FloatType> const& thicknesses);
+    //! \brief The id of the related body
+    BodyIdType const& id() const;
+    //! \brief Whether this is a human
+    bool const& is_human() const;
+    //! \brief The packet sending frequency in Hz
+    //! \details We use 0 when not known (i.e., for a human)
+    SizeType const& packet_frequency() const;
+    //! \brief The points for each segment
+    List<Pair<IdType,IdType>> const& point_ids() const;
+    //! \brief The thicknesses for each segment
+    List<FloatType> const& thicknesses() const;
+  private:
+    BodyIdType const _id;
+    bool const _is_human;
+    SizeType const _packet_frequency;
+    List<Pair<IdType,IdType>> const _point_ids;
+    List<FloatType> const _thicknesses;
+};
+
 //! \brief A representation of an inbound packet for the state of a body
 class BodyStatePacket {
   public:
-    //! \brief Construct from an id, a location list of samples for each point, and a \a timestamp
+    //! \brief Construct from an id, a location, a list of samples for each point, and a \a timestamp
     BodyStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
     //! \brief Construct without a location
     BodyStatePacket(BodyIdType const& id, List<List<Point>> const& points, TimestampType const& timestamp);
@@ -49,8 +76,7 @@ class BodyStatePacket {
     BodyIdType const& id() const;
     //! \brief The location
     DiscreteLocation const& location() const;
-    //! \brief The points for each segment
-    //! \details These will be always even, at least two (head and tail) but multiple points may be present
+    //! \brief The samples for each point
     List<List<Point>> const& points() const;
     //! \brief The timestamp associated with the packet
     TimestampType const& timestamp() const;

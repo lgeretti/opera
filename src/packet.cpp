@@ -26,6 +26,32 @@
 
 namespace Opera {
 
+BodyPresentationPacket::BodyPresentationPacket(BodyIdType const& id, List<Pair<IdType,IdType>> const& point_ids, List<FloatType> const& thicknesses) :
+    _id(id), _is_human(true), _packet_frequency(0), _point_ids(point_ids), _thicknesses(thicknesses) { }
+
+BodyPresentationPacket::BodyPresentationPacket(BodyIdType const& id,  SizeType const& packet_frequency, List<Pair<IdType,IdType>> const& point_ids, List<FloatType> const& thicknesses) :
+    _id(id), _is_human(false), _packet_frequency(packet_frequency), _point_ids(point_ids), _thicknesses(thicknesses) { }
+
+BodyIdType const& BodyPresentationPacket::id() const {
+    return _id;
+}
+
+bool const& BodyPresentationPacket::is_human() const {
+    return _is_human;
+}
+
+SizeType const& BodyPresentationPacket::packet_frequency() const {
+    return _packet_frequency;
+}
+
+List<Pair<IdType,IdType>> const& BodyPresentationPacket::point_ids() const {
+    return _point_ids;
+}
+
+List<FloatType> const& BodyPresentationPacket::thicknesses() const {
+    return _thicknesses;
+}
+
 BodyStatePacket::BodyStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
     _id(id), _location(location), _points(points), _timestamp(timestamp) { }
 
