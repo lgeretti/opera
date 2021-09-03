@@ -8,7 +8,6 @@ set(BUILD_SHARED_LIBS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
->>>>>>> b2850fd (Add files via upload)
 
 find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
@@ -27,12 +26,6 @@ add_subdirectory(scenarios)
 add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
 target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-<<<<<<< HEAD
-=======
-#add_executable(test_comunication_layer test/test_comunication_layer.cpp)
-#target_link_libraries(test_comunication_layer opera rdkafka++)
-
->>>>>>> b2850fd (Add files via upload)
 add_executable(operad src/operad.cpp)
 target_link_libraries(operad opera)
 
@@ -51,8 +44,3 @@ endif()
 
 enable_testing()
 add_subdirectory(test)
-<<<<<<< HEAD
-=======
-
-
->>>>>>> b2850fd (Add files via upload)
