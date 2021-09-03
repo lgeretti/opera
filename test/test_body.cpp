@@ -39,13 +39,13 @@ public:
     }
 
     void test_body_creation() {
-        Human h("h0", {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h("h0", {{3,2},{1,0}}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
 
         ARIADNE_TEST_PRINT(h)
         ARIADNE_TEST_EQUALS(h.id(),"h0")
         ARIADNE_TEST_EQUALS(h.num_segments(),2)
 
-        Robot r("r0", 10, {0,1}, {FloatType(0.5,Ariadne::dp)});
+        Robot r("r0", 10, {{0,1}}, {FloatType(0.5,Ariadne::dp)});
         ARIADNE_TEST_PRINT(r)
         ARIADNE_TEST_EQUALS(r.id(),"r0")
         ARIADNE_TEST_EQUALS(r.num_segments(),1)
@@ -54,7 +54,7 @@ public:
 
     void test_bodysegment_creation() {
 
-        Robot r("r0", 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         auto segment = r.segment(1);
 
         ARIADNE_TEST_EQUALS(segment.id(),1)
@@ -101,7 +101,7 @@ public:
 
         FloatType thickness(1.0,Ariadne::dp);
 
-        Robot r("r0", 10, {0, 1}, {thickness});
+        Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
         auto s1 = segment.create_sample();
@@ -157,7 +157,7 @@ public:
 
     void test_bodysegment_intersection() {
         FloatType thickness(1.0,Ariadne::dp);
-        Robot r("r0", 10, {0, 1}, {thickness});
+        Robot r("r0", 10,{{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
         auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
@@ -191,7 +191,7 @@ public:
     }
 
     void test_spherical_approximation() {
-        Robot r("r0", 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         auto robot_sample = r.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
         auto human_sample = r.segment(0).create_sample(Point(1,5,0),Point(2,5,0));
         auto human_sas = human_sample.spherical_approximation();

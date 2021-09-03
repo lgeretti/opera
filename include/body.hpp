@@ -36,6 +36,7 @@ using IdType = unsigned int;
 using BodyIdType = Ariadne::String;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
+using Ariadne::Pair;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 using Ariadne::String;
@@ -45,7 +46,7 @@ class BodySegment;
 class Body {
   public:
     //! \brief Construct from fields
-    Body(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses);
 
     //! \brief The body identifier
     BodyIdType const& id() const;
@@ -78,7 +79,7 @@ class Human : public Body {
 class Robot : public Body {
   public:
     //! \brief Construct from fields
-    Robot(BodyIdType const& id, SizeType const& packet_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses);
+    Robot(BodyIdType const& id, SizeType const& packet_frequency, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses);
     //! \brief The frequency of packets sent by the robot, in Hz
     SizeType const& packet_frequency() const;
   private:

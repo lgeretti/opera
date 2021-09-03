@@ -39,7 +39,7 @@ class TestScenarios {
 
     void test_acquire_human_samples() {
         SizeType num_samples = 4259;
-        Human h0 = BodyDeserialiser(Resources::path("json/scenarios/presentation_human.json")).make_human();
+        BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/presentation_human.json")).make();
 
         List<BodyStatePacket> human_packets;
         for (SizeType idx = 1; idx <= num_samples; ++idx)

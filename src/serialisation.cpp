@@ -28,10 +28,8 @@ namespace Opera {
 
 using namespace rapidjson;
 
-Document BodySerialiser::to_document() const {
+Document BodyPresentationPacketSerialiser::to_document() const {
 
-    auto robot_ptr = dynamic_cast<Robot const*>(&obj);
-    bool is_human = (robot_ptr == nullptr);
     Document document;
     document.SetObject();
     Document::AllocatorType& allocator = document.GetAllocator();
@@ -39,19 +37,18 @@ Document BodySerialiser::to_document() const {
     Value id;
     id.SetString(obj.id().c_str(),obj.id().length());
     document.AddMember("id",id,allocator);
-    document.AddMember("isHuman",Value().SetBool(is_human),allocator);
+    document.AddMember("isHuman",Value().SetBool(obj.is_human()),allocator);
 
     Value thicknesses;
     Value point_ids;
     thicknesses.SetArray();
     point_ids.SetArray();
-    for (SizeType i=0; i<obj.num_segments(); ++i) {
-        auto const& s = obj.segment(i);
-        thicknesses.PushBack(Value().SetDouble(s.thickness().get_d()),allocator);
+    for (SizeType i=0; i<obj.point_ids().size(); ++i) {
+        thicknesses.PushBack(Value().SetDouble(obj.thicknesses()[i].get_d()),allocator);
         Value points;
         points.SetArray();
-        points.PushBack(Value().SetUint(s.head_id()),allocator);
-        points.PushBack(Value().SetUint(s.tail_id()),allocator);
+        points.PushBack(Value().SetUint(obj.point_ids()[i].first),allocator);
+        points.PushBack(Value().SetUint(obj.point_ids()[i].second),allocator);
         point_ids.PushBack(points,allocator);
     }
     document.AddMember("pointIds",point_ids,allocator);

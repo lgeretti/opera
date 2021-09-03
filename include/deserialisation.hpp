@@ -38,7 +38,7 @@ namespace Opera {
 using FilePath = std::filesystem::path;
 
 //! \brief Base for a class deserialising a JSON file or string
-class DeserialiserBase {
+template<class T> class DeserialiserBase {
   public:
     DeserialiserBase(FilePath const& file) {
         std::ifstream ifs(file);
@@ -61,6 +61,9 @@ class DeserialiserBase {
         return buffer.GetString();
     }
 
+    //! \brief Make the object
+    virtual T make() const = 0;
+
     //! \brief Print to the standard output
     friend std::ostream& operator<<(std::ostream& os, DeserialiserBase const& d) {
         return os << d.to_string();
@@ -69,40 +72,25 @@ class DeserialiserBase {
     rapidjson::Document _document;
 };
 
-//! \brief Converter to a human or robot from a JSON description file
-class BodyDeserialiser : public DeserialiserBase {
+//! \brief Converter to a BodyPresentationPacket from a JSON description file
+class BodyPresentationPacketDeserialiser : public DeserialiserBase<BodyPresentationPacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
-
-    //! \brief If it is a human or alternatively a robot
-    bool is_human() const;
-
-    //! \brief Make a human out of the parsed content
-    Human make_human() const;
-    //! \brief Make a robot out of the parsed content
-    Robot make_robot() const;
-
-  private:
-    //! \brief Get the point ids from the document
-    List<SizeType> _get_point_ids() const;
-    //! \brief Get the thicknesses from the document
-    List<FloatType> _get_thicknesses() const;
+    BodyPresentationPacket make() const override;
 };
 
 //! \brief Converter to a BodyStatePacket from a JSON description file
-class BodyStatePacketDeserialiser : public DeserialiserBase {
+class BodyStatePacketDeserialiser : public DeserialiserBase<BodyStatePacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
-    //! \brief Make the packet
-    BodyStatePacket make() const;
+    BodyStatePacket make() const override;
 };
 
 //! \brief Convert to a CollisionNotificationPacket from a JSON description file
-class CollisionNotificationPacketDeserialiser : public DeserialiserBase {
+class CollisionNotificationPacketDeserialiser : public DeserialiserBase<CollisionNotificationPacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
-    //! \brief Make the packet
-    CollisionNotificationPacket make() const;
+    CollisionNotificationPacket make() const override;
 };
 
 }

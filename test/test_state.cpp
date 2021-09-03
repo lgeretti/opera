@@ -37,7 +37,7 @@ public:
     }
 
     void test_human_state_instance() {
-        Human h("h0", {3,2,1,0}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h("h0", {{3,2},{1,0}}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
         HumanStateInstance instance(h,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e8);
 
         ARIADNE_TEST_EQUALS(instance.samples().size(),2)
@@ -46,7 +46,7 @@ public:
 
     void test_robot_state_history_basics() {
         Ariadne::StringVariable robot("robot");
-        Robot r("r0", 10, {3, 2, 1, 0}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         RobotStateHistory history(&r);
 
         DiscreteLocation empty_location;
@@ -103,7 +103,7 @@ public:
 
     void test_robot_state_history_analytics() {
         Ariadne::StringVariable robot("robot");
-        Robot r("r0", 10, {0,1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0,1}}, {FloatType(1.0, Ariadne::dp)});
         RobotStateHistory history(&r);
 
         DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth"), fifth(robot|"fifth");

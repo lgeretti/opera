@@ -29,34 +29,19 @@ namespace Opera {
 using namespace rapidjson;
 using Ariadne::Map;
 
-bool BodyDeserialiser::is_human() const {
-    return _document["isHuman"].GetBool();
-}
+BodyPresentationPacket BodyPresentationPacketDeserialiser::make() const {
+    List<Pair<IdType,IdType>> point_ids;
+    for (auto& extremes : _document["pointIds"].GetArray())
+        point_ids.append(std::make_pair(extremes[0].GetUint(),extremes[1].GetUint()));
 
-List<SizeType> BodyDeserialiser::_get_point_ids() const {
-    List<SizeType> result;
-    for (auto& extremes : _document["pointIds"].GetArray()) {
-        result.append(extremes[0].GetUint());
-        result.append(extremes[1].GetUint());
-    }
-    return result;
-}
-
-List<FloatType> BodyDeserialiser::_get_thicknesses() const {
-    List<FloatType> result;
+    List<FloatType> thicknesses;
     for (auto& thickness : _document["thicknesses"].GetArray())
-        result.append(FloatType(thickness.GetDouble(),dp));
-    return result;
-}
+        thicknesses.append(FloatType(thickness.GetDouble(),dp));
 
-Human BodyDeserialiser::make_human() const {
-    ARIADNE_ASSERT(is_human())
-    return Human(_document["id"].GetString(), _get_point_ids(), _get_thicknesses());
-}
-
-Robot BodyDeserialiser::make_robot() const {
-    ARIADNE_ASSERT(not is_human())
-    return Robot(_document["id"].GetString(), _document["packetFrequency"].GetUint(), _get_point_ids(), _get_thicknesses());
+    if (_document["isHuman"].GetBool())
+        return BodyPresentationPacket(_document["id"].GetString(), point_ids, thicknesses);
+    else
+        return BodyPresentationPacket(_document["id"].GetString(), _document["packetFrequency"].GetUint(), point_ids, thicknesses);
 }
 
 BodyStatePacket BodyStatePacketDeserialiser::make() const {

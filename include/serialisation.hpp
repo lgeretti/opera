@@ -77,8 +77,8 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     T const& obj;
 };
 
-//! \brief Utility for making a JSON description from a human or robot
-class BodySerialiser : public SerialiserBase<Body> {
+//! \brief Utility for making a JSON description from a presentation packet
+class BodyPresentationPacketSerialiser : public SerialiserBase<BodyPresentationPacket> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:

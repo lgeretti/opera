@@ -31,24 +31,24 @@ using namespace Opera;
 class TestSerialisation {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_body_from_human())
-        ARIADNE_TEST_CALL(test_body_from_robot())
+        ARIADNE_TEST_CALL(test_bodypresentationpacket_human())
+        ARIADNE_TEST_CALL(test_bodypresentationpacket_robot())
         ARIADNE_TEST_CALL(test_bodystatepacket_human())
         ARIADNE_TEST_CALL(test_bodystatepacket_robot())
         ARIADNE_TEST_CALL(test_collisionnotificationpacket())
     }
 
-    void test_body_from_human() {
-        Human h("human1", {0, 1, 3, 2}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
-        BodySerialiser serialiser(h);
-        serialiser.to_file(Resources::path("json/examples/presentation/" + h.id() + ".tmp.json"));
+    void test_bodypresentationpacket_human() {
+        BodyPresentationPacket p("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacketSerialiser serialiser(p);
+        serialiser.to_file(Resources::path("json/examples/presentation/" + p.id() + ".tmp.json"));
         ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"id\":\"human1\",\"isHuman\":true,\"pointIds\":[[0,1],[3,2]],\"thicknesses\":[1.0,0.5]}")
     }
 
-    void test_body_from_robot() {
-        Robot r("robot1", 30, {0, 1, 3, 2, 4, 2}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
-        BodySerialiser serialiser(r);
-        serialiser.to_file(Resources::path("json/examples/presentation/" + r.id() + ".tmp.json"));
+    void test_bodypresentationpacket_robot() {
+        BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacketSerialiser serialiser(p);
+        serialiser.to_file(Resources::path("json/examples/presentation/" + p.id() + ".tmp.json"));
         ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"id\":\"robot1\",\"isHuman\":false,\"pointIds\":[[0,1],[3,2],[4,2]],\"thicknesses\":[1.0,0.5,0.5]}")
     }
 

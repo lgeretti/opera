@@ -30,12 +30,12 @@ using Ariadne::Map;
 
 namespace Opera {
 
-Body::Body(BodyIdType const& id, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+Body::Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses) :
     _id(id) {
-    ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size()*2, "The point ids must be twice the thicknesses")
+    ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size(), "The number of point pairs must equal the number of thicknesses")
 
     for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i)
-        _segments.append(new BodySegment(this,i,points_ids.at(2*i),points_ids.at(2*i+1),thicknesses.at(i)));
+        _segments.append(new BodySegment(this,i,points_ids.at(i).first,points_ids.at(i).second,thicknesses.at(i)));
 }
 
 Body::~Body() {
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
     return os;
 }
 
-Robot::Robot(BodyIdType const& id, SizeType const& packet_frequency, List<IdType> const& points_ids, List<FloatType> const& thicknesses) :
+Robot::Robot(BodyIdType const& id, SizeType const& packet_frequency, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses) :
     Body(id,points_ids,thicknesses), _packet_frequency(packet_frequency) {
     ARIADNE_ASSERT_MSG(packet_frequency > 0, "The packet frequency must be strictly positive")
 }

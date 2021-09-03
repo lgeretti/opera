@@ -40,7 +40,7 @@ class TestBarrier {
     }
 
     void test_barrier_trace_create() {
-        Human h("h0", {0, 1, 3, 2}, {FloatType(1.0, Ariadne::dp),FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(1).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace(hs,3);
@@ -54,7 +54,7 @@ class TestBarrier {
     }
 
     void test_barrier() {
-        Human h("r0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Human h("r0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
         DiscreteLocation loc(StringVariable(h.id())|"first");
@@ -69,8 +69,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_populate() {
-        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
 
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
@@ -119,8 +119,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_resume_element() {
-        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
 
         auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 
@@ -158,8 +158,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_reset() {
-        Robot r("r0", 10, {0, 1}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {0, 1}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
 
         auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 

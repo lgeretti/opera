@@ -39,7 +39,7 @@ struct ProfileState : public Profiler {
 
     void profile_human_instance_acquirement() {
         FloatType thickness(1.0,Ariadne::dp);
-        Human h("h0", {0, 1}, {thickness});
+        Human h("h0", {{0, 1}}, {thickness});
 
         Ariadne::List<BodyStatePacket> pkts;
         for (SizeType i=0; i<num_tries(); ++i) {
@@ -53,7 +53,7 @@ struct ProfileState : public Profiler {
 
     void profile_robot_history_acquirement_and_update() {
         FloatType thickness(1.0,Ariadne::dp);
-        Robot r("r0", 10, {0, 1}, {thickness});
+        Robot r("r0", 10, {{0, 1}}, {thickness});
         Ariadne::StringVariable robot("robot");
         RobotStateHistory history(&r);
 
