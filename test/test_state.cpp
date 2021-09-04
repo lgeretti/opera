@@ -74,16 +74,16 @@ public:
                 push_back(d).push_back(a).push_back(c).push_back(b).push_back(c).push_back(a).
                 push_back(b).push_back(c).push_back(d).push_back(a).push_back(c).build().next_locations();
         ARIADNE_TEST_EQUALS(next2.size(),1)
-        ARIADNE_TEST_EQUALS(next2.at(0).destination(),b)
+        ARIADNE_TEST_ASSERT(next2.has_key(b))
 
         // abdabcabcdabadbc -> ****bc*bc*****bc -> {a,d}
         auto next3 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(d).push_back(a).push_back(b).
                 push_back(c).push_back(a).push_back(b).push_back(c).push_back(d).push_back(a).
                 push_back(b).push_back(a).push_back(d).push_back(b).push_back(c).build().next_locations();
         ARIADNE_TEST_EQUALS(next3.size(),2)
-        ARIADNE_TEST_EQUALS(next3.at(0).destination(),a)
-        ARIADNE_TEST_EQUALS(next3.at(0).probability(),cast_positive(FloatType(0.5,dp)))
-        ARIADNE_TEST_EQUALS(next3.at(1).destination(),d)
+        ARIADNE_TEST_ASSERT(next3.has_key(a))
+        ARIADNE_TEST_ASSERT(next3.has_key(d))
+        ARIADNE_TEST_EQUALS(next3.at(a),cast_positive(FloatType(0.5,dp)))
     }
 
     void test_robot_state_history_basics() {

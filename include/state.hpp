@@ -36,6 +36,7 @@ using IdType = unsigned int;
 using BodyIdType = Ariadne::String;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
+using Ariadne::Map;
 using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 using Ariadne::String;
@@ -78,24 +79,6 @@ class RobotLocationPresence {
     TimestampType const _to;
 };
 
-//! \brief The probability to get to a destination
-class RobotDestinationLikelihood {
-  public:
-    RobotDestinationLikelihood(DiscreteLocation const& destination, PositiveFloatType const& probability);
-
-    //! \brief The destination
-    DiscreteLocation const& destination() const;
-    //! \brief The probability
-    PositiveFloatType const& probability() const;
-
-    //! \brief Print to the standard output
-    friend std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l);
-
-  private:
-    DiscreteLocation _destination;
-    PositiveFloatType _probability;
-};
-
 class RobotDiscreteTrace;
 
 //! \brief A build for a discrete states trace
@@ -122,9 +105,9 @@ class RobotDiscreteTrace {
   public:
     //! \brief The locations in the trace
     List<DiscreteLocation> const& locations() const;
-    //! \brief The next locations with their likelihood
+    //! \brief The next locations with their probability
     //! \details Computed lazily
-    List<RobotDestinationLikelihood> const& next_locations() const;
+    Map<DiscreteLocation,PositiveFloatType> const& next_locations() const;
 
     //! \brief Equality operator
     bool operator==(RobotDiscreteTrace const& other) const;
@@ -134,7 +117,7 @@ class RobotDiscreteTrace {
 
   private:
     List<DiscreteLocation> const _locations;
-    mutable List<RobotDestinationLikelihood> _next_locations;
+    mutable Map<DiscreteLocation,PositiveFloatType> _next_locations;
 };
 
 //! \brief Holds the states reached by a robot up to now

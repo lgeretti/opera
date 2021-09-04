@@ -72,21 +72,6 @@ std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
     return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
 }
 
-RobotDestinationLikelihood::RobotDestinationLikelihood(DiscreteLocation const& destination, PositiveFloatType const& probability) :
-_destination(destination), _probability(probability) { }
-
-DiscreteLocation const& RobotDestinationLikelihood::destination() const {
-    return _destination;
-}
-
-PositiveFloatType const& RobotDestinationLikelihood::probability() const {
-    return _probability;
-}
-
-std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l) {
-    return os << "{" << l.destination() << ":" << l.probability() << "}";
-}
-
 RobotDiscreteTraceBuilder& RobotDiscreteTraceBuilder::push_front(DiscreteLocation const& location) {
     _locations.push_front(location);
     return *this;
@@ -130,7 +115,7 @@ struct RobotDiscreteTraceBacktracking {
     bool is_valid;
 };
 
-List<RobotDestinationLikelihood> const& RobotDiscreteTrace::next_locations() const {
+Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_locations() const {
     if (_next_locations.empty()) {
         auto tail = RobotDiscreteTraceBuilder().push_back(_locations.back());
         List<RobotDiscreteTraceBacktracking> tracking;
@@ -162,13 +147,11 @@ List<RobotDestinationLikelihood> const& RobotDiscreteTrace::next_locations() con
                 }
             }
         }
-        List<RobotDestinationLikelihood> next_locations;
         PositiveFloatType probability = cast_positive(FloatType(1.0/num_having_maximum_trace_size,dp));
         for (auto t : tracking) {
             if (t.trace_builder.size() == maximum_trace_size)
-                next_locations.append(RobotDestinationLikelihood(t.next_location,probability));
+                _next_locations.insert(std::make_pair(t.next_location,probability));
         }
-        _next_locations = next_locations;
     }
     return _next_locations;
 }
