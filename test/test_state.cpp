@@ -75,15 +75,25 @@ public:
                 push_back(b).push_back(c).push_back(d).push_back(a).push_back(c).build().next_locations();
         ARIADNE_TEST_EQUALS(next2.size(),1)
         ARIADNE_TEST_ASSERT(next2.has_key(b))
+        ARIADNE_TEST_EQUALS(next2.at(b),cast_positive(FloatType(1.0,dp)))
+
+        // abcbacabcbacbacb -> **cb*****cb*cb*cb -> {a}
+        auto next3 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(c).push_back(b).push_back(a).
+                push_back(c).push_back(a).push_back(b).push_back(c).push_back(b).push_back(a).
+                push_back(c).push_back(b).push_back(a).push_back(c).push_back(b).build().next_locations();
+        ARIADNE_TEST_EQUALS(next3.size(),1)
+        ARIADNE_TEST_ASSERT(next3.has_key(a))
+        ARIADNE_TEST_EQUALS(next3.at(a),cast_positive(FloatType(1.0,dp)))
 
         // abdabcabcdabadbc -> ****bc*bc*****bc -> {a,d}
-        auto next3 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(d).push_back(a).push_back(b).
+        auto next4 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(d).push_back(a).push_back(b).
                 push_back(c).push_back(a).push_back(b).push_back(c).push_back(d).push_back(a).
                 push_back(b).push_back(a).push_back(d).push_back(b).push_back(c).build().next_locations();
-        ARIADNE_TEST_EQUALS(next3.size(),2)
-        ARIADNE_TEST_ASSERT(next3.has_key(a))
-        ARIADNE_TEST_ASSERT(next3.has_key(d))
-        ARIADNE_TEST_EQUALS(next3.at(a),cast_positive(FloatType(0.5,dp)))
+        ARIADNE_TEST_EQUALS(next4.size(),2)
+        ARIADNE_TEST_ASSERT(next4.has_key(a))
+        ARIADNE_TEST_ASSERT(next4.has_key(d))
+        ARIADNE_TEST_EQUALS(next4.at(a),cast_positive(FloatType(0.5,dp)))
+        ARIADNE_TEST_EQUALS(next4.at(d),cast_positive(FloatType(0.5,dp)))
     }
 
     void test_robot_state_history_basics() {

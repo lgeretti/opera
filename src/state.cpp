@@ -147,10 +147,17 @@ Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_location
                 }
             }
         }
-        PositiveFloatType probability = cast_positive(FloatType(1.0/num_having_maximum_trace_size,dp));
+        const FloatType pf_one = cast_positive(FloatType(1.0,dp));
         for (auto t : tracking) {
-            if (t.trace_builder.size() == maximum_trace_size)
-                _next_locations.insert(std::make_pair(t.next_location,probability));
+            if (t.trace_builder.size() == maximum_trace_size) {
+                if (_next_locations.has_key(t.next_location))
+                    _next_locations.at(t.next_location) += pf_one;
+                else
+                    _next_locations.insert(std::make_pair(t.next_location,pf_one));
+            }
+        }
+        for (auto& l : _next_locations) {
+            l.second = cast_positive(FloatType(l.second.get_d()/num_having_maximum_trace_size,dp));
         }
     }
     return _next_locations;
