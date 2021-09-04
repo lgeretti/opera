@@ -96,6 +96,34 @@ class RobotDestinationLikelihood {
     PositiveFloatType const _probability;
 };
 
+class RobotDiscreteTrace;
+
+//! \brief A build for a discrete states trace
+class RobotDiscreteTraceBuilder {
+  public:
+    RobotDiscreteTraceBuilder() = default;
+    //! \brief Add to the head of the trace
+    RobotDiscreteTraceBuilder& push_front(DiscreteLocation const& location);
+    //! \brief Add to the tail of the trace
+    RobotDiscreteTraceBuilder& push_back(DiscreteLocation const& location);
+    //! \brief Build the trace
+    RobotDiscreteTrace build() const;
+  private:
+    std::deque<DiscreteLocation> _locations;
+};
+
+//! \brief A trace of discrete states
+class RobotDiscreteTrace {
+    friend class RobotDiscreteTraceBuilder;
+  protected:
+    RobotDiscreteTrace(List<DiscreteLocation> const& locations);
+  public:
+    //! \brief The locations in the trace
+    List<DiscreteLocation> const& locations() const;
+  private:
+    List<DiscreteLocation> const _locations;
+};
+
 //! \brief Holds the states reached by a robot up to now
 class RobotStateHistory {
     typedef List<BodySegmentSample> SegmentTemporalSamplesType;
@@ -113,7 +141,7 @@ class RobotStateHistory {
     DiscreteLocation const& current_location() const;
 
     //! \brief The discrete trace
-    List<DiscreteLocation> discrete_trace() const;
+    RobotDiscreteTrace discrete_trace() const;
 
     //! \brief Whether there are samples registered for the \a location
     //! \details Until the location changes, samples acquired are not registered

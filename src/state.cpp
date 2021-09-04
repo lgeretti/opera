@@ -87,6 +87,28 @@ std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l) 
     return os << "{" << l.destination() << ":" << l.probability() << "}";
 }
 
+RobotDiscreteTraceBuilder& RobotDiscreteTraceBuilder::push_front(DiscreteLocation const& location) {
+    _locations.push_front(location);
+    return *this;
+}
+
+RobotDiscreteTraceBuilder& RobotDiscreteTraceBuilder::push_back(DiscreteLocation const& location) {
+    _locations.push_back(location);
+    return *this;
+}
+
+RobotDiscreteTrace RobotDiscreteTraceBuilder::build() const {
+    List<DiscreteLocation> result;
+    for (auto l : _locations) result.append(l);
+    return result;
+}
+
+RobotDiscreteTrace::RobotDiscreteTrace(List<DiscreteLocation> const& locations) : _locations(locations) { }
+
+List<DiscreteLocation> const& RobotDiscreteTrace::locations() const {
+    return _locations;
+}
+
 RobotStateHistory::RobotStateHistory(Robot const* robot) :
     _robot(robot), _current_location_states_buffer(List<List<BodySegmentSample>>()) {
     for (SizeType i=0; i < _robot->num_segments(); ++i)
@@ -97,11 +119,11 @@ DiscreteLocation const& RobotStateHistory::current_location() const {
     return _current_location;
 }
 
-List<DiscreteLocation> RobotStateHistory::discrete_trace() const {
-    List<DiscreteLocation> result;
+RobotDiscreteTrace RobotStateHistory::discrete_trace() const {
+    RobotDiscreteTraceBuilder builder;
     for (auto p : _location_presences)
-        result.append(p.exit_destination());
-    return result;
+        builder.push_back(p.exit_destination());
+    return builder.build();
 }
 
 bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {

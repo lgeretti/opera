@@ -32,6 +32,7 @@ class TestState {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_human_state_instance())
+        ARIADNE_TEST_CALL(test_robot_discrete_state_trace())
         ARIADNE_TEST_CALL(test_robot_state_history_basics())
         ARIADNE_TEST_CALL(test_robot_state_history_analytics())
     }
@@ -42,6 +43,19 @@ public:
 
         ARIADNE_TEST_EQUALS(instance.samples().size(),2)
         ARIADNE_TEST_EQUALS(instance.timestamp(),5e8)
+    }
+
+    void test_robot_discrete_state_trace() {
+        Ariadne::StringVariable robot("robot");
+        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third");
+
+        RobotDiscreteTraceBuilder builder;
+        builder.push_front(second).push_back(first).push_back(second).push_front(third);
+        auto trace = builder.build();
+
+        List<DiscreteLocation> locations = {third,second,first,second};
+
+        ARIADNE_TEST_EQUALS(trace.locations(),locations)
     }
 
     void test_robot_state_history_basics() {
@@ -100,7 +114,7 @@ public:
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
         List<DiscreteLocation> discrete_trace = {first, second, first, second};
-        ARIADNE_TEST_EQUALS(history.discrete_trace(),discrete_trace)
+        ARIADNE_TEST_EQUALS(history.discrete_trace().locations(),discrete_trace)
     }
 
     void test_robot_state_history_analytics() {
