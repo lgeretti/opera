@@ -104,9 +104,8 @@ List<DiscreteLocation> RobotStateHistory::discrete_trace() const {
     return result;
 }
 
-
 bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {
-    return _location_states.find(location) != _location_states.end();
+    return _location_states.has_key(location);
 }
 
 auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodySamplesType const& {
@@ -165,7 +164,7 @@ List<RobotDestinationLikelihood> RobotStateHistory::destination_likelihoods(Disc
     auto presences = presences_in(location);
     for (auto p : presences) {
         auto const dloc = p.exit_destination();
-        if (occurrences.find(dloc) == occurrences.end())
+        if (not occurrences.has_key(dloc))
             occurrences.insert(make_pair(dloc,0u));
         occurrences[dloc]++;
     }
@@ -204,7 +203,7 @@ void RobotStateHistory::acquire(DiscreteLocation const& location, List<List<Poin
         _current_location = location;
     }
 
-    bool has_history_for_location = (_location_states.find(_current_location) != _location_states.end());
+    bool has_history_for_location = _location_states.has_key(_current_location);
     SizeType j0 = (has_history_for_location ? 0 : 1);
     SizeType update_idx = _update_index(timestamp);
     SizeType updating_sample = (has_history_for_location and _location_states[_current_location].size() > update_idx);
