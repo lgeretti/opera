@@ -112,6 +112,9 @@ class RobotStateHistory {
     //! \brief The current location
     DiscreteLocation const& current_location() const;
 
+    //! \brief The discrete trace
+    List<DiscreteLocation> discrete_trace() const;
+
     //! \brief Whether there are samples registered for the \a location
     //! \details Until the location changes, samples acquired are not registered
     bool has_samples(DiscreteLocation const& location) const;

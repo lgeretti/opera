@@ -97,6 +97,14 @@ DiscreteLocation const& RobotStateHistory::current_location() const {
     return _current_location;
 }
 
+List<DiscreteLocation> RobotStateHistory::discrete_trace() const {
+    List<DiscreteLocation> result;
+    for (auto p : _location_presences)
+        result.append(p.exit_destination());
+    return result;
+}
+
+
 bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {
     return _location_states.find(location) != _location_states.end();
 }

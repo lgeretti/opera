@@ -99,6 +99,8 @@ public:
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
+        List<DiscreteLocation> discrete_trace = {first, second, first, second};
+        ARIADNE_TEST_EQUALS(history.discrete_trace(),discrete_trace)
     }
 
     void test_robot_state_history_analytics() {
