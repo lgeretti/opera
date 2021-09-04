@@ -8,6 +8,7 @@ set(UNIT_TESTS
     test_serialisation
     test_deserialisation
     test_barrier
+    test_verification
     test_scenarios
 )
 

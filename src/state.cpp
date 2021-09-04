@@ -103,10 +103,74 @@ RobotDiscreteTrace RobotDiscreteTraceBuilder::build() const {
     return result;
 }
 
+SizeType RobotDiscreteTraceBuilder::size() const {
+    return _locations.size();
+}
+
 RobotDiscreteTrace::RobotDiscreteTrace(List<DiscreteLocation> const& locations) : _locations(locations) { }
 
 List<DiscreteLocation> const& RobotDiscreteTrace::locations() const {
     return _locations;
+}
+
+bool RobotDiscreteTrace::operator==(RobotDiscreteTrace const& other) const {
+    return this->locations() == other.locations();
+}
+
+std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t) {
+    return os << t.locations();
+}
+
+struct RobotDiscreteTraceBacktracking {
+    RobotDiscreteTraceBacktracking(SizeType const& index_, RobotDiscreteTraceBuilder const& _trace_builder, DiscreteLocation const& _next_location, bool const& _is_valid)
+        : index(index_), trace_builder(_trace_builder), next_location(_next_location), is_valid(_is_valid) { }
+    SizeType index;
+    RobotDiscreteTraceBuilder trace_builder;
+    DiscreteLocation next_location;
+    bool is_valid;
+};
+
+List<RobotDestinationLikelihood> const& RobotDiscreteTrace::next_locations() const {
+    if (_next_locations.empty()) {
+        auto tail = RobotDiscreteTraceBuilder().push_back(_locations.back());
+        List<RobotDiscreteTraceBacktracking> tracking;
+        for (int i=0; i<_locations.size()-1; ++i)
+            if (_locations.at(i) == _locations.back())
+                tracking.push_back(RobotDiscreteTraceBacktracking(i,RobotDiscreteTraceBuilder().push_back(_locations.at(i)),_locations.at(i+1),true));
+        SizeType maximum_trace_size = 0;
+        SizeType num_having_maximum_trace_size = 0;
+        SizeType num_valid = tracking.size();
+        while (num_valid > 0) {
+            maximum_trace_size++;
+            num_having_maximum_trace_size = num_valid;
+            tail.push_front(_locations.at(_locations.size() - 1 - maximum_trace_size));
+            auto tail_trace = tail.build();
+            for (auto& st : tracking) {
+                if (st.is_valid) {
+                    if (st.index > 0) {
+                        st.index--;
+                        if (_locations.at(st.index) == _locations.at(_locations.size() - 1 - maximum_trace_size)) {
+                            st.trace_builder.push_front(_locations.at(st.index));
+                        } else {
+                            num_valid--;
+                            st.is_valid = false;
+                        }
+                    } else {
+                        num_valid--;
+                        st.is_valid = false;
+                    }
+                }
+            }
+        }
+        List<RobotDestinationLikelihood> next_locations;
+        PositiveFloatType probability = cast_positive(FloatType(1.0/num_having_maximum_trace_size,dp));
+        for (auto t : tracking) {
+            if (t.trace_builder.size() == maximum_trace_size)
+                next_locations.append(RobotDestinationLikelihood(t.next_location,probability));
+        }
+        _next_locations = next_locations;
+    }
+    return _next_locations;
 }
 
 RobotStateHistory::RobotStateHistory(Robot const* robot) :
@@ -178,22 +242,6 @@ Interval<Natural> RobotStateHistory::range_of_num_samples_in(DiscreteLocation co
 
 Interval<Natural> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
     return _range_of_num_samples_within(presences_between(source,target));
-}
-
-List<RobotDestinationLikelihood> RobotStateHistory::destination_likelihoods(DiscreteLocation const& location) const {
-    List<RobotDestinationLikelihood> result;
-    Map<DiscreteLocation,SizeType> occurrences;
-    auto presences = presences_in(location);
-    for (auto p : presences) {
-        auto const dloc = p.exit_destination();
-        if (not occurrences.has_key(dloc))
-            occurrences.insert(make_pair(dloc,0u));
-        occurrences[dloc]++;
-    }
-    auto num_presences = presences.size();
-    for (auto o : occurrences)
-        result.append(RobotDestinationLikelihood(o.first,Ariadne::cast_positive(FloatType(static_cast<double>(o.second)/num_presences,dp))));
-    return result;
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {

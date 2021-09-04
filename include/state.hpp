@@ -92,8 +92,8 @@ class RobotDestinationLikelihood {
     friend std::ostream& operator<<(std::ostream& os, RobotDestinationLikelihood const& l);
 
   private:
-    DiscreteLocation const _destination;
-    PositiveFloatType const _probability;
+    DiscreteLocation _destination;
+    PositiveFloatType _probability;
 };
 
 class RobotDiscreteTrace;
@@ -108,6 +108,8 @@ class RobotDiscreteTraceBuilder {
     RobotDiscreteTraceBuilder& push_back(DiscreteLocation const& location);
     //! \brief Build the trace
     RobotDiscreteTrace build() const;
+    //! \brief The number of locations currently inserted
+    SizeType size() const;
   private:
     std::deque<DiscreteLocation> _locations;
 };
@@ -120,8 +122,19 @@ class RobotDiscreteTrace {
   public:
     //! \brief The locations in the trace
     List<DiscreteLocation> const& locations() const;
+    //! \brief The next locations with their likelihood
+    //! \details Computed lazily
+    List<RobotDestinationLikelihood> const& next_locations() const;
+
+    //! \brief Equality operator
+    bool operator==(RobotDiscreteTrace const& other) const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t);
+
   private:
     List<DiscreteLocation> const _locations;
+    mutable List<RobotDestinationLikelihood> _next_locations;
 };
 
 //! \brief Holds the states reached by a robot up to now
@@ -160,8 +173,6 @@ class RobotStateHistory {
     Interval<Natural> range_of_num_samples_in(DiscreteLocation const& location) const;
     //! \brief The range of number of samples that are acquired when in \a source going into \a target
     Interval<Natural> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
-    //! \brief The destination for \a location, with the likelihood to be taken
-    List<RobotDestinationLikelihood> destination_likelihoods(DiscreteLocation const& location) const;
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;

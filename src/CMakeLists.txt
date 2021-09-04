@@ -6,6 +6,7 @@ add_library(OPERA_SRC OBJECT
    serialisation.cpp
    deserialisation.cpp
    barrier.cpp
+   verification.cpp
 )
 
 if(COVERAGE)

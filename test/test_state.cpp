@@ -32,7 +32,8 @@ class TestState {
 public:
     void test() {
         ARIADNE_TEST_CALL(test_human_state_instance())
-        ARIADNE_TEST_CALL(test_robot_discrete_state_trace())
+        ARIADNE_TEST_CALL(test_robot_discrete_state_trace_creation())
+        ARIADNE_TEST_CALL(test_robot_discrete_state_trace_next_locations())
         ARIADNE_TEST_CALL(test_robot_state_history_basics())
         ARIADNE_TEST_CALL(test_robot_state_history_analytics())
     }
@@ -45,17 +46,44 @@ public:
         ARIADNE_TEST_EQUALS(instance.timestamp(),5e8)
     }
 
-    void test_robot_discrete_state_trace() {
+    void test_robot_discrete_state_trace_creation() {
         Ariadne::StringVariable robot("robot");
         DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third");
 
         RobotDiscreteTraceBuilder builder;
         builder.push_front(second).push_back(first).push_back(second).push_front(third);
+        ARIADNE_TEST_EQUALS(builder.size(),4)
         auto trace = builder.build();
 
         List<DiscreteLocation> locations = {third,second,first,second};
 
         ARIADNE_TEST_EQUALS(trace.locations(),locations)
+    }
+
+    void test_robot_discrete_state_trace_next_locations() {
+        Ariadne::StringVariable r("r");
+        DiscreteLocation a(r|"a"), b(r|"b"), c(r|"c"), d(r|"d");
+
+        // abcabd -> *****d -> {}
+        auto next1 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(c).push_back(a).push_back(b).
+                push_back(d).build().next_locations();
+        ARIADNE_TEST_EQUALS(next1.size(),0)
+
+        // abcabdacbcabcdac -> ******ac******ac -> {b}
+        auto next2 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(c).push_back(a).push_back(b).
+                push_back(d).push_back(a).push_back(c).push_back(b).push_back(c).push_back(a).
+                push_back(b).push_back(c).push_back(d).push_back(a).push_back(c).build().next_locations();
+        ARIADNE_TEST_EQUALS(next2.size(),1)
+        ARIADNE_TEST_EQUALS(next2.at(0).destination(),b)
+
+        // abdabcabcdabadbc -> ****bc*bc*****bc -> {a,d}
+        auto next3 = RobotDiscreteTraceBuilder().push_back(a).push_back(b).push_back(d).push_back(a).push_back(b).
+                push_back(c).push_back(a).push_back(b).push_back(c).push_back(d).push_back(a).
+                push_back(b).push_back(a).push_back(d).push_back(b).push_back(c).build().next_locations();
+        ARIADNE_TEST_EQUALS(next3.size(),2)
+        ARIADNE_TEST_EQUALS(next3.at(0).destination(),a)
+        ARIADNE_TEST_EQUALS(next3.at(0).probability(),cast_positive(FloatType(0.5,dp)))
+        ARIADNE_TEST_EQUALS(next3.at(1).destination(),d)
     }
 
     void test_robot_state_history_basics() {
@@ -172,17 +200,6 @@ public:
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,second),Interval<Natural>(2u, 2u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(first,third),Interval<Natural>(3u, 3u))
         ARIADNE_TEST_EQUALS(history.range_of_num_samples_between(third,second),Interval<Natural>(1u, 2u))
-
-        ARIADNE_TEST_PRINT(history.destination_likelihoods(first))
-        ARIADNE_TEST_EQUALS(history.destination_likelihoods(first).size(),2)
-        ARIADNE_TEST_PRINT(history.destination_likelihoods(second))
-        ARIADNE_TEST_EQUALS(history.destination_likelihoods(second).size(),3)
-        ARIADNE_TEST_PRINT(history.destination_likelihoods(third))
-        ARIADNE_TEST_EQUALS(history.destination_likelihoods(third).size(),1)
-        ARIADNE_TEST_PRINT(history.destination_likelihoods(fourth))
-        ARIADNE_TEST_EQUALS(history.destination_likelihoods(fourth).size(),0)
-        ARIADNE_TEST_PRINT(history.destination_likelihoods(fifth))
-        ARIADNE_TEST_EQUALS(history.destination_likelihoods(fifth).size(),0)
     }
 };
 
