@@ -94,6 +94,18 @@ public:
         ARIADNE_TEST_ASSERT(next4.has_key(d))
         ARIADNE_TEST_EQUALS(next4.at(a),cast_positive(FloatType(0.5,dp)))
         ARIADNE_TEST_EQUALS(next4.at(d),cast_positive(FloatType(0.5,dp)))
+
+        // dcbadcbdcbdcbcdcb -> dcb*dcbdcbdcb*dcb -> {a(0.25),c(0.25),d(0.5)}
+        auto next5 = RobotDiscreteTraceBuilder().push_back(d).push_back(c).push_back(b).push_back(a).push_back(d).
+                push_back(c).push_back(b).push_back(d).push_back(c).push_back(b).push_back(d).
+                push_back(c).push_back(b).push_back(c).push_back(d).push_back(c).push_back(b).build().next_locations();
+        ARIADNE_TEST_EQUALS(next5.size(),3)
+        ARIADNE_TEST_ASSERT(next5.has_key(a))
+        ARIADNE_TEST_ASSERT(next5.has_key(c))
+        ARIADNE_TEST_ASSERT(next5.has_key(d))
+        ARIADNE_TEST_EQUALS(next5.at(a),cast_positive(FloatType(0.25,dp)))
+        ARIADNE_TEST_EQUALS(next5.at(c),cast_positive(FloatType(0.25,dp)))
+        ARIADNE_TEST_EQUALS(next5.at(d),cast_positive(FloatType(0.5,dp)))
     }
 
     void test_robot_state_history_basics() {
