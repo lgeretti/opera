@@ -40,6 +40,14 @@ using Ariadne::DiscreteLocation;
 using Ariadne::SizeType;
 using Ariadne::String;
 
+//! \brief Interface for a trace of verification data
+class VerificationTraceInterface {
+  public:
+    //! \brief The discrete trace
+
+
+};
+
 }
 
 #endif //OPERA_VERIFICATION_HPP
