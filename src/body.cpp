@@ -34,8 +34,11 @@ Body::Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, Li
     _id(id) {
     ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size(), "The number of point pairs must equal the number of thicknesses")
 
-    for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i)
+    _num_points = 0;
+    for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i) {
+        _num_points = std::max(std::max(_num_points,static_cast<SizeType>(points_ids.at(i).first+1)),static_cast<SizeType>(points_ids.at(i).second+1));
         _segments.append(new BodySegment(this,i,points_ids.at(i).first,points_ids.at(i).second,thicknesses.at(i)));
+    }
 }
 
 Body::~Body() {
@@ -53,6 +56,10 @@ BodySegment const& Body::segment(SizeType const& idx) const {
 
 SizeType Body::num_segments() const {
     return _segments.size();
+}
+
+SizeType Body::num_points() const {
+    return _num_points;
 }
 
 std::ostream& operator<<(std::ostream& os, Body const& b) {

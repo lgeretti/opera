@@ -57,6 +57,10 @@ class Body {
     //! \brief The number of segments in the body
     SizeType num_segments() const;
 
+    //! \brief The number of points in the body
+    //! \details Useful for consistency checks when receiving body samples
+    SizeType num_points() const;
+
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, Body const& b);
 
@@ -65,6 +69,7 @@ class Body {
 
   private:
     BodyIdType const _id;
+    SizeType _num_points;
   protected:
     List<BodySegment*> _segments;
 };

@@ -44,11 +44,13 @@ public:
         ARIADNE_TEST_PRINT(h)
         ARIADNE_TEST_EQUALS(h.id(),"h0")
         ARIADNE_TEST_EQUALS(h.num_segments(),2)
+        ARIADNE_TEST_EQUALS(h.num_points(),4)
 
         Robot r("r0", 10, {{0,1}}, {FloatType(0.5,Ariadne::dp)});
         ARIADNE_TEST_PRINT(r)
         ARIADNE_TEST_EQUALS(r.id(),"r0")
         ARIADNE_TEST_EQUALS(r.num_segments(),1)
+        ARIADNE_TEST_EQUALS(r.num_points(),2)
         ARIADNE_TEST_EQUALS(r.packet_frequency(), 10)
     }
 
