@@ -268,7 +268,7 @@ void RobotStateHistory::acquire(DiscreteLocation const& location, List<List<Poin
     bool has_history_for_location = _location_states.has_key(_current_location);
     SizeType j0 = (has_history_for_location ? 0 : 1);
     SizeType update_idx = _update_index(timestamp);
-    SizeType updating_sample = (has_history_for_location and _location_states[_current_location].size() > update_idx);
+    SizeType updating_sample = (has_history_for_location and _location_states[_current_location].at(0).size() > update_idx);
     for (SizeType i=0; i<_robot->num_segments(); ++i) {
         auto head_pts = points.at(_robot->segment(i).head_id());
         auto tail_pts = points.at(_robot->segment(i).tail_id());
