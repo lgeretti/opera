@@ -114,8 +114,8 @@ class BodySegment {
     //! \brief Create an is_empty sample
     BodySegmentSample create_sample() const;
 
-    //! \brief Create a sample for the segment from a \a begin and \a end points
-    BodySegmentSample create_sample(Point const& begin, Point const& end) const;
+    //! \brief Create a sample for the segment from a list of \a begin points and \a end points
+    BodySegmentSample create_sample(List<Point> const& begin, List<Point> const& end) const;
 
     //! \brief Print on the standard output
     friend std::ostream& operator<<(std::ostream& os, BodySegment const& s);
@@ -170,11 +170,8 @@ class BodySegmentSampleInterface {
     //! \brief Whether the segment is empty, i.e., whether either head and tail are is_empty
     virtual bool is_empty() const = 0;
 
-    //! \brief Update the head and tail bounds from the given points
-    virtual void update(Point const& head, Point const& tail) = 0;
-
-    //! \brief Update the head and tail bounds from the given lists of points, starting from the one in \a idx
-    virtual void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) = 0;
+    //! \brief Update the head and tail bounds from the given lists of points
+    virtual void update(List<Point> const& heads, List<Point> const& tails) = 0;
 
     //! \brief Whether it intersects an \a other segment
     //! \details Returns true also in the case of tangency
@@ -193,9 +190,7 @@ class BodySegmentSampleInterface {
 class BodySegmentSampleBase: public BodySegmentSampleInterface {
     friend class BodySegment;
   protected:
-    //! \brief Create from two singleton points
-    BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail);
-    //! \brief Create non-valid
+    //! \brief Create empty
     BodySegmentSampleBase(BodySegment const* segment);
   public:
 
@@ -210,8 +205,7 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
 
     bool is_empty() const override;
 
-    void update(Point const& head, Point const& tail) override;
-    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) override;
+    void update(List<Point> const& heads, List<Point> const& tails) override;
 
     SphericalApproximationSample spherical_approximation() const override;
 
@@ -252,8 +246,7 @@ class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
     FloatType thickness() const { return this->_ptr->thickness(); }
     BoundingType const& bounding_box() const { return this->_ptr->bounding_box(); }
     bool is_empty() const { return this->_ptr->is_empty(); }
-    void update(Point const& head, Point const& tail) { this->_ptr->update(head,tail); }
-    void update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx = 0u) { this->_ptr->update(heads,tails,idx); }
+    void update(List<Point> const& heads, List<Point> const& tails) { this->_ptr->update(heads,tails); }
     bool intersects(BodySegmentSample const& other) const { return this->_ptr->intersects(other); }
     SphericalApproximationSample spherical_approximation() const { return this->_ptr->spherical_approximation(); }
     friend FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2)  { return distance(s1.const_reference(),s2.const_reference()); }

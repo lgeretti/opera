@@ -41,9 +41,12 @@ struct ProfileBody : public Profiler {
         Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
-        auto s1 = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
-        auto s2 = segment.create_sample(Point(0, 3, 0), Point(6, 6, 6));
-        auto s3 = segment.create_sample(Point(0, 8, 0), Point(0, 10, 0));
+        auto s1 = segment.create_sample();
+        s1.update({Point(0, 0, 0)},{Point(5, 5, 5)});
+        auto s2 = segment.create_sample();
+        s2.update({Point(0, 3, 0)},{Point(6, 6, 6)});
+        auto s3 = segment.create_sample();
+        s3.update({Point(0, 8, 0)},{Point(0, 10, 0)});
 
         profile("Box intersection",[&](SizeType i){ s1.intersects(s3); });
         profile("Pill intersection",[&](SizeType i){ s1.intersects(s2); });
@@ -54,7 +57,8 @@ struct ProfileBody : public Profiler {
         Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
-        auto s = segment.create_sample(Point(0, 0, 0), Point(5, 5, 5));
+        auto s = segment.create_sample();
+        s.update({Point(0, 0, 0)},{Point(5, 5, 5)});
 
         Ariadne::List<Point> heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {

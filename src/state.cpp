@@ -36,8 +36,8 @@ HumanStateInstance::HumanStateInstance(Human const& human, List<List<Point>> con
         auto const& segment = human.segment(i);
         auto head_pts = points.at(segment.head_id());
         auto tail_pts = points.at(segment.tail_id());
-        BodySegmentSample sample = segment.create_sample(head_pts.at(0), tail_pts.at(0));
-        sample.update(head_pts,tail_pts,1);
+        BodySegmentSample sample = segment.create_sample();
+        sample.update(head_pts,tail_pts);
         _samples.push_back(sample);
     }
 }
@@ -266,15 +266,13 @@ void RobotStateHistory::acquire(DiscreteLocation const& location, List<List<Poin
     }
 
     bool has_history_for_location = _location_states.has_key(_current_location);
-    SizeType j0 = (has_history_for_location ? 0 : 1);
     SizeType update_idx = _update_index(timestamp);
     SizeType updating_sample = (has_history_for_location and _location_states[_current_location].at(0).size() > update_idx);
     for (SizeType i=0; i<_robot->num_segments(); ++i) {
         auto head_pts = points.at(_robot->segment(i).head_id());
         auto tail_pts = points.at(_robot->segment(i).tail_id());
-        BodySegmentSample s = (updating_sample ? _location_states[_current_location].at(i).at(update_idx) :
-                                   _robot->segment(i).create_sample(head_pts.at(0),tail_pts.at(0)));
-        s.update(head_pts,tail_pts,j0);
+        BodySegmentSample s = (updating_sample ? _location_states[_current_location].at(i).at(update_idx) : _robot->segment(i).create_sample());
+        s.update(head_pts,tail_pts);
         _current_location_states_buffer.at(i).push_back(s);
     }
 }

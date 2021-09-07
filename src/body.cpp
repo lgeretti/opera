@@ -103,8 +103,10 @@ BodySegmentSample BodySegment::create_sample() const {
     return BodySegmentSample(new BodySegmentSampleBase(this));
 }
 
-BodySegmentSample BodySegment::create_sample(Point const& begin, Point const& end) const {
-    return BodySegmentSample(new BodySegmentSampleBase(this, begin, end));
+BodySegmentSample BodySegment::create_sample(List<Point> const& begin, List<Point> const& end) const {
+    BodySegmentSample result(new BodySegmentSampleBase(this));
+    result.update(begin,end);
+    return result;
 }
 
 std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
@@ -120,14 +122,6 @@ BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _radius(0.0, Ariadne::dp),
         _bb(_head_bounds)
         { }
-
-BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment, Point const& head, Point const& tail) :
-        _segment(segment), _is_empty(false),
-        _head_bounds({FloatIntervalType(head.x), FloatIntervalType(head.y), FloatIntervalType(head.z)}),
-        _tail_bounds({FloatIntervalType(tail.x), FloatIntervalType(tail.y), FloatIntervalType(tail.z)}),
-        _head_centre(head), _tail_centre(tail), _radius(0.0, Ariadne::dp) {
-    _bb = Ariadne::widen(Ariadne::hull(_head_bounds,_tail_bounds),_segment->thickness());
-}
 
 IdType const& BodySegmentSampleBase::segment_id() const {
     return _segment->id();
@@ -149,17 +143,11 @@ FloatType const& BodySegmentSampleBase::thickness() const {
     return _segment->thickness();
 }
 
-void BodySegmentSampleBase::update(Point const& head, Point const& tail) {
-    _is_empty = false;
-    _update(head,tail);
-    _recalculate_centres_radius_bb();
-}
-
-void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& tails, SizeType const& idx) {
+void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& tails) {
     auto const hs = heads.size();
     auto const ts = tails.size();
     auto common_size = std::min(hs,ts);
-    for (SizeType j=idx; j<common_size; ++j)
+    for (SizeType j=0; j<common_size; ++j)
         _update(heads.at(j), tails.at(j));
     for (SizeType j=common_size; j<hs; ++j)
         _update_head(heads.at(j));
