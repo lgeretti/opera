@@ -163,8 +163,10 @@ public:
         ARIADNE_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         ARIADNE_TEST_PRINT(history.samples(first))
         ARIADNE_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
-        List<DiscreteLocation> discrete_trace = {first, second, first, second};
-        ARIADNE_TEST_EQUALS(history.discrete_trace().locations(),discrete_trace)
+        auto history_trace = history.discrete_trace();
+        ARIADNE_TEST_PRINT(history_trace)
+        auto expected_trace = RobotDiscreteTraceBuilder().push_back(first).push_back(second).push_back(first).push_back(second).build();
+        ARIADNE_TEST_EQUALS(history_trace,expected_trace)
     }
 
     void test_robot_state_history_analytics() {
