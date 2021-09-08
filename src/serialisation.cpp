@@ -130,6 +130,8 @@ Document CollisionNotificationPacketSerialiser::to_document() const {
     collision_time.AddMember("upper",Value().SetUint64(obj.upper_collision_time()),allocator);
     document.AddMember("collisionTime",collision_time,allocator);
 
+    document.AddMember("likelihood",Value().SetDouble(obj.likelihood().get_d()),allocator);
+
     return document;
 }
 

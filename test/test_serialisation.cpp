@@ -67,10 +67,10 @@ public:
     }
 
     void test_collisionnotificationpacket() {
-        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301);
+        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
         CollisionNotificationPacketSerialiser serialiser(p);
         serialiser.to_file(Resources::path("json/examples/notification/notification0.tmp.json"));
-        ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"human\":{\"bodyId\":\"h0\",\"segmentId\":0},\"robot\":{\"bodyId\":\"r0\",\"segmentId\":3},\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"collisionTime\":{\"lower\":328903284232,\"upper\":328905923301}}")
+        ARIADNE_TEST_EQUALS(serialiser.to_string(),"{\"human\":{\"bodyId\":\"h0\",\"segmentId\":0},\"robot\":{\"bodyId\":\"r0\",\"segmentId\":3},\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"collisionTime\":{\"lower\":328903284232,\"upper\":328905923301},\"likelihood\":0.5}")
     }
 };
 

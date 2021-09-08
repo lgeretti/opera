@@ -92,7 +92,8 @@ class CollisionNotificationPacket {
   public:
     //! \brief Construct from fields
     CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                                DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time);
+                                DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time,
+                                PositiveFloatType const& likelihood);
 
     //! \brief The identifier of the human
     BodyIdType const& human_id() const;
@@ -108,6 +109,8 @@ class CollisionNotificationPacket {
     TimestampType const& lower_collision_time() const;
     //! \brief The upper bound on the collision time
     TimestampType const& upper_collision_time() const;
+    //! \brief The probability that this collision will happen
+    PositiveFloatType const& likelihood() const;
 
   private:
     BodyIdType const _human_id;
@@ -117,6 +120,7 @@ class CollisionNotificationPacket {
     DiscreteLocation const _discrete_state;
     TimestampType const _lower_collision_time;
     TimestampType const _upper_collision_time;
+    PositiveFloatType const _likelihood;
 };
 
 }

@@ -75,9 +75,9 @@ TimestampType const& BodyStatePacket::timestamp() const {
 }
 
 CollisionNotificationPacket::CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                            DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time) :
+                            DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time, PositiveFloatType const& likelihood) :
     _human_id(human_id), _human_segment_id(human_segment_id), _robot_id(robot_id), _robot_segment_id(robot_segment_id), _discrete_state(discrete_state),
-    _lower_collision_time(lower_collision_time), _upper_collision_time(upper_collision_time) { }
+    _lower_collision_time(lower_collision_time), _upper_collision_time(upper_collision_time), _likelihood(likelihood) { }
 
 BodyIdType const& CollisionNotificationPacket::human_id() const {
     return _human_id;
@@ -105,6 +105,10 @@ TimestampType const& CollisionNotificationPacket::lower_collision_time() const {
 
 TimestampType const& CollisionNotificationPacket::upper_collision_time() const {
     return _upper_collision_time;
+}
+
+PositiveFloatType const& CollisionNotificationPacket::likelihood() const {
+    return _likelihood;
 }
 
 }

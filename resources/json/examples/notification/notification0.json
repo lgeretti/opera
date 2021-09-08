@@ -15,5 +15,6 @@
   "collisionTime" : {
     "lower" : 328903284232,
     "upper" : 328905923301
-  }
+  },
+  "likelihood" : 0.5
 }

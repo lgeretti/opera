@@ -94,6 +94,7 @@ public:
         ARIADNE_TEST_EQUALS(p.discrete_state(),loc)
         ARIADNE_TEST_EQUALS(p.lower_collision_time(),328903284232)
         ARIADNE_TEST_EQUALS(p.upper_collision_time(),328905923301)
+        ARIADNE_TEST_EQUALS(p.likelihood().get_d(),0.5)
     }
 };
 

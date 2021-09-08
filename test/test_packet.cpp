@@ -74,7 +74,7 @@ public:
 
     void test_notification_packet_create() {
         DiscreteLocation loc(StringVariable("r0")|"first");
-        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8);
+        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8,cast_positive(FloatType(1.0,dp)));
 
         ARIADNE_TEST_EQUALS(p.human_id(),"h0")
         ARIADNE_TEST_EQUALS(p.human_segment_id(),1)
@@ -83,6 +83,7 @@ public:
         ARIADNE_TEST_EQUALS(p.discrete_state(),loc)
         ARIADNE_TEST_EQUALS(p.lower_collision_time(),2e8)
         ARIADNE_TEST_EQUALS(p.upper_collision_time(),3e8)
+        ARIADNE_TEST_EQUALS(p.likelihood().get_d(),1.0)
     }
 };
 

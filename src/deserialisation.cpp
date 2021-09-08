@@ -71,7 +71,8 @@ CollisionNotificationPacket CollisionNotificationPacketDeserialiser::make() cons
                                        _document["robot"]["segmentId"].GetUint(),
                                        discrete_state_values,
                                        _document["collisionTime"]["lower"].GetUint64(),
-                                       _document["collisionTime"]["upper"].GetUint64());
+                                       _document["collisionTime"]["upper"].GetUint64(),
+                                       cast_positive(FloatType(_document["likelihood"].GetDouble(),dp)));
 }
 
 }
