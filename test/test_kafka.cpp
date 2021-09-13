@@ -152,6 +152,7 @@ public:
 };
 
 int main() {
+    system("../resources/kafka/kafka_launch.sh"); // myfile.sh should be chmod +x
     TestKafka().test();
     return ARIADNE_TEST_FAILURES;
 }
