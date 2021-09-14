@@ -146,13 +146,17 @@ public:
 
         ARIADNE_TEST_EQUAL(p_recived.lower_collision_time(), p.lower_collision_time());
 
+        ARIADNE_TEST_EQUAL(p_recived.likelihood().get_d(), p.likelihood().get_d());
+
+
         cpt.join();
     }
 
 };
 
 int main() {
-    system("../resources/kafka/kafka_launch.sh"); // myfile.sh should be chmod +x
+    system("./../resources/kafka/kafka_launch.sh"); // myfile.sh should be chmod +x
     TestKafka().test();
+    system("./../resources/kafka/delete_topics.sh");
     return ARIADNE_TEST_FAILURES;
 }
