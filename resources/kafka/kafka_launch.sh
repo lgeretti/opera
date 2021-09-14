@@ -6,7 +6,7 @@ terminator -e "./bin/zookeeper-server-start.sh config/zookeeper.properties" -p h
 sleep 2
 terminator -e "./bin/kafka-server-start.sh config/server.properties" -p hold
 echo Started server and broker
-echo Creating the 3 topics...
+echo Creating the 3 topics
 sleep 2
 terminator -e "./bin/kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092"
 terminator -e "./bin/kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092"
