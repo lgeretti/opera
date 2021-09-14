@@ -120,7 +120,7 @@ public:
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
-        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301);
+        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
         std::thread cpt(consumer_ntf_thread, consumer_ntf);
                 
