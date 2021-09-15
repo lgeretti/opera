@@ -24,6 +24,10 @@
 
 #include "test.hpp"
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 #include "utility.hpp"
 #include "packet.hpp"
 #include "deserialisation.hpp"
@@ -34,7 +38,8 @@ using namespace Opera;
 class TestScenarios {
   public:
     void test() {
-        ARIADNE_TEST_CALL(test_acquire_human_nocollision_samples())
+        //ARIADNE_TEST_CALL(test_acquire_human_nocollision_samples())
+        //ARIADNE_TEST_CALL(test_check_robot_traces())
         ARIADNE_TEST_CALL(test_acquire_robot_10Hz_samples())
     }
 
@@ -52,35 +57,98 @@ class TestScenarios {
         }
 
         List<HumanStateInstance> instances;
+        SizeType i=0;
         for (auto pkt : human_packets) {
             instances.append(HumanStateInstance(human,pkt.points(),pkt.timestamp()));
         }
     }
 
-    void test_acquire_robot_10Hz_samples() {
+    void test_check_robot_traces() {
         BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
         ARIADNE_TEST_EQUALS(robot.num_points(),9)
 
-        List<BodyStatePacket> robot_packets;
+        List<RobotDiscreteTrace> traces;
+        TimestampType current_timestamp = 0;
+        for (SizeType folder=1; folder<=10; ++folder) {
+            SizeType file = 1;
+            RobotStateHistory history(&robot);
+            while (true) {
+                auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
+                if (not exists(filepath)) break;
+                auto pkt = BodyStatePacketDeserialiser(filepath).make();
+                ARIADNE_ASSERT(pkt.timestamp() > current_timestamp)
+                current_timestamp = pkt.timestamp();
+                history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
+            }
+            auto trace = history.discrete_trace();
+            traces.append(trace);
+            std::ofstream txt;
+            txt.open((std::to_string(folder)+".txt").c_str(), std::ios::out | std::ios::binary);
+            txt << trace;
+            txt.close();
+        }
+
+        for (SizeType i=0; i<9; ++i) {
+            for (SizeType j=i+1; j<=9; ++j) {
+                if (not (traces.at(i) == traces.at(j))) std::cout << "Traces " << i+1 << " and " << j+1 << " differ." << std::endl;
+            }
+        }
+    }
+
+    void test_acquire_robot_10Hz_samples() {
+
+        int speedup = 100;
+
+        BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
+        Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
+        RobotStateHistory history(&robot);
+
         for (SizeType folder=1; folder<=9; ++folder) {
             SizeType file = 1;
             while (true) {
                 auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
                 if (not exists(filepath)) break;
-                robot_packets.append(BodyStatePacketDeserialiser(filepath).make());
+                auto pkt = BodyStatePacketDeserialiser(filepath).make();
+                history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
             }
         }
 
-        RobotStateHistory history(&robot);
-        TimestampType current_timestamp = 0;
-        for (auto pkt : robot_packets) {
-            ARIADNE_ASSERT(pkt.timestamp() > current_timestamp)
-            current_timestamp = pkt.timestamp();
-            history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
+        List<BodyStatePacket> human_packets;
+        SizeType idx = 1;
+        while (true) {
+            auto filepath = Resources::path("json/scenarios/human/nocollision/"+std::to_string(idx++)+".json");
+            if (not exists(filepath)) break;
+            human_packets.append(BodyStatePacketDeserialiser(filepath).make());
+        }
+        List<BodyStatePacket> robot_packets;
+        idx = 1;
+        while (true) {
+            auto filepath = Resources::path("json/scenarios/robot/10hz/10/"+std::to_string(idx++)+".json");
+            if (not exists(filepath)) break;
+            robot_packets.append(BodyStatePacketDeserialiser(filepath).make());
         }
 
-        auto trace = history.discrete_trace();
+        std::thread human_consumption([&]{
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            for (auto p : human_packets) {
+                std::cout << "Human packet received at " << p.timestamp() << std::endl;
+
+                std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
+            }
+        });
+
+        std::thread robot_consumption([&]{
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            for (auto p : robot_packets) {
+                std::cout << "Robot packet received at " << p.timestamp() << std::endl;
+                history.acquire(p.location(),p.points(),p.timestamp());
+                std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
+            }
+        });
+
+        human_consumption.join();
+        robot_consumption.join();
     }
 
 };
