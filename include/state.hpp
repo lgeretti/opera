@@ -84,6 +84,8 @@ class RobotDiscreteTrace {
   public:
     //! \brief Default constructor has empty trace with 1.0 probability
     RobotDiscreteTrace();
+    //! \brief Copy constructor
+    RobotDiscreteTrace(RobotDiscreteTrace const& other);
 
     //! \brief The locations in the trace
     List<DiscreteLocation> locations() const;
@@ -101,6 +103,8 @@ class RobotDiscreteTrace {
 
     //! \brief Equality operator
     bool operator==(RobotDiscreteTrace const& other) const;
+    //! \brief Copy assignment
+    RobotDiscreteTrace& operator=(RobotDiscreteTrace const& other);
 
     //! \brief Print to the standard output
     friend std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t);

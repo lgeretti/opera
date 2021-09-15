@@ -95,9 +95,10 @@ public:
         ARIADNE_TEST_EQUALS(next4.at(d),cast_positive(FloatType(0.5,dp)))
 
         // dcbadcbdcbdcbcdcb -> dcb*dcbdcbdcb*dcb -> {a(0.25),c(0.25),d(0.5)}
-        auto next5 = RobotDiscreteTrace().push_back(d).push_back(c).push_back(b).push_back(a).push_back(d).
+        auto trace5 = RobotDiscreteTrace().push_back(d).push_back(c).push_back(b).push_back(a).push_back(d).
                 push_back(c).push_back(b).push_back(d).push_back(c).push_back(b).push_back(d).
-                push_back(c).push_back(b).push_back(c).push_back(d).push_back(c).push_back(b).next_locations();
+                push_back(c).push_back(b).push_back(c).push_back(d).push_back(c).push_back(b);
+        auto next5 = trace5.next_locations();
         ARIADNE_TEST_EQUALS(next5.size(),3)
         ARIADNE_TEST_ASSERT(next5.has_key(a))
         ARIADNE_TEST_ASSERT(next5.has_key(c))
@@ -105,6 +106,28 @@ public:
         ARIADNE_TEST_EQUALS(next5.at(a),cast_positive(FloatType(0.25,dp)))
         ARIADNE_TEST_EQUALS(next5.at(c),cast_positive(FloatType(0.25,dp)))
         ARIADNE_TEST_EQUALS(next5.at(d),cast_positive(FloatType(0.5,dp)))
+
+        auto trace5a = trace5;
+        trace5a.push_back(a,cast_positive(FloatType(0.25,dp)));
+        auto trace5c = trace5;
+        trace5c.push_back(c,cast_positive(FloatType(0.25,dp)));
+        auto trace5d = trace5;
+        trace5d.push_back(d,cast_positive(FloatType(0.5,dp)));
+        auto next5a = trace5a.next_locations();
+        auto next5c = trace5c.next_locations();
+        auto next5d = trace5d.next_locations();
+        ARIADNE_TEST_PRINT(trace5c)
+        ARIADNE_TEST_PRINT(next5c)
+
+        ARIADNE_TEST_EQUALS(next5a.size(),1)
+        ARIADNE_TEST_EQUALS(next5c.size(),1)
+        ARIADNE_TEST_EQUALS(next5d.size(),1)
+        ARIADNE_TEST_ASSERT(next5a.has_key(d))
+        ARIADNE_TEST_ASSERT(next5c.has_key(d))
+        ARIADNE_TEST_ASSERT(next5d.has_key(c))
+        ARIADNE_TEST_EQUALS(next5a.at(d),cast_positive(FloatType(0.25,dp)))
+        ARIADNE_TEST_EQUALS(next5c.at(d),cast_positive(FloatType(0.25,dp)))
+        ARIADNE_TEST_EQUALS(next5d.at(c),cast_positive(FloatType(0.5,dp)))
     }
 
     void test_robot_state_history_basics() {

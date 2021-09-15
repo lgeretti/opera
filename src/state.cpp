@@ -73,13 +73,20 @@ std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
     return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
 }
 
+RobotDiscreteTrace::RobotDiscreteTrace() : _probability(pa_one) { }
+
+RobotDiscreteTrace::RobotDiscreteTrace(RobotDiscreteTrace const& other) :
+    _locations(other._locations), _probability(other._probability), _next_locations(other._next_locations) { }
+
 RobotDiscreteTrace& RobotDiscreteTrace::push_front(DiscreteLocation const& location) {
     _locations.push_front(location);
+    _next_locations.clear();
     return *this;
 }
 
 RobotDiscreteTrace& RobotDiscreteTrace::push_back(DiscreteLocation const& location, PositiveFloatType const& probability) {
     _locations.push_back(location);
+    _next_locations.clear();
     _probability *= probability;
     return *this;
 }
@@ -87,8 +94,6 @@ RobotDiscreteTrace& RobotDiscreteTrace::push_back(DiscreteLocation const& locati
 SizeType RobotDiscreteTrace::size() const {
     return _locations.size();
 }
-
-RobotDiscreteTrace::RobotDiscreteTrace() : _probability(pa_one) { }
 
 List<DiscreteLocation> RobotDiscreteTrace::locations() const {
     List<DiscreteLocation> result;
@@ -98,6 +103,13 @@ List<DiscreteLocation> RobotDiscreteTrace::locations() const {
 
 bool RobotDiscreteTrace::operator==(RobotDiscreteTrace const& other) const {
     return this->locations() == other.locations();
+}
+
+RobotDiscreteTrace& RobotDiscreteTrace::operator=(RobotDiscreteTrace const& other) {
+    _locations = other._locations;
+    _probability = other._probability;
+    _next_locations = other._next_locations;
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t) {
