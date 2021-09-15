@@ -79,7 +79,7 @@ SizeType MinimumDistanceBarrierTrace::size() const {
 }
 
 void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance) {
-    _barriers.append(MinimumDistanceBarrier(minimum_distance,farthest_location,_next_index));
+    _barriers.push_back(MinimumDistanceBarrier(minimum_distance,farthest_location,_next_index));
 }
 
 bool MinimumDistanceBarrierTrace::try_update_with(DiscreteLocation const& location, BodySegmentSample const& segment_sample) {
@@ -127,7 +127,7 @@ void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, R
     if (_next_index > 0) {
         auto location = _barriers.at(resume).farthest_location();
         _barriers.clear();
-        _barriers.append(MinimumDistanceBarrier(
+        _barriers.push_back(MinimumDistanceBarrier(
                 distance(_spherical_approximation,history.samples(location).at(_robot_segment_id).at(_next_index-1)),
                 location,_next_index-1));
     } else {
@@ -149,7 +149,9 @@ SizeType const& MinimumDistanceBarrierTrace::next_index() const {
 }
 
 std::ostream& operator<<(std::ostream& os, MinimumDistanceBarrierTrace const& t) {
-    return os << t._barriers;
+    List<MinimumDistanceBarrier> barriers;
+    for (auto b : t._barriers) barriers.push_back(b);
+    return os << barriers;
 }
 
 }

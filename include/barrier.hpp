@@ -104,7 +104,7 @@ class MinimumDistanceBarrierTrace {
     IdType const _robot_segment_id;
     SphericalApproximationSample _spherical_approximation;
     SizeType _next_index;
-    List<MinimumDistanceBarrier> _barriers;
+    std::deque<MinimumDistanceBarrier> _barriers;
 };
 
 }
