@@ -155,7 +155,12 @@ public:
 };
 
 int main() {
-    system("./../resources/kafka/kafka_launch.sh"); // myfile.sh should be chmod +x
+    //system("cd $(find ~ -path '*opera/resources/kafka'); zookeeper-server-start.sh zookeeper.properties");
+    //system("cd $(find ~ -path '*opera/resources/kafka'); kafka-server-start.sh server.properties");
+    //system("kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092");
+    //system("kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092");
+    //system("kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092");
+    system("./../resources/kafka/kafka_launch.sh");
     TestKafka().test();
     system("./../resources/kafka/delete_topics.sh");
     return ARIADNE_TEST_FAILURES;
