@@ -56,7 +56,11 @@ public:
 
         List<DiscreteLocation> locations = {third,second,first,second};
 
-        ARIADNE_TEST_EQUALS(trace.locations(),locations)
+        ARIADNE_TEST_EQUALS(trace.at(0),third)
+        ARIADNE_TEST_EQUALS(trace.at(1),second)
+        ARIADNE_TEST_EQUALS(trace.at(2),first)
+        ARIADNE_TEST_EQUALS(trace.at(3),second)
+        ARIADNE_TEST_EQUALS(trace.probability(),pa_one)
     }
 
     void test_robot_discrete_state_trace_next_locations() {

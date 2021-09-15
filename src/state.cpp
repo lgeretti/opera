@@ -95,14 +95,17 @@ SizeType RobotDiscreteTrace::size() const {
     return _locations.size();
 }
 
-List<DiscreteLocation> RobotDiscreteTrace::locations() const {
-    List<DiscreteLocation> result;
-    for (auto l : _locations) result.append(l);
-    return result;
+DiscreteLocation RobotDiscreteTrace::at(SizeType const& idx) const {
+    ARIADNE_PRECONDITION(idx < _locations.size())
+    return _locations.at(idx);
+}
+
+PositiveFloatType const& RobotDiscreteTrace::probability() const {
+    return _probability;
 }
 
 bool RobotDiscreteTrace::operator==(RobotDiscreteTrace const& other) const {
-    return this->locations() == other.locations();
+    return this->_locations == other._locations;
 }
 
 RobotDiscreteTrace& RobotDiscreteTrace::operator=(RobotDiscreteTrace const& other) {
@@ -113,7 +116,10 @@ RobotDiscreteTrace& RobotDiscreteTrace::operator=(RobotDiscreteTrace const& othe
 }
 
 std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t) {
-    return os << t.locations();
+    List<DiscreteLocation> locations;
+    for (auto l : t._locations)
+        locations.push_back(l);
+    return os << "{" << locations << ", p:" << t._probability << "}";
 }
 
 struct RobotDiscreteTraceBacktracking {

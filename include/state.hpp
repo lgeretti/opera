@@ -87,10 +87,14 @@ class RobotDiscreteTrace {
     //! \brief Copy constructor
     RobotDiscreteTrace(RobotDiscreteTrace const& other);
 
-    //! \brief The locations in the trace
-    List<DiscreteLocation> locations() const;
-    //! \brief The next locations with their probability
-    //! \details Computed lazily
+    //! \brief The locations in the trace at \a idx
+    DiscreteLocation at(SizeType const& idx) const;
+
+    //! \brief The probability of this trace
+    PositiveFloatType const& probability() const;
+
+    //! \brief The next locations with their probability, which accounts for the probability of this trace
+    //! \details This is computed lazily
     Map<DiscreteLocation,PositiveFloatType> const& next_locations() const;
 
     //! \brief Add to the head of the trace
