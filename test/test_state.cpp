@@ -107,6 +107,7 @@ public:
         ARIADNE_TEST_EQUALS(next5.at(c),cast_positive(FloatType(0.25,dp)))
         ARIADNE_TEST_EQUALS(next5.at(d),cast_positive(FloatType(0.5,dp)))
 
+        // adding each next state
         auto trace5a = trace5;
         trace5a.push_back(a,cast_positive(FloatType(0.25,dp)));
         auto trace5c = trace5;
@@ -116,9 +117,6 @@ public:
         auto next5a = trace5a.next_locations();
         auto next5c = trace5c.next_locations();
         auto next5d = trace5d.next_locations();
-        ARIADNE_TEST_PRINT(trace5c)
-        ARIADNE_TEST_PRINT(next5c)
-
         ARIADNE_TEST_EQUALS(next5a.size(),1)
         ARIADNE_TEST_EQUALS(next5c.size(),1)
         ARIADNE_TEST_EQUALS(next5d.size(),1)
@@ -128,7 +126,38 @@ public:
         ARIADNE_TEST_EQUALS(next5a.at(d),cast_positive(FloatType(0.25,dp)))
         ARIADNE_TEST_EQUALS(next5c.at(d),cast_positive(FloatType(0.25,dp)))
         ARIADNE_TEST_EQUALS(next5d.at(c),cast_positive(FloatType(0.5,dp)))
-    }
+
+        // adding each next state
+        auto trace5ad = trace5a.push_back(d);
+        auto trace5cd = trace5c.push_back(d);
+        auto trace5dc = trace5d.push_back(c);
+        auto next5ad = trace5ad.next_locations();
+        auto next5cd = trace5cd.next_locations();
+        auto next5dc = trace5dc.next_locations();
+        ARIADNE_TEST_EQUALS(next5ad.size(),1)
+        ARIADNE_TEST_EQUALS(next5cd.size(),1)
+        ARIADNE_TEST_EQUALS(next5dc.size(),1)
+        ARIADNE_TEST_ASSERT(next5ad.has_key(c))
+        ARIADNE_TEST_ASSERT(next5cd.has_key(c))
+        ARIADNE_TEST_ASSERT(next5dc.has_key(b))
+
+        // adding each next state
+        auto trace5adc = trace5ad.push_back(c);
+        auto trace5cdc = trace5cd.push_back(c);
+        auto trace5dcb = trace5dc.push_back(b);
+        auto next5adc = trace5adc.next_locations();
+        auto next5cdc = trace5cdc.next_locations();
+        auto next5dcb = trace5dcb.next_locations();
+        ARIADNE_TEST_EQUALS(next5adc.size(),1)
+        ARIADNE_TEST_EQUALS(next5cdc.size(),1)
+        ARIADNE_TEST_EQUALS(next5dcb.size(),2)
+        ARIADNE_TEST_ASSERT(next5adc.has_key(b))
+        ARIADNE_TEST_ASSERT(next5cdc.has_key(b))
+        ARIADNE_TEST_ASSERT(next5dcb.has_key(c))
+        ARIADNE_TEST_ASSERT(next5dcb.has_key(d))
+        ARIADNE_TEST_EQUALS(next5dcb.at(c),cast_positive(FloatType(0.25,dp)))
+        ARIADNE_TEST_EQUALS(next5dcb.at(d),cast_positive(FloatType(0.25,dp)))
+     }
 
     void test_robot_state_history_basics() {
         Ariadne::StringVariable robot("robot");
