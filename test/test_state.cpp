@@ -61,6 +61,10 @@ public:
         ARIADNE_TEST_EQUALS(trace.at(2),first)
         ARIADNE_TEST_EQUALS(trace.at(3),second)
         ARIADNE_TEST_EQUALS(trace.probability(),pa_one)
+
+        RobotDiscreteTrace trace2;
+        trace2 = trace;
+        ARIADNE_TEST_EQUALS(trace2,trace)
     }
 
     void test_robot_discrete_state_trace_next_locations() {
