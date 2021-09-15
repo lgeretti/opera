@@ -73,30 +73,27 @@ std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
     return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
 }
 
-RobotDiscreteTraceBuilder& RobotDiscreteTraceBuilder::push_front(DiscreteLocation const& location) {
+RobotDiscreteTrace& RobotDiscreteTrace::push_front(DiscreteLocation const& location) {
     _locations.push_front(location);
     return *this;
 }
 
-RobotDiscreteTraceBuilder& RobotDiscreteTraceBuilder::push_back(DiscreteLocation const& location) {
+RobotDiscreteTrace& RobotDiscreteTrace::push_back(DiscreteLocation const& location, PositiveFloatType const& probability) {
     _locations.push_back(location);
+    _probability *= probability;
     return *this;
 }
 
-RobotDiscreteTrace RobotDiscreteTraceBuilder::build() const {
-    List<DiscreteLocation> result;
-    for (auto l : _locations) result.append(l);
-    return result;
-}
-
-SizeType RobotDiscreteTraceBuilder::size() const {
+SizeType RobotDiscreteTrace::size() const {
     return _locations.size();
 }
 
-RobotDiscreteTrace::RobotDiscreteTrace(List<DiscreteLocation> const& locations) : _locations(locations) { }
+RobotDiscreteTrace::RobotDiscreteTrace() : _probability(pa_one) { }
 
-List<DiscreteLocation> const& RobotDiscreteTrace::locations() const {
-    return _locations;
+List<DiscreteLocation> RobotDiscreteTrace::locations() const {
+    List<DiscreteLocation> result;
+    for (auto l : _locations) result.append(l);
+    return result;
 }
 
 bool RobotDiscreteTrace::operator==(RobotDiscreteTrace const& other) const {
@@ -108,35 +105,32 @@ std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t) {
 }
 
 struct RobotDiscreteTraceBacktracking {
-    RobotDiscreteTraceBacktracking(SizeType const& index_, RobotDiscreteTraceBuilder const& _trace_builder, DiscreteLocation const& _next_location, bool const& _is_valid)
-        : index(index_), trace_builder(_trace_builder), next_location(_next_location), is_valid(_is_valid) { }
+    RobotDiscreteTraceBacktracking(SizeType const& index_, RobotDiscreteTrace const& trace_, DiscreteLocation const& _next_location, bool const& _is_valid)
+        : index(index_), trace(trace_), next_location(_next_location), is_valid(_is_valid) { }
     SizeType index;
-    RobotDiscreteTraceBuilder trace_builder;
+    RobotDiscreteTrace trace;
     DiscreteLocation next_location;
     bool is_valid;
 };
 
 Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_locations() const {
     if (_next_locations.empty()) {
-        auto tail = RobotDiscreteTraceBuilder().push_back(_locations.back());
         List<RobotDiscreteTraceBacktracking> tracking;
         for (int i=0; i<_locations.size()-1; ++i)
             if (_locations.at(i) == _locations.back())
-                tracking.push_back(RobotDiscreteTraceBacktracking(i,RobotDiscreteTraceBuilder().push_back(_locations.at(i)),_locations.at(i+1),true));
+                tracking.push_back(RobotDiscreteTraceBacktracking(i,RobotDiscreteTrace().push_back(_locations.at(i)),_locations.at(i+1),true));
         SizeType maximum_trace_size = 0;
         SizeType num_having_maximum_trace_size = 0;
         SizeType num_valid = tracking.size();
         while (num_valid > 0) {
             maximum_trace_size++;
             num_having_maximum_trace_size = num_valid;
-            tail.push_front(_locations.at(_locations.size() - 1 - maximum_trace_size));
-            auto tail_trace = tail.build();
             for (auto& st : tracking) {
                 if (st.is_valid) {
                     if (st.index > 0) {
                         st.index--;
                         if (_locations.at(st.index) == _locations.at(_locations.size() - 1 - maximum_trace_size)) {
-                            st.trace_builder.push_front(_locations.at(st.index));
+                            st.trace.push_front(_locations.at(st.index));
                         } else {
                             num_valid--;
                             st.is_valid = false;
@@ -150,7 +144,7 @@ Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_location
         }
         const FloatType pf_one = cast_positive(FloatType(1.0,dp));
         for (auto t : tracking) {
-            if (t.trace_builder.size() == maximum_trace_size) {
+            if (t.trace.size() == maximum_trace_size) {
                 if (_next_locations.has_key(t.next_location))
                     _next_locations.at(t.next_location) += pf_one;
                 else
@@ -158,7 +152,7 @@ Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_location
             }
         }
         for (auto& l : _next_locations) {
-            l.second = cast_positive(FloatType(l.second.get_d()/num_having_maximum_trace_size,dp));
+            l.second = _probability*cast_positive(FloatType(l.second.get_d()/num_having_maximum_trace_size,dp));
         }
     }
     return _next_locations;
@@ -175,10 +169,10 @@ DiscreteLocation const& RobotStateHistory::current_location() const {
 }
 
 RobotDiscreteTrace RobotStateHistory::discrete_trace() const {
-    RobotDiscreteTraceBuilder builder;
+    RobotDiscreteTrace trace;
     for (auto p : _location_presences)
-        builder.push_back(p.exit_destination());
-    return builder.build();
+        trace.push_back(p.exit_destination());
+    return trace;
 }
 
 bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {

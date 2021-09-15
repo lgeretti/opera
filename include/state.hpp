@@ -79,35 +79,25 @@ class RobotLocationPresence {
     TimestampType const _to;
 };
 
-class RobotDiscreteTrace;
-
-//! \brief A build for a discrete states trace
-class RobotDiscreteTraceBuilder {
-  public:
-    RobotDiscreteTraceBuilder() = default;
-    //! \brief Add to the head of the trace
-    RobotDiscreteTraceBuilder& push_front(DiscreteLocation const& location);
-    //! \brief Add to the tail of the trace
-    RobotDiscreteTraceBuilder& push_back(DiscreteLocation const& location);
-    //! \brief Build the trace
-    RobotDiscreteTrace build() const;
-    //! \brief The number of locations currently inserted
-    SizeType size() const;
-  private:
-    std::deque<DiscreteLocation> _locations;
-};
-
-//! \brief A trace of discrete states
+//! \brief A trace of discrete states, enriched by the probability that this trace is followed
 class RobotDiscreteTrace {
-    friend class RobotDiscreteTraceBuilder;
-  protected:
-    RobotDiscreteTrace(List<DiscreteLocation> const& locations);
   public:
+    //! \brief Default constructor has empty trace with 1.0 probability
+    RobotDiscreteTrace();
+
     //! \brief The locations in the trace
-    List<DiscreteLocation> const& locations() const;
+    List<DiscreteLocation> locations() const;
     //! \brief The next locations with their probability
     //! \details Computed lazily
     Map<DiscreteLocation,PositiveFloatType> const& next_locations() const;
+
+    //! \brief Add to the head of the trace
+    RobotDiscreteTrace& push_front(DiscreteLocation const& location);
+    //! \brief Add to the tail of the trace
+    RobotDiscreteTrace& push_back(DiscreteLocation const& location, PositiveFloatType const& probability = pa_one);
+
+    //! \brief The number of locations
+    SizeType size() const;
 
     //! \brief Equality operator
     bool operator==(RobotDiscreteTrace const& other) const;
@@ -116,7 +106,8 @@ class RobotDiscreteTrace {
     friend std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t);
 
   private:
-    List<DiscreteLocation> const _locations;
+    std::deque<DiscreteLocation> _locations;
+    PositiveFloatType _probability;
     mutable Map<DiscreteLocation,PositiveFloatType> _next_locations;
 };
 
