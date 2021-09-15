@@ -75,8 +75,11 @@ class MinimumDistanceBarrierTrace {
     MinimumDistanceBarrier const& barrier(SizeType const& idx) const;
     //! \brief The number of barriers
     SizeType size() const;
-    //! \brief Add a barrier
+    //! \brief Add a barrier to the end of the trace
     void add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance);
+    //! \brief Remove the first barrier of the trace
+    //! \details Used when recognising that the barrier is outdated, i.e., before the current timestamp
+    void remove_barrier();
     //! \brief Check the spherical approximation with a robot \a sample in \a location, to update the last barrier or create a new one
     //! \returns True if something was updated or created, false otherwise
     bool try_update_with(DiscreteLocation const& location, BodySegmentSample const& robot_sample);

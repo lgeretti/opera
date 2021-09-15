@@ -33,7 +33,7 @@ class TestBarrier {
     void test() {
 
         ARIADNE_TEST_CALL(test_barrier_trace_create())
-        ARIADNE_TEST_CALL(test_barrier())
+        ARIADNE_TEST_CALL(test_barrier_trace_add_remove())
         ARIADNE_TEST_CALL(test_barrier_trace_populate())
         ARIADNE_TEST_CALL(test_barrier_trace_resume_element())
         ARIADNE_TEST_CALL(test_barrier_trace_reset())
@@ -53,7 +53,7 @@ class TestBarrier {
         ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
 
-    void test_barrier() {
+    void test_barrier_trace_add_remove() {
         Human h("r0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
@@ -66,6 +66,9 @@ class TestBarrier {
         ARIADNE_TEST_EQUALS(barrier.farthest_location(),loc)
         ARIADNE_TEST_EQUALS(barrier.maximum_index(),0)
         ARIADNE_TEST_PRINT(barrier)
+        trace.remove_barrier();
+        ARIADNE_TEST_ASSERT(trace.is_empty())
+        ARIADNE_TEST_FAIL(trace.remove_barrier())
     }
 
     void test_barrier_trace_populate() {

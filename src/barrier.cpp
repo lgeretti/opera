@@ -82,6 +82,11 @@ void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_l
     _barriers.push_back(MinimumDistanceBarrier(minimum_distance,farthest_location,_next_index));
 }
 
+void MinimumDistanceBarrierTrace::remove_barrier() {
+    ARIADNE_PRECONDITION(not is_empty())
+    _barriers.pop_front();
+}
+
 bool MinimumDistanceBarrierTrace::try_update_with(DiscreteLocation const& location, BodySegmentSample const& segment_sample) {
     auto current_distance = distance(_spherical_approximation,segment_sample);
     if (decide(current_distance != 0)) {
