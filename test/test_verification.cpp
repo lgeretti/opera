@@ -31,7 +31,14 @@ using namespace Opera;
 class TestVerification {
   public:
     void test() {
+        ARIADNE_TEST_CALL(test_verification_trace_creation())
+    }
 
+    void test_verification_trace_creation() {
+        TimestampType const initial_time = 349234;
+        StringVariable robot("robot");
+        DiscreteLocation const initial_location(robot|"first");
+        VerificationTrace trace = SimpleVerificationTrace("h0",2u,"r0",3u,initial_time,initial_location);
     }
 };
 
