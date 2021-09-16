@@ -37,6 +37,9 @@ public:
         ARIADNE_TEST_CALL(test_comunication_presentation())
         ARIADNE_TEST_CALL(test_comunication_state())
         ARIADNE_TEST_CALL(test_comunication_notification())
+        
+        std::cout<<"\n\nTEST TERMINATED\n\n";
+
     }
 
     void test_comunication_presentation(){
@@ -77,6 +80,11 @@ public:
         }
 
         cpt.join();
+
+
+        consumer_pres->~Consumer();
+        producer->~Producer();
+
     }
 
     void test_comunication_state(){
@@ -111,6 +119,8 @@ public:
         }
 
         cpt.join();
+        consumer_st->~Consumer();
+        producer->~Producer();
     }
 
     void test_comunication_notification(){
@@ -150,18 +160,24 @@ public:
 
 
         cpt.join();
+        consumer_ntf->~Consumer();
+        producer->~Producer();
     }
 
 };
 
 int main() {
-    //system("cd $(find ~ -path '*opera/resources/kafka'); zookeeper-server-start.sh zookeeper.properties");
-    //system("cd $(find ~ -path '*opera/resources/kafka'); kafka-server-start.sh server.properties");
-    //system("kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092");
+    //system("cd $(find ~ -path '*opera/resources/kafka'); gnome-terminal -e 'sh -c 'zookeeper-server-start.sh zookeeper.properties'' ");
+    //system("cd $(find ~ -path '*opera/resources/kafka'); gnome-terminal -e 'sh -c 'kafka-server-start.sh server.properties'' ");
+    //system("gnome-terminal -e 'kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092; kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092; kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092'");
     //system("kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092");
     //system("kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092");
+    
+    
     system("./../resources/kafka/kafka_launch.sh");
     TestKafka().test();
-    system("./../resources/kafka/delete_topics.sh");
+    usleep(3000000);
+    system("./../resources/kafka/kafka_close.sh");
+    usleep(3000000);
     return ARIADNE_TEST_FAILURES;
 }

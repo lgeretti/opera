@@ -15,5 +15,5 @@ gnome-terminal -e "kafka-topics.sh --create --topic opera-presentation --bootstr
 gnome-terminal -e "kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092"
 gnome-terminal -e "kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092"
 sleep 0.5
-echo Topic created:
-bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+#echo Topic created:
+#bin/kafka-topics.sh --list --bootstrap-server localhost:9092

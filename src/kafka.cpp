@@ -86,6 +86,12 @@ ConsumerPresentation::ConsumerPresentation(
     }
 
   }
+
+  ConsumerPresentation::~ConsumerPresentation(){
+    consumer->stop(topic,0);
+    consumer->~Consumer();
+    topic->~Topic();
+  }
   
   void ConsumerPresentation::check_new_message(){
     while (run) {          
@@ -163,6 +169,12 @@ ConsumerState::ConsumerState(
     }
 
   }
+
+  ConsumerState::~ConsumerState(){
+    consumer->stop(topic,0);
+    consumer->~Consumer();
+    topic->~Topic();
+  }
   
   void ConsumerState::check_new_message(){
 
@@ -238,6 +250,12 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
 	RdKafka::err2str(resp) << std::endl;
       exit(1);
     }
+  }
+
+  ConsumerCollisionNotification::~ConsumerCollisionNotification(){
+    consumer->stop(topic,0);
+    consumer->~Consumer();
+    topic->~Topic();
   }
   
   void ConsumerCollisionNotification::check_new_message(){

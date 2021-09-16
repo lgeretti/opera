@@ -85,7 +85,7 @@ class ConsumerPresentation : public Consumer{
 
         BodyPresentationPacket get_pkg();
 
-        ~ConsumerPresentation(){};
+        ~ConsumerPresentation();
         
     private:
         std::string _prs_str;
@@ -110,7 +110,7 @@ class ConsumerState : public Consumer{
 
         BodyStatePacket get_pkg();
 
-        ~ConsumerState(){};
+        ~ConsumerState();
         
     private:
         std::string _st_str;
@@ -132,7 +132,7 @@ class ConsumerCollisionNotification : public Consumer{
 
         CollisionNotificationPacket get_pkg();
 
-        ~ConsumerCollisionNotification(){};
+        ~ConsumerCollisionNotification();
         
     private:
         std::string _ntf_str;       
