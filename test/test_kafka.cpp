@@ -212,7 +212,7 @@ public:
 };
 
 int main() {
-
+    
     int id = fork();
     std::string command;
 
@@ -225,7 +225,7 @@ int main() {
 
             std::cout<<"\nZookeper started\n";
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
-            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start.sh zookeeper.properties>>/dev/null 2>>/dev/null");
+            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
             wait(NULL);
             exit(0);
@@ -240,7 +240,7 @@ int main() {
 
             std::cout<<"\nKafka server started\n";
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
-            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start.sh server.properties>>/dev/null 2>>/dev/null");
+            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
             exit(0);
         }
@@ -250,19 +250,15 @@ int main() {
     if(id>0){
         //parent
         usleep(21000000);
-        system("kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092");
-        system("kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092");
-        system("kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092");
+        system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
+        system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
+        system("kafka-topics --create --topic opera-collision-notification --bootstrap-server localhost:9092");
         TestKafka().test();
-
-        std::cout<<"Deleting topics\n";
-        system("kafka-topics.sh --delete --topic opera-presentation --bootstrap-server localhost:9092");
-        system("kafka-topics.sh --delete --topic opera-state --bootstrap-server localhost:9092");
-        system("kafka-topics.sh --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
-        std::cout<<"Closing kafka-server\n";
-        system("kafka-server-stop.sh");
-        std::cout<<"Closing zookeper-server\n";
-        system("zookeeper-server-stop.sh");
+        system("kafka-topics --delete --topic opera-presentation --bootstrap-server localhost:9092");
+        system("kafka-topics --delete --topic opera-state --bootstrap-server localhost:9092");
+        system("kafka-topics --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
+        system("kafka-server-stop");
+        system("zookeeper-server-stop");
         wait(NULL);
         return ARIADNE_TEST_FAILURES;
     }
