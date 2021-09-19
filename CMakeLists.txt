@@ -21,6 +21,7 @@ include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS}
 
 add_subdirectory(src)
 add_subdirectory(profile)
+add_subdirectory(scenarios)
 
 add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
 target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

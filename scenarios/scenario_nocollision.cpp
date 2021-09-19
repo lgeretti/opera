@@ -1,5 +1,5 @@
 /***************************************************************************
- *            test_scenarios.cpp
+ *            scenario_nocollision.cpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,8 +22,6 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
-
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -35,18 +33,18 @@
 
 using namespace Opera;
 
-class TestScenarios {
+class NoCollisionScenario {
   public:
-    void test() {
-        //ARIADNE_TEST_CALL(test_acquire_human_nocollision_samples())
-        //ARIADNE_TEST_CALL(test_check_robot_traces())
-        ARIADNE_TEST_CALL(test_acquire_robot_10Hz_samples())
+    void run() {
+        //acquire_human_nocollision_samples();
+        //check_robot_traces();
+        acquire_robot_10Hz_samples();
     }
 
-    void test_acquire_human_nocollision_samples() {
+    void acquire_human_nocollision_samples() {
         BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/human/presentation.json")).make();
         Human human(p0.id(),p0.point_ids(),p0.thicknesses());
-        ARIADNE_TEST_EQUALS(human.num_points(),18)
+        ARIADNE_ASSERT_EQUAL(human.num_points(),18)
 
         List<BodyStatePacket> human_packets;
         SizeType idx = 1;
@@ -63,10 +61,10 @@ class TestScenarios {
         }
     }
 
-    void test_check_robot_traces() {
+    void check_robot_traces() {
         BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
-        ARIADNE_TEST_EQUALS(robot.num_points(),9)
+        ARIADNE_ASSERT_EQUAL(robot.num_points(),9)
 
         List<RobotDiscreteTrace> traces;
         TimestampType current_timestamp = 0;
@@ -96,7 +94,7 @@ class TestScenarios {
         }
     }
 
-    void test_acquire_robot_10Hz_samples() {
+    void acquire_robot_10Hz_samples() {
 
         int speedup = 100;
 
@@ -154,6 +152,5 @@ class TestScenarios {
 };
 
 int main() {
-    TestScenarios().test();
-    return ARIADNE_TEST_FAILURES;
+    NoCollisionScenario().run();
 }
