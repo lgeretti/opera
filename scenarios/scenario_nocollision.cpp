@@ -33,6 +33,8 @@
 
 using namespace Opera;
 
+using Ariadne::Logger;
+
 class NoCollisionScenario {
   public:
     void run() {
@@ -127,30 +129,30 @@ class NoCollisionScenario {
             robot_packets.append(BodyStatePacketDeserialiser(filepath).make());
         }
 
-        std::thread human_consumption([&]{
+        Ariadne::Thread human_consumption([&]{
             std::this_thread::sleep_for(std::chrono::seconds(1));
             for (auto p : human_packets) {
-                std::cout << "Human packet received at " << p.timestamp() << std::endl;
+                ARIADNE_LOG_PRINTLN("Human packet received at " << p.timestamp());
 
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
-        });
+        },"hc");
 
-        std::thread robot_consumption([&]{
+        Ariadne::Thread robot_consumption([&]{
             std::this_thread::sleep_for(std::chrono::seconds(1));
             for (auto p : robot_packets) {
-                std::cout << "Robot packet received at " << p.timestamp() << std::endl;
+                ARIADNE_LOG_PRINTLN("Robot packet received at " << p.timestamp());
                 history.acquire(p.location(),p.points(),p.timestamp());
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
-        });
-
-        human_consumption.join();
-        robot_consumption.join();
+        },"rc");
     }
 
 };
 
-int main() {
+int main(int argc, const char* argv[])
+{
+    if (not Ariadne::CommandLineInterface::instance().acquire(argc,argv)) return -1;
+
     NoCollisionScenario().run();
 }
