@@ -13,21 +13,30 @@ find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(LibRDKafka REQUIRED)
 find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 set(RESOURCES_PATH ${PROJECT_SOURCE_DIR}/resources/)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/include/config.hpp)
 
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/websocket ${ARIADNE_INCLUDE_DIRS} ${LibRDKafka_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
 
 add_subdirectory(src)
 add_subdirectory(profile)
 add_subdirectory(scenarios)
 
 add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
-target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(opera ${ARIADNE_LIBRARIES} ${LibRDKafka_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES})
 
 add_executable(operad src/operad.cpp)
 target_link_libraries(operad opera)
+target_include_directories(opera INTERFACE ${OPENSSL_INCLUDE_DIR})
+
+find_path(ASIO_PATH asio.hpp)
+if(NOT ASIO_PATH)
+    message(FATAL_ERROR "Standalone Asio not found")
+else()
+    target_include_directories(opera INTERFACE ${ASIO_PATH})
+endif()
 
 option(COVERAGE "Enable coverage reporting" OFF)
 add_library(coverage_config INTERFACE)
