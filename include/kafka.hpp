@@ -85,11 +85,14 @@ class ConsumerPresentation : public Consumer{
 
         BodyPresentationPacket get_pkg();
 
+        int number_new_msgs();
+
+
         ~ConsumerPresentation();
         
     private:
-        std::string _prs_str;
-        
+        // std::string _prs_str;
+        std::list <std::string> _prs_str_list;        
         
 };
 
@@ -110,10 +113,13 @@ class ConsumerState : public Consumer{
 
         BodyStatePacket get_pkg();
 
+        int number_new_msgs();
+
         ~ConsumerState();
         
     private:
-        std::string _st_str;
+        //std::string _st_str;
+        std::list <std::string> _st_str_list;
         
 };
 
@@ -132,10 +138,13 @@ class ConsumerCollisionNotification : public Consumer{
 
         CollisionNotificationPacket get_pkg();
 
+        int number_new_msgs();
+
         ~ConsumerCollisionNotification();
         
     private:
-        std::string _ntf_str;       
+        //std::string _ntf_str;
+        std::list <std::string> _ntf_str_list;       
 };
 
 //functions

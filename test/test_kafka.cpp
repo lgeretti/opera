@@ -52,6 +52,8 @@ public:
         
         BodyPresentationPacket p("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
         
+        BodyPresentationPacket p2("human2", {{10, 11},{13, 12}}, {FloatType(11.0, Ariadne::dp),FloatType(10.5, Ariadne::dp)});
+
         // possible problem with following packet related to json decoding.... 
         //BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
 
@@ -59,32 +61,67 @@ public:
 
         ARIADNE_TEST_CALL(send_presentation(p, producer));
 
+        ARIADNE_TEST_CALL(send_presentation(p2, producer));
+
+
         usleep(3000000);   //needed to let kafka handle msgs
 
-        BodyPresentationPacket p_recived = consumer_pres->get_pkg();
         
-        consumer_pres->set_run(false);
-        
-        ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
-
-        ARIADNE_TEST_EQUAL(p_recived.is_human(), p.is_human());
-
-        ARIADNE_TEST_EQUAL(p_recived.packet_frequency(), p.packet_frequency());
-
-        for(int i = 0; i<p.point_ids().size(); i++){
-            ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].first, p.point_ids()[i].first);
-            ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].second, p.point_ids()[i].second);
-        }
-                 
-        for(int i = 0; i<p.thicknesses().size(); i++){
-            ARIADNE_TEST_EQUAL(p_recived.thicknesses()[i], p.thicknesses()[i]);
+        if(consumer_pres->number_new_msgs() == 0){
+            std::cout<<"\nNo messages in the queue to read\n";
         }
 
+        else{
+            BodyPresentationPacket p_recived = consumer_pres->get_pkg();
+            
+            consumer_pres->set_run(false);
+            
+            ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
+
+            ARIADNE_TEST_EQUAL(p_recived.is_human(), p.is_human());
+
+            ARIADNE_TEST_EQUAL(p_recived.packet_frequency(), p.packet_frequency());
+
+            for(int i = 0; i<p.point_ids().size(); i++){
+                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].first, p.point_ids()[i].first);
+                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].second, p.point_ids()[i].second);
+            }
+                    
+            for(int i = 0; i<p.thicknesses().size(); i++){
+                ARIADNE_TEST_EQUAL(p_recived.thicknesses()[i], p.thicknesses()[i]);
+            }
+
+        }
+
+        if(consumer_pres->number_new_msgs() == 0){
+            std::cout<<"\nNo messages in the queue to read\n";
+        }
+
+        else{
+            BodyPresentationPacket p_recived = consumer_pres->get_pkg();
+            
+            consumer_pres->set_run(false);
+            
+            ARIADNE_TEST_EQUAL(p_recived.id(), p2.id());
+
+            ARIADNE_TEST_EQUAL(p_recived.is_human(), p2.is_human());
+
+            ARIADNE_TEST_EQUAL(p_recived.packet_frequency(), p2.packet_frequency());
+
+            for(int i = 0; i<p2.point_ids().size(); i++){
+                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].first, p2.point_ids()[i].first);
+                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].second, p2.point_ids()[i].second);
+            }
+                    
+            for(int i = 0; i<p2.thicknesses().size(); i++){
+                ARIADNE_TEST_EQUAL(p_recived.thicknesses()[i], p2.thicknesses()[i]);
+            }
+
+        }
         cpt.join();
+        delete consumer_pres;
+        delete producer;
 
-
-        consumer_pres->~Consumer();
-        producer->~Producer();
 
     }
 
@@ -105,23 +142,30 @@ public:
 
         usleep(300000); //needed to let kafka handle msgs
 
-        BodyStatePacket p_recived = consumer_st->get_pkg();
-        
-        consumer_st->set_run(false);
-        
-        ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
-
-        ARIADNE_TEST_EQUAL(p_recived.location(), p.location());
-
-        ARIADNE_TEST_EQUAL(p_recived.timestamp(), p.timestamp());
-                 
-        for(int i = 0; i<p.points().size(); i++){
-            ARIADNE_TEST_EQUAL(p_recived.points().at(i), p.points().at(i));
+        if(consumer_st->number_new_msgs() == 0){
+            std::cout<<"\nNo messages in the queue to read\n";
         }
 
+        else{
+            BodyStatePacket p_recived = consumer_st->get_pkg();
+            
+            consumer_st->set_run(false);
+            
+            ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
+
+            ARIADNE_TEST_EQUAL(p_recived.location(), p.location());
+
+            ARIADNE_TEST_EQUAL(p_recived.timestamp(), p.timestamp());
+                    
+            for(int i = 0; i<p.points().size(); i++){
+                ARIADNE_TEST_EQUAL(p_recived.points().at(i), p.points().at(i));
+            }
+        }
+
+        
         cpt.join();
-        consumer_st->~Consumer();
-        producer->~Producer();
+        delete consumer_st;
+        delete producer;
     }
 
     void test_comunication_notification(){
@@ -161,20 +205,13 @@ public:
 
 
         cpt.join();
-        consumer_ntf->~Consumer();
-        producer->~Producer();
+        delete consumer_ntf;
+        delete producer;
     }
 
 };
 
 int main() {
-    // system("cd $(find ~ -path '*opera/resources/kafka'); gnome-terminal -e 'sh -c 'zookeeper-server-start.sh zookeeper.properties'' ");
-    // system("cd $(find ~ -path '*opera/resources/kafka'); gnome-terminal -e 'sh -c 'kafka-server-start.sh server.properties'' ");
-    // system("gnome-terminal -e 'kafka-topics.sh --create --topic opera-presentation --bootstrap-server localhost:9092; kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092; kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092'");
-    // system("kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092");
-    // system("kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092");
-    
-    //provare ad usare il fork
 
     int id = fork();
     std::string command;
@@ -217,10 +254,14 @@ int main() {
         system("kafka-topics.sh --create --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics.sh --create --topic opera-collision-notification --bootstrap-server localhost:9092");
         TestKafka().test();
+
+        std::cout<<"Deleting topics\n";
         system("kafka-topics.sh --delete --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics.sh --delete --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics.sh --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
+        std::cout<<"Closing kafka-server\n";
         system("kafka-server-stop.sh");
+        std::cout<<"Closing zookeper-server\n";
         system("zookeeper-server-stop.sh");
         wait(NULL);
         return ARIADNE_TEST_FAILURES;

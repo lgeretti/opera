@@ -97,8 +97,8 @@ ConsumerPresentation::ConsumerPresentation(
     while (run) {          
       RdKafka::Message *msg = consumer->consume(topic, partition, 1000);   
       if(msg->err() == RdKafka::ERR_NO_ERROR){
-          _prs_str = static_cast<const char *> (msg->payload());
-          std::cout<<"\n\n"<<_prs_str<<"\n\n";
+          std::string prs_str = static_cast<const char *> (msg->payload());
+          _prs_str_list.push_back(prs_str);
       }
       else if(msg->err() == RdKafka::ERR__TIMED_OUT){} 
       else{
@@ -116,9 +116,16 @@ ConsumerPresentation::ConsumerPresentation(
   }
 
   BodyPresentationPacket ConsumerPresentation::get_pkg(){
-    BodyPresentationPacketDeserialiser d(_prs_str.c_str());
+    std::string prs_str = _prs_str_list.front();
+    _prs_str_list.pop_front();
+    BodyPresentationPacketDeserialiser d(prs_str.c_str());
     return d.make();    
   }
+
+  int ConsumerPresentation::number_new_msgs(){
+    return _prs_str_list.size();
+  }
+
 ;
 
 // CONSUMER STATE--------------------------------------------------------------------
@@ -167,7 +174,6 @@ ConsumerState::ConsumerState(
 	RdKafka::err2str(resp) << std::endl;
       exit(1);
     }
-
   }
 
   ConsumerState::~ConsumerState(){
@@ -181,7 +187,8 @@ ConsumerState::ConsumerState(
     while (run) {          
       RdKafka::Message *msg = consumer->consume(topic, partition, 1000);   
       if(msg->err() == RdKafka::ERR_NO_ERROR){
-          _st_str = static_cast<const char *> (msg->payload());
+          std::string st_str = static_cast<const char *> (msg->payload());
+          _st_str_list.push_back(st_str);
       }
       else if(msg->err() == RdKafka::ERR__TIMED_OUT){} 
       else{
@@ -199,8 +206,14 @@ ConsumerState::ConsumerState(
   }
 
   BodyStatePacket ConsumerState::get_pkg(){
-    BodyStatePacketDeserialiser d(_st_str.c_str());
+    std::string st_str = _st_str_list.front();
+    _st_str_list.pop_front();
+    BodyStatePacketDeserialiser d(st_str.c_str());
     return d.make();
+  }
+
+  int ConsumerState::number_new_msgs(){
+    return _st_str_list.size();
   }
 ;
 
@@ -263,7 +276,8 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
       RdKafka::Message *msg = consumer->consume(topic, partition, 1000);
       if(msg->err() == RdKafka::ERR_NO_ERROR){
           //decoder(static_cast<const char *> (msg->payload())); // asign to prs the relative data from the msg
-          _ntf_str = static_cast<const char *> (msg->payload());        
+          std:: string ntf_str = static_cast<const char *> (msg->payload());
+          _ntf_str_list.push_back(ntf_str);        
       }
       else if(msg->err() == RdKafka::ERR__TIMED_OUT){}  //do notthing
       else{
@@ -281,8 +295,14 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
   }
 
   CollisionNotificationPacket ConsumerCollisionNotification::get_pkg(){
-    CollisionNotificationPacketDeserialiser d(_ntf_str.c_str());
+    std::string ntf_str = _ntf_str_list.front();
+    _ntf_str_list.pop_front();
+    CollisionNotificationPacketDeserialiser d(ntf_str.c_str());
     return d.make();
+  }
+
+  int ConsumerCollisionNotification::number_new_msgs(){
+    return _ntf_str_list.size();
   }
 ;
 
