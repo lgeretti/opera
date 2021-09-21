@@ -223,7 +223,7 @@ int main() {
         }
         else if(idchild ==0){
 
-            usleep(20000000);   
+            usleep(20000000);
 
             std::cout<<"Kafka server started" << std::endl;
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
