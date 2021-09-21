@@ -35,16 +35,12 @@ using namespace Opera;
 class TestKafka{
 public: 
     void test(){
-        ARIADNE_TEST_CALL(test_comunication_presentation())
-        ARIADNE_TEST_CALL(test_comunication_state())
-        ARIADNE_TEST_CALL(test_comunication_notification())
-        
-        std::cout<<"\n\nTEST TERMINATED\n\n";
-
+        ARIADNE_TEST_CALL(test_presentation())
+        ARIADNE_TEST_CALL(test_state())
+        ARIADNE_TEST_CALL(test_notification())
     }
 
-    void test_comunication_presentation(){
-
+    void test_presentation(){
         ConsumerPresentation * consumer_pres;
         consumer_pres = new ConsumerPresentation(0,"localhost:9092", "", 0);
 
@@ -63,7 +59,6 @@ public:
 
         ARIADNE_TEST_CALL(send_presentation(p2, producer));
 
-
         usleep(3000000);   //needed to let kafka handle msgs
 
         
@@ -72,23 +67,23 @@ public:
         }
 
         else{
-            BodyPresentationPacket p_recived = consumer_pres->get_pkg();
+            BodyPresentationPacket p_received = consumer_pres->get_pkg();
             
             consumer_pres->set_run(false);
             
-            ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
+            ARIADNE_TEST_EQUAL(p_received.id(), p.id());
 
-            ARIADNE_TEST_EQUAL(p_recived.is_human(), p.is_human());
+            ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human());
 
-            ARIADNE_TEST_EQUAL(p_recived.packet_frequency(), p.packet_frequency());
+            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency());
 
             for(int i = 0; i<p.point_ids().size(); i++){
-                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].first, p.point_ids()[i].first);
-                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].second, p.point_ids()[i].second);
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p.point_ids()[i].first);
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p.point_ids()[i].second);
             }
                     
             for(int i = 0; i<p.thicknesses().size(); i++){
-                ARIADNE_TEST_EQUAL(p_recived.thicknesses()[i], p.thicknesses()[i]);
+                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p.thicknesses()[i]);
             }
 
         }
@@ -98,34 +93,34 @@ public:
         }
 
         else{
-            BodyPresentationPacket p_recived = consumer_pres->get_pkg();
+            BodyPresentationPacket p_received = consumer_pres->get_pkg();
             
             consumer_pres->set_run(false);
             
-            ARIADNE_TEST_EQUAL(p_recived.id(), p2.id());
+            ARIADNE_TEST_EQUAL(p_received.id(), p2.id());
 
-            ARIADNE_TEST_EQUAL(p_recived.is_human(), p2.is_human());
+            ARIADNE_TEST_EQUAL(p_received.is_human(), p2.is_human());
 
-            ARIADNE_TEST_EQUAL(p_recived.packet_frequency(), p2.packet_frequency());
+            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p2.packet_frequency());
 
             for(int i = 0; i<p2.point_ids().size(); i++){
-                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].first, p2.point_ids()[i].first);
-                ARIADNE_TEST_EQUAL(p_recived.point_ids()[i].second, p2.point_ids()[i].second);
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p2.point_ids()[i].first);
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p2.point_ids()[i].second);
             }
                     
             for(int i = 0; i<p2.thicknesses().size(); i++){
-                ARIADNE_TEST_EQUAL(p_recived.thicknesses()[i], p2.thicknesses()[i]);
+                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p2.thicknesses()[i]);
             }
 
         }
         cpt.join();
-        delete consumer_pres;
+        //delete consumer_pres;
         delete producer;
 
 
     }
 
-    void test_comunication_state(){
+    void test_state(){
 
         ConsumerState * consumer_st;
         consumer_st = new ConsumerState(0,"localhost:9092", "", 0);
@@ -147,28 +142,25 @@ public:
         }
 
         else{
-            BodyStatePacket p_recived = consumer_st->get_pkg();
-            
+            BodyStatePacket p_received = consumer_st->get_pkg();
             consumer_st->set_run(false);
-            
-            ARIADNE_TEST_EQUAL(p_recived.id(), p.id());
+            ARIADNE_TEST_EQUAL(p_received.id(), p.id());
 
-            ARIADNE_TEST_EQUAL(p_recived.location(), p.location());
+            ARIADNE_TEST_EQUAL(p_received.location(), p.location());
 
-            ARIADNE_TEST_EQUAL(p_recived.timestamp(), p.timestamp());
+            ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp());
                     
             for(int i = 0; i<p.points().size(); i++){
-                ARIADNE_TEST_EQUAL(p_recived.points().at(i), p.points().at(i));
+                ARIADNE_TEST_EQUAL(p_received.points().at(i), p.points().at(i));
             }
         }
-
         
         cpt.join();
-        delete consumer_st;
+        //delete consumer_st;
         delete producer;
     }
 
-    void test_comunication_notification(){
+    void test_notification(){
 
         ConsumerCollisionNotification * consumer_ntf;
         consumer_ntf = new ConsumerCollisionNotification(0,"localhost:9092", "", 0);
@@ -183,36 +175,35 @@ public:
 
         usleep(300000); //needed to let kafka handle msgs
         
-        CollisionNotificationPacket p_recived = consumer_ntf->get_pkg();
+        CollisionNotificationPacket p_received = consumer_ntf->get_pkg();
         
         consumer_ntf->set_run(false);
 
         
         
-        ARIADNE_TEST_EQUAL(p_recived.human_id(), p.human_id());
+        ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id());
 
-        ARIADNE_TEST_EQUAL(p_recived.robot_id(), p.robot_id());
+        ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id());
 
-        ARIADNE_TEST_EQUAL(p_recived.human_segment_id(), p.human_segment_id());
+        ARIADNE_TEST_EQUAL(p_received.human_segment_id(), p.human_segment_id());
 
-        ARIADNE_TEST_EQUAL(p_recived.robot_segment_id(), p.robot_segment_id());
+        ARIADNE_TEST_EQUAL(p_received.robot_segment_id(), p.robot_segment_id());
 
-        ARIADNE_TEST_EQUAL(p_recived.upper_collision_time(), p.upper_collision_time());
+        ARIADNE_TEST_EQUAL(p_received.upper_collision_time(), p.upper_collision_time());
 
-        ARIADNE_TEST_EQUAL(p_recived.lower_collision_time(), p.lower_collision_time());
+        ARIADNE_TEST_EQUAL(p_received.lower_collision_time(), p.lower_collision_time());
 
-        ARIADNE_TEST_EQUAL(p_recived.likelihood().get_d(), p.likelihood().get_d());
+        ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d());
 
 
         cpt.join();
-        delete consumer_ntf;
+        //delete consumer_ntf;
         delete producer;
     }
 
 };
 
 int main() {
-    
     int id = fork();
     std::string command;
 
@@ -231,11 +222,7 @@ int main() {
             exit(0);
         }
         else if(idchild ==0){
-            /*
-                20 seconds are needed for the zookeeper to resolve/clean old session if the 
-                previous session had problems. 
-                https://github.com/wurstmeister/kafka-docker/issues/389#issuecomment-800814529
-            */
+
             usleep(20000000);   
 
             std::cout<<"Kafka server started" << std::endl;
@@ -247,7 +234,7 @@ int main() {
 
     }
 
-    if(id>0){
+    if(id>0) {
         //parent
         usleep(21000000);
         system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
@@ -262,6 +249,6 @@ int main() {
         wait(NULL);
         return ARIADNE_TEST_FAILURES;
     }
-    
-    
+
+    TestKafka().test();
 }
