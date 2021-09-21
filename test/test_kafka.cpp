@@ -55,9 +55,9 @@ public:
 
         std::thread cpt(consumer_prs_thread, consumer_pres);
 
-        ARIADNE_TEST_CALL(send_presentation(p, producer));
+        send_presentation(p, producer);
 
-        ARIADNE_TEST_CALL(send_presentation(p2, producer));
+        send_presentation(p2, producer);
 
         usleep(3000000);   //needed to let kafka handle msgs
 
@@ -133,7 +133,7 @@ public:
 
         std::thread cpt(consumer_st_thread, consumer_st);              
 
-        ARIADNE_TEST_CALL(send_state(p, producer));
+        send_state(p, producer);
 
         usleep(300000); //needed to let kafka handle msgs
 
@@ -171,15 +171,13 @@ public:
 
         std::thread cpt(consumer_ntf_thread, consumer_ntf);
                 
-        ARIADNE_TEST_CALL(send_collision_notification(p, producer));
+        send_collision_notification(p, producer);
 
         usleep(300000); //needed to let kafka handle msgs
         
         CollisionNotificationPacket p_received = consumer_ntf->get_pkg();
         
         consumer_ntf->set_run(false);
-
-        
         
         ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id());
 
