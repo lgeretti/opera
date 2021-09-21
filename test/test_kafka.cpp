@@ -223,7 +223,7 @@ int main() {
         if(idchild>0){
             //launching zookeeper
 
-            std::cout<<"\nZookeper started\n";
+            std::cout<<"Zookeeper started" << std::endl;
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
             command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
@@ -238,7 +238,7 @@ int main() {
             */
             usleep(20000000);   
 
-            std::cout<<"\nKafka server started\n";
+            std::cout<<"Kafka server started" << std::endl;
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
             command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
