@@ -40,10 +40,10 @@ Consumer::Consumer( int partition,
 {};
 
 ConsumerPresentation::ConsumerPresentation(
-                int partition = 0,
-                std::string brokers = "localhost:9092",
-                std::string errstr = "",
-                int start_offset = 0):
+                int partition,
+                std::string brokers,
+                std::string errstr,
+                int start_offset):
   Consumer(partition, brokers, errstr, start_offset)
   {
 
@@ -131,10 +131,10 @@ ConsumerPresentation::ConsumerPresentation(
 // CONSUMER STATE--------------------------------------------------------------------
 
 ConsumerState::ConsumerState(
-                int partition = 0,
-                std::string brokers = "localhost:9092",
-                std::string errstr = "",
-                int start_offset = 0):
+                int partition,
+                std::string brokers,
+                std::string errstr,
+                int start_offset):
   Consumer(partition, brokers, errstr, start_offset)
   {
     topic_string = "opera-state";
@@ -220,10 +220,10 @@ ConsumerState::ConsumerState(
 //CONSUMER NOTIFICA ----------------
 
 ConsumerCollisionNotification::ConsumerCollisionNotification(
-                int partition = 0,
-                std::string brokers = "localhost:9092",
-                std::string errstr = "",
-                int start_offset = 0):
+                int partition,
+                std::string brokers,
+                std::string errstr,
+                int start_offset):
   Consumer(partition, brokers, errstr, start_offset)
   {
     topic_string = "opera-collision-notification";
