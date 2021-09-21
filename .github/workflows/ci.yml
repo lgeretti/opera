@@ -76,12 +76,10 @@ jobs:
         ln -s kafka-server-stop.sh kafka-server-stop
         ln -s kafka-topics.sh kafka-topics
         ls
-        echo "export PATH=\"\$PATH:$KAFKA_PARENT_DIR/kafka-2.8.0-src/bin\"" >> ~/.bashrc
-        source ~/.bashrc
+        echo "~/kafka-2.8.0-src/bin" >> $GITHUB_PATH
 
     - name: Check Kafka Installation
-      run: |
-        PATH="$PATH:~/kafka-2.8.0-src/bin" kafka-topics --list --bootstrap-server localhost:9092
+      run: kafka-topics --list --bootstrap-server localhost:9092
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
