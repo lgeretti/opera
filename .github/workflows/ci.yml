@@ -64,7 +64,7 @@ jobs:
         sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne
         export KAFKA_PARENT_DIR=~
         cd $KAFKA_PARENT_DIR
-        wget https://dlcdn.apache.org/kafka/2.8.0/kafka-2.8.0-src.tgz
+        wget https://archive.apache.org/dist/kafka/2.8.0/kafka-2.8.0-src.tgz
         tar -xvf kafka-2.8.0-src.tgz
         cd kafka-2.8.0-src
         ./gradlew jar -PscalaVersion=2.13.5
