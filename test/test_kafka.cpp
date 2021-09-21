@@ -35,9 +35,9 @@ using namespace Opera;
 class TestKafka{
 public: 
     void test(){
-        ARIADNE_TEST_CALL(test_presentation())
+        //ARIADNE_TEST_CALL(test_presentation())
         ARIADNE_TEST_CALL(test_state())
-        ARIADNE_TEST_CALL(test_notification())
+        //ARIADNE_TEST_CALL(test_notification())
     }
 
     void test_presentation(){
