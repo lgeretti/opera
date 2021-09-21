@@ -78,6 +78,11 @@ jobs:
         echo "export PATH=\"\$PATH:$KAFKA_PARENT_DIR/kafka-2.8.0-src/bin\"" >> ~/.bashrc
         source ~/.bashrc
 
+    - name: Check Kafka Installation
+      run: |
+        echo $PATH
+        kafka-topics --list --bootstrap-server localhost:9092
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
