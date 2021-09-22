@@ -21,6 +21,7 @@
 int main() {
     
     websocket webSocket;
+    webSocket.start_websocket(8080);
 
     return 0;
 }

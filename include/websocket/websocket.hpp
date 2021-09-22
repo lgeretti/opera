@@ -12,16 +12,17 @@ using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
 shared_ptr<WsServer::Connection> connections;
 std::vector<String> presentations;
-std::vector<String> states;
+std::vector<BodyStatePacket> states;
 
 class websocket {
 
   public:
-    websocket()
+    websocket() {}
+    start_websocket(int port)
     {
       // WebSocket (WS)-server at port 8080 using 1 thread
       WsServer server;
-      server.config.port = 8080;
+      server.config.port = port;
 
       cout<<"Open connection"<<endl;
 
@@ -36,11 +37,11 @@ class websocket {
 
       echo_presentation.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 
-        cout << "Server: Presentation received: \"" << in_message->string() << "\" from " << connection.get() << endl;
+        //cout << "Server: Presentation received: \"" << in_message->string() << "\" from " << connection.get() << endl;
 
         presentations.push_back(in_message->string());
 
-        cout << "Server: Sending message \"" << "presentation received" << "\" to " << connection.get() << endl;
+        //cout << "Server: Sending message \"" << "presentation received" << "\" to " << connection.get() << endl;
 
         // connection->send is an asynchronous function
         connection->send("presentation received", [](const SimpleWeb::error_code &ec) {
@@ -54,14 +55,15 @@ class websocket {
 
       echo_state.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 
-        cout << "Server: State received: \"" << in_message->string() << "\" from " << connection.get() << endl;
+        //cout << "Server: State received: \"" << in_message->string() << "\" from " << connection.get() << endl;
+        
+        /*.c_str() put some dirty char at the end of the converted string, &* somehow doesn't have the same problem*/
+        states.push_back(BodyStatePacketDeserialiser(&*in_message->string().begin()).make());
 
-        states.push_back(in_message->string());
-
-        cout << "Server: Sending message \"" << in_message->string() << "\" to " << connection.get() << endl;
+        //cout << "Server: Sending message \"" << in_message->string() << "\" to " << connection.get() << endl;
 
         // connection->send is an asynchronous function
-        connection->send(in_message->string(), [](const SimpleWeb::error_code &ec) {
+        connection->send(std::to_string(states.size()), [](const SimpleWeb::error_code &ec) {
           if(ec) {
             cout << "Server: Error sending message. " <<
                 // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
@@ -137,6 +139,10 @@ class websocket {
                 "Error: " << ec << ", error message: " << ec.message() << endl;
           }
         });
+    }
+
+    std::vector<BodyStatePacket> get_human_states() {
+      return states;
     }
 
 };
