@@ -221,7 +221,7 @@ int main() {
         }
         else if(idchild ==0){
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(25000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20000));
 
             std::cout<<"Kafka server started" << std::endl;
             //to get the output remove the last part: >>/dev/null 2>>/dev/null
@@ -234,7 +234,7 @@ int main() {
 
     if(id>0) {
         //parent
-        std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(21000));
         system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-collision-notification --bootstrap-server localhost:9092");
