@@ -239,12 +239,15 @@ int main() {
         system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-collision-notification --bootstrap-server localhost:9092");
         TestKafka().test();
+        //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         system("kafka-topics --delete --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
+        //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         system("kafka-server-stop");
+        //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         system("zookeeper-server-stop");
-        wait(NULL);
+        //wait(NULL);
         return ARIADNE_TEST_FAILURES;
     }
 
