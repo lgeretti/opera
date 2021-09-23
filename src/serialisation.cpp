@@ -38,6 +38,7 @@ Document BodyPresentationPacketSerialiser::to_document() const {
     id.SetString(obj.id().c_str(),obj.id().length());
     document.AddMember("id",id,allocator);
     document.AddMember("isHuman",Value().SetBool(obj.is_human()),allocator);
+    if (not obj.is_human()) document.AddMember("packetFrequency",Value().SetUint(obj.packet_frequency()),allocator);
 
     Value thicknesses;
     Value point_ids;
