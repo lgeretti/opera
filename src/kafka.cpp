@@ -339,7 +339,7 @@ void send_collision_notification(CollisionNotificationPacket p, RdKafka::Produce
     CollisionNotificationPacketSerialiser serialiser(p);
     std::string msg_to_send = serialiser.to_string();
 
-	producer->produce(OPERA_COLLISION_NOTIFICATION, 0,
+	producer->produce(OPERA_COLLISION_NOTIFICATION_TOPIC, 0,
 						RdKafka::Producer::RK_MSG_COPY,
 						const_cast<char *>(msg_to_send.c_str()),
 						msg_to_send.size(),NULL, 0, 0, NULL);
