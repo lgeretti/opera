@@ -20,7 +20,7 @@ jobs:
     - name: Set Up Dependencies
       run: |
         sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne kafka
+        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne
         export KAFKA_PARENT_DIR=~
         cd $KAFKA_PARENT_DIR
         wget https://archive.apache.org/dist/kafka/2.8.0/kafka-2.8.0-src.tgz
