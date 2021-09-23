@@ -114,10 +114,8 @@ public:
 
         }
         cpt.join();
-        //delete consumer_pres;
+        delete consumer_pres;
         delete producer;
-
-
     }
 
     void test_state(){
@@ -153,7 +151,7 @@ public:
         }
         
         cpt.join();
-        //delete consumer_st;
+        delete consumer_st;
         delete producer;
     }
 
@@ -185,7 +183,7 @@ public:
         ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d())
 
         cpt.join();
-        //delete consumer_ntf;
+        delete consumer_ntf;
         delete producer;
     }
 
