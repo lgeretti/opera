@@ -46,80 +46,48 @@ static const std::string OPERA_PRESENTATION_TOPIC = "opera-presentation";
 static const std::string OPERA_STATE_TOPIC = "opera-state";
 static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera-collision-notification";
 
-class Consumer{
-    public:
-        Consumer(int partition, std::string brokers, std::string errstr, int start_offset);
+template<class T> class ConsumerBase {
+  protected:
+    ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset);
+  public:
+    void check_new_message();
+    void set_run(bool run_value);
 
-        virtual void check_new_message() = 0;
+    virtual T get_pkt() = 0;
 
-        virtual void set_run(bool run_value) = 0;
-    
-    protected:
-        std::string brokers;
-        std::string errstr;
-        int partition;
-        int start_offset;
-        bool run;
-        std::string topic_string;
-        RdKafka::Consumer *consumer;
-        RdKafka::Topic *topic;
+    int number_new_msgs();
+
+    ~ConsumerBase();
+
+  private:
+    std::string topic_string;
+    std::string brokers;
+    std::string errstr;
+    int partition;
+    int start_offset;
+    bool run;
+    RdKafka::Consumer *consumer;
+    RdKafka::Topic *topic;
+  protected:
+    std::list<std::string> _str_list;
 };
 
-class ConsumerPresentation : public Consumer{
-    public:
-        ConsumerPresentation(int partition, std::string brokers, std::string errstr, int start_offset);
-
-        void check_new_message();
-
-        void set_run(bool run_val);
-
-        BodyPresentationPacket get_pkt();
-
-        int number_new_msgs();
-
-        ~ConsumerPresentation();
-        
-    private:
-        std::list <std::string> _prs_str_list;
+class PresentationConsumer : public ConsumerBase<BodyPresentationPacket> {
+  public:
+    PresentationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    BodyPresentationPacket get_pkt() override;
 };
 
-
-
-class ConsumerState : public Consumer{
-    public:
-        ConsumerState(int partition, std::string brokers, std::string errstr, int start_offset);
-
-        void check_new_message();
-
-        void set_run(bool run_val);
-
-        BodyStatePacket get_pkt();
-
-        int number_new_msgs();
-
-        ~ConsumerState();
-        
-    private:
-        std::list <std::string> _st_str_list;
-        
+class StateConsumer : public ConsumerBase<BodyStatePacket> {
+  public:
+    StateConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    BodyStatePacket get_pkt() override;
 };
 
-class ConsumerCollisionNotification : public Consumer{
-    public:
-        ConsumerCollisionNotification(int partition, std::string brokers, std::string errstr, int start_offset);
-
-        void check_new_message();
-
-        void set_run(bool run_val);
-
-        CollisionNotificationPacket get_pkt();
-
-        int number_new_msgs();
-
-        ~ConsumerCollisionNotification();
-        
-    private:
-        std::list<std::string> _ntf_str_list;
+class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationPacket> {
+  public:
+    CollisionNotificationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    CollisionNotificationPacket get_pkt() override;
 };
 
 RdKafka::Producer * create_producer(std::string brokers);
@@ -129,6 +97,78 @@ void send_presentation(BodyPresentationPacket p, RdKafka::Producer * producer);
 void send_state(BodyStatePacket p, RdKafka::Producer * producer);
 
 void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer);
+
+template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset) :
+        topic_string(topic_string), partition(partition), brokers(brokers), errstr(errstr), start_offset(start_offset), run(true) {
+
+    RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+    RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
+
+    conf->set("metadata.broker.list", brokers, errstr);
+
+    /*
+     * Create consumer using accumulated global configuration.
+     */
+    consumer = RdKafka::Consumer::create(conf, errstr);
+    if (!consumer) {
+        std::cerr << "Failed to create consumer: " << errstr << std::endl;
+        exit(1);
+    }
+
+    std::cout << "% Created consumer " << consumer->name() << std::endl;
+
+    /*
+     * Create topic handle.
+     */
+    topic = RdKafka::Topic::create(consumer, topic_string, tconf, errstr);
+    if (!topic) {
+        std::cerr << "Failed to create topic: " << errstr << std::endl;
+        exit(1);
+    }
+
+    /*
+     * Start consumer for topic+partition at start offset
+     */
+
+    RdKafka::ErrorCode resp = consumer->start(topic, partition, start_offset);
+    if (resp != RdKafka::ERR_NO_ERROR) {
+        std::cerr << "Failed to start consumer: " <<
+                  RdKafka::err2str(resp) << std::endl;
+        exit(1);
+    }
+}
+
+template<class T> ConsumerBase<T>::~ConsumerBase() {
+    consumer->stop(topic,0);
+    delete topic;
+    delete consumer;
+}
+
+template<class T> void ConsumerBase<T>::check_new_message(){
+    while (run) {
+        RdKafka::Message *msg = consumer->consume(topic, partition, 1000);
+        if(msg->err() == RdKafka::ERR_NO_ERROR){
+            std::string prs_str = static_cast<const char *> (msg->payload());
+            _str_list.push_back(prs_str);
+        }
+        else if(msg->err() == RdKafka::ERR__TIMED_OUT){}
+        else{
+            std::cerr << "Consume failed: " << msg->errstr() << std::endl;
+        }
+
+        delete msg;
+        consumer->poll(0);  // interroga l'handler degli eventi di Kafka
+
+    }
+}
+
+template<class T> void ConsumerBase<T>::set_run(bool run_val){
+    run = run_val;
+}
+
+template<class T> int ConsumerBase<T>::number_new_msgs() {
+    return _str_list.size();
+}
 
 }
 

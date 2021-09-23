@@ -41,7 +41,7 @@ public:
     }
 
     void test_presentation(){
-        ConsumerPresentation consumer_pres(0,"localhost:9092", "", 0);
+        PresentationConsumer consumer(0,"localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
@@ -49,17 +49,17 @@ public:
         ps.append(BodyPresentationPacket("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)}));
         ps.append(BodyPresentationPacket("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)}));
 
-        std::thread cpt([&]{ consumer_pres.check_new_message();} );
+        std::thread cpt([&]{ consumer.check_new_message();} );
 
         send_presentation(ps.at(0), producer);
         send_presentation(ps.at(1), producer);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_EQUAL(consumer_pres.number_new_msgs(),2)
+        ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
             
         for (auto p : ps) {
-            BodyPresentationPacket p_received = consumer_pres.get_pkt();
+            BodyPresentationPacket p_received = consumer.get_pkt();
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
             ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human())
             ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency())
@@ -72,14 +72,14 @@ public:
             }
         }
 
-        consumer_pres.set_run(false);
+        consumer.set_run(false);
         cpt.join();
         delete producer;
     }
 
     void test_state(){
 
-        ConsumerState consumer_st(0,"localhost:9092", "", 0);
+        StateConsumer consumer(0,"localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
@@ -87,18 +87,18 @@ public:
         ps.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
         ps.append(BodyStatePacket("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230));
 
-        std::thread cpt([&]{consumer_st.check_new_message();} );
+        std::thread cpt([&]{consumer.check_new_message();} );
 
         send_state(ps.at(0), producer);
         send_state(ps.at(1), producer);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_EQUAL(consumer_st.number_new_msgs(),2)
+        ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
 
         for (auto p : ps) {
-            BodyStatePacket p_received = consumer_st.get_pkt();
-            consumer_st.set_run(false);
+            BodyStatePacket p_received = consumer.get_pkt();
+            consumer.set_run(false);
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
             ARIADNE_TEST_EQUAL(p_received.location(), p.location())
             ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp())
@@ -113,23 +113,23 @@ public:
 
     void test_notification(){
 
-        ConsumerCollisionNotification consumer_ntf(0,"localhost:9092", "", 0);
+        CollisionNotificationConsumer consumer(0, "localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        std::thread cpt([&]{ consumer_ntf.check_new_message();} );
+        std::thread cpt([&]{ consumer.check_new_message();} );
                 
         send_collision_notification(p, producer);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_ASSERT(consumer_ntf.number_new_msgs() > 0)
+        ARIADNE_TEST_ASSERT(consumer.number_new_msgs() > 0)
         
-        CollisionNotificationPacket p_received = consumer_ntf.get_pkt();
+        CollisionNotificationPacket p_received = consumer.get_pkt();
         
-        consumer_ntf.set_run(false);
+        consumer.set_run(false);
         
         ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id())
         ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id())
