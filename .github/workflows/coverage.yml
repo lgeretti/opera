@@ -48,7 +48,7 @@ jobs:
 
     - name: Test
       working-directory: ${{runner.workspace}}/build
-      run: test/test_kafka
+      run: ctest -j $($NPROC) --output-on-failure
 
     - name: Generate Code Coverage
       working-directory: ${{runner.workspace}}/opera
