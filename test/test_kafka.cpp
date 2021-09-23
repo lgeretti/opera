@@ -193,27 +193,22 @@ public:
 
 int main() {
     int id = fork();
-    std::string command;
-
     if (id == 0){
         int idchild = fork();
         if(idchild>0){
             std::cout<<"Starting Zookeeper..." << std::endl;
-            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
+            std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
-            wait(NULL);
             exit(0);
         }
         else if(idchild ==0){
             std::this_thread::sleep_for(std::chrono::milliseconds(30000));
             std::cout<<"Starting Kafka server..." << std::endl;
-            command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
+            std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
             exit(0);
         }
-    }
-
-    if(id>0) {
+    } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(40000));
         system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
