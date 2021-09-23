@@ -20,7 +20,20 @@ jobs:
     - name: Set Up Dependencies
       run: |
         sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne
+        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne kafka
+        export KAFKA_PARENT_DIR=~
+        cd $KAFKA_PARENT_DIR
+        wget https://archive.apache.org/dist/kafka/2.8.0/kafka-2.8.0-src.tgz
+        tar -xvf kafka-2.8.0-src.tgz
+        cd kafka-2.8.0-src
+        ./gradlew jar -PscalaVersion=2.13.5
+        cd bin
+        ln -s zookeeper-server-start.sh zookeeper-server-start
+        ln -s kafka-server-start.sh kafka-server-start
+        ln -s zookeeper-server-stop.sh zookeeper-server-stop
+        ln -s kafka-server-stop.sh kafka-server-stop
+        ln -s kafka-topics.sh kafka-topics
+        echo "$KAFKA_PARENT_DIR/kafka-2.8.0-src/bin" >> $GITHUB_PATH
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
