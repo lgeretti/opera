@@ -82,11 +82,11 @@ ConsumerPresentation::ConsumerPresentation(int partition, std::string brokers, s
 
   }
 
-  ConsumerPresentation::~ConsumerPresentation(){
+ConsumerPresentation::~ConsumerPresentation() {
     consumer->stop(topic,0);
+    delete topic;
     delete consumer;
-    //delete topic;
-  }
+}
   
   void ConsumerPresentation::check_new_message(){
     while (run) {          
@@ -171,11 +171,11 @@ ConsumerState::ConsumerState(
     }
   }
 
-  ConsumerState::~ConsumerState(){
+ConsumerState::~ConsumerState() {
     consumer->stop(topic,0);
+    delete topic;
     delete consumer;
-    //delete topic;
-  }
+}
   
   void ConsumerState::check_new_message(){
 
@@ -260,11 +260,11 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
     }
   }
 
-  ConsumerCollisionNotification::~ConsumerCollisionNotification(){
+ConsumerCollisionNotification::~ConsumerCollisionNotification() {
     consumer->stop(topic,0);
+    delete topic;
     delete consumer;
-    //delete topic;
-  }
+}
   
   void ConsumerCollisionNotification::check_new_message(){
     while (run) {          
