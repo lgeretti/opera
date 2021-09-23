@@ -298,21 +298,6 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
   int ConsumerCollisionNotification::number_new_msgs(){
     return _ntf_str_list.size();
   }
-;
-
-//===========================END CLASSES=================================
-
-void consumer_prs_thread(ConsumerPresentation * o){
-    o->check_new_message();
-}
-
-void consumer_st_thread(ConsumerState * o){
-    o->check_new_message();
-}
-
-void consumer_ntf_thread(ConsumerCollisionNotification * o){
-    o->check_new_message();
-}
 
 //=========================================================================
 // PRODUCER FUNCTIONS

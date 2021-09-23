@@ -118,12 +118,6 @@ class ConsumerCollisionNotification : public Consumer{
         std::list<std::string> _ntf_str_list;
 };
 
-void consumer_prs_thread(ConsumerPresentation * o);
-
-void consumer_st_thread(ConsumerState * o);
-
-void consumer_ntf_thread(ConsumerCollisionNotification * o);
-
 RdKafka::Producer * create_producer(std::string brokers);
 
 void send_presentation(BodyPresentationPacket p, RdKafka::Producer * producer);

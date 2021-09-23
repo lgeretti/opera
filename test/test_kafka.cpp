@@ -53,7 +53,7 @@ public:
         // possible problem with following packet related to json decoding.... 
         //BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
 
-        std::thread cpt(consumer_prs_thread, consumer_pres);
+        std::thread cpt([=]{ consumer_pres->check_new_message();} );
 
         send_presentation(p, producer);
 
@@ -131,7 +131,7 @@ public:
         
         BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
-        std::thread cpt(consumer_st_thread, consumer_st);              
+        std::thread cpt([=]{consumer_st->check_new_message();} );
 
         send_state(p, producer);
 
@@ -166,7 +166,7 @@ public:
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        std::thread cpt(consumer_ntf_thread, consumer_ntf);
+        std::thread cpt([=]{ consumer_ntf->check_new_message();} );
                 
         send_collision_notification(p, producer);
 
@@ -196,9 +196,10 @@ int main() {
     if (id == 0){
         int idchild = fork();
         if(idchild>0){
-            std::cout<<"Starting Zookeeper..." << std::endl;
+            std::cout<<"Starting Zookeeper server..." << std::endl;
             std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
+            std::cout<<"Stopped Zookeeper server." << std::endl;
             exit(0);
         }
         else if(idchild ==0){
@@ -206,22 +207,28 @@ int main() {
             std::cout<<"Starting Kafka server..." << std::endl;
             std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
+            std::cout<<"Stopped Kafka server." << std::endl;
             exit(0);
         }
     } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(40000));
+        std::cout<<"Creating topics..." << std::endl;
         system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-collision-notification --bootstrap-server localhost:9092");
         TestKafka().test();
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::cout<<"Deleting topics..." << std::endl;
         system("kafka-topics --delete --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::cout<<"Stopping Kafka server..." << std::endl;
         system("kafka-server-stop");
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::cout<<"Stopping Zookeeper server..." << std::endl;
         system("zookeeper-server-stop");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         return ARIADNE_TEST_FAILURES;
     }
 }
