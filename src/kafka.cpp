@@ -84,7 +84,7 @@ ConsumerPresentation::ConsumerPresentation(int partition, std::string brokers, s
 
   ConsumerPresentation::~ConsumerPresentation(){
     consumer->stop(topic,0);
-    //delete consumer;
+    delete consumer;
     //delete topic;
   }
   
@@ -101,7 +101,7 @@ ConsumerPresentation::ConsumerPresentation(int partition, std::string brokers, s
       }
 
       delete msg;
-      consumer->poll(0);  // interroga l'handler degli eventi di Kafka 
+      consumer->poll(0);  // interroga l'handler degli eventi di Kafka
 
     }
   }
@@ -173,7 +173,7 @@ ConsumerState::ConsumerState(
 
   ConsumerState::~ConsumerState(){
     consumer->stop(topic,0);
-    //delete consumer;
+    delete consumer;
     //delete topic;
   }
   
@@ -262,7 +262,7 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
 
   ConsumerCollisionNotification::~ConsumerCollisionNotification(){
     consumer->stop(topic,0);
-    //delete consumer;
+    delete consumer;
     //delete topic;
   }
   
