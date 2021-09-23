@@ -83,21 +83,20 @@ public:
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
-        // BodyStatePacket p("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290);
-        
-        BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
+        List<BodyStatePacket> ps;
+        ps.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
+        ps.append(BodyStatePacket("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230));
 
         std::thread cpt([&]{consumer_st.check_new_message();} );
 
-        send_state(p, producer);
+        send_state(ps.at(0), producer);
+        send_state(ps.at(1), producer);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        if(consumer_st.number_new_msgs() == 0){
-            std::cout<<"\nNo messages in the queue to read\n";
-        }
+        ARIADNE_TEST_EQUAL(consumer_st.number_new_msgs(),2)
 
-        else{
+        for (auto p : ps) {
             BodyStatePacket p_received = consumer_st.get_pkt();
             consumer_st.set_run(false);
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
@@ -125,6 +124,8 @@ public:
         send_collision_notification(p, producer);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+        ARIADNE_TEST_ASSERT(consumer_ntf.number_new_msgs() > 0)
         
         CollisionNotificationPacket p_received = consumer_ntf.get_pkt();
         
