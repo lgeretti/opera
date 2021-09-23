@@ -44,21 +44,13 @@ namespace Opera{
 
 class Consumer{
     public:
-        Consumer(
-                int partition,
-                std::string brokers,
-                std::string errstr,
-                int start_offset);
+        Consumer(int partition, std::string brokers, std::string errstr, int start_offset);
 
+        virtual void check_new_message() = 0;
 
-        virtual void check_new_message() =0;
-
-        virtual void set_run(bool run_value) =0;
-
-        virtual ~Consumer(){};
+        virtual void set_run(bool run_value) = 0;
     
     protected:
-        
         std::string brokers;
         std::string errstr;
         int partition;
@@ -67,95 +59,70 @@ class Consumer{
         std::string topic_string;
         RdKafka::Consumer *consumer;
         RdKafka::Topic *topic;
-
 };
 
 class ConsumerPresentation : public Consumer{
     public:
-        ConsumerPresentation(
-                int partition,
-                std::string brokers,
-                std::string errstr,
-                int start_offset);
-        
+        ConsumerPresentation(int partition, std::string brokers, std::string errstr, int start_offset);
 
         void check_new_message();
 
         void set_run(bool run_val);
 
-        BodyPresentationPacket get_pkg();
+        BodyPresentationPacket get_pkt();
 
         int number_new_msgs();
-
 
         ~ConsumerPresentation();
         
     private:
-        // std::string _prs_str;
-        std::list <std::string> _prs_str_list;        
-        
+        std::list <std::string> _prs_str_list;
 };
 
 
 
 class ConsumerState : public Consumer{
     public:
-        ConsumerState(
-                int partition,
-                std::string brokers,
-                std::string errstr,
-                int start_offset);
-        
+        ConsumerState(int partition, std::string brokers, std::string errstr, int start_offset);
 
         void check_new_message();
 
         void set_run(bool run_val);
 
-        BodyStatePacket get_pkg();
+        BodyStatePacket get_pkt();
 
         int number_new_msgs();
 
         ~ConsumerState();
         
     private:
-        //std::string _st_str;
         std::list <std::string> _st_str_list;
         
 };
 
 class ConsumerCollisionNotification : public Consumer{
     public:
-        ConsumerCollisionNotification(
-                int partition,
-                std::string brokers,
-                std::string errstr,
-                int start_offset);
-
+        ConsumerCollisionNotification(int partition, std::string brokers, std::string errstr, int start_offset);
 
         void check_new_message();
 
         void set_run(bool run_val);
 
-        CollisionNotificationPacket get_pkg();
+        CollisionNotificationPacket get_pkt();
 
         int number_new_msgs();
 
         ~ConsumerCollisionNotification();
         
     private:
-        //std::string _ntf_str;
-        std::list <std::string> _ntf_str_list;       
+        std::list<std::string> _ntf_str_list;
 };
-
-//functions
-
 
 void consumer_prs_thread(ConsumerPresentation * o);
 
 void consumer_st_thread(ConsumerState * o);
 
 void consumer_ntf_thread(ConsumerCollisionNotification * o);
-
 
 RdKafka::Producer * create_producer(std::string brokers);
 
@@ -166,4 +133,5 @@ void send_state(BodyStatePacket p, RdKafka::Producer * producer);
 void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer);
 
 }
-#endif
+
+#endif // OPERA_KAFKA_HPP

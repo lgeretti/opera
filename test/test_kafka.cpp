@@ -67,7 +67,7 @@ public:
         }
 
         else{
-            BodyPresentationPacket p_received = consumer_pres->get_pkg();
+            BodyPresentationPacket p_received = consumer_pres->get_pkt();
             
             consumer_pres->set_run(false);
             
@@ -93,7 +93,7 @@ public:
         }
 
         else{
-            BodyPresentationPacket p_received = consumer_pres->get_pkg();
+            BodyPresentationPacket p_received = consumer_pres->get_pkt();
             
             consumer_pres->set_run(false);
             
@@ -142,16 +142,13 @@ public:
         }
 
         else{
-            BodyStatePacket p_received = consumer_st->get_pkg();
+            BodyStatePacket p_received = consumer_st->get_pkt();
             consumer_st->set_run(false);
-            ARIADNE_TEST_EQUAL(p_received.id(), p.id());
-
-            ARIADNE_TEST_EQUAL(p_received.location(), p.location());
-
-            ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp());
-                    
+            ARIADNE_TEST_EQUAL(p_received.id(), p.id())
+            ARIADNE_TEST_EQUAL(p_received.location(), p.location())
+            ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp())
             for(int i = 0; i<p.points().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.points().at(i), p.points().at(i));
+                ARIADNE_TEST_EQUAL(p_received.points().at(i), p.points().at(i))
             }
         }
         
@@ -175,24 +172,17 @@ public:
 
         usleep(300000); //needed to let kafka handle msgs
         
-        CollisionNotificationPacket p_received = consumer_ntf->get_pkg();
+        CollisionNotificationPacket p_received = consumer_ntf->get_pkt();
         
         consumer_ntf->set_run(false);
         
-        ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id());
-
-        ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id());
-
-        ARIADNE_TEST_EQUAL(p_received.human_segment_id(), p.human_segment_id());
-
-        ARIADNE_TEST_EQUAL(p_received.robot_segment_id(), p.robot_segment_id());
-
-        ARIADNE_TEST_EQUAL(p_received.upper_collision_time(), p.upper_collision_time());
-
-        ARIADNE_TEST_EQUAL(p_received.lower_collision_time(), p.lower_collision_time());
-
-        ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d());
-
+        ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id())
+        ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id())
+        ARIADNE_TEST_EQUAL(p_received.human_segment_id(), p.human_segment_id())
+        ARIADNE_TEST_EQUAL(p_received.robot_segment_id(), p.robot_segment_id())
+        ARIADNE_TEST_EQUAL(p_received.upper_collision_time(), p.upper_collision_time())
+        ARIADNE_TEST_EQUAL(p_received.lower_collision_time(), p.lower_collision_time())
+        ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d())
 
         cpt.join();
         //delete consumer_ntf;
@@ -247,7 +237,6 @@ int main() {
         system("kafka-server-stop");
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         system("zookeeper-server-stop");
-        //wait(NULL);
         return ARIADNE_TEST_FAILURES;
     }
 

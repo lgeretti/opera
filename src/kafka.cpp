@@ -39,12 +39,8 @@ Consumer::Consumer( int partition,
                 run(true)
 {};
 
-ConsumerPresentation::ConsumerPresentation(
-                int partition,
-                std::string brokers,
-                std::string errstr,
-                int start_offset):
-  Consumer(partition, brokers, errstr, start_offset)
+ConsumerPresentation::ConsumerPresentation(int partition, std::string brokers, std::string errstr, int start_offset)
+    : Consumer(partition, brokers, errstr, start_offset)
   {
 
     topic_string = "opera-presentation";
@@ -77,7 +73,6 @@ ConsumerPresentation::ConsumerPresentation(
     /*
      * Start consumer for topic+partition at start offset
      */
-
     RdKafka::ErrorCode resp = consumer->start(topic, partition, start_offset);  
     if (resp != RdKafka::ERR_NO_ERROR) {
       std::cerr << "Failed to start consumer: " <<
@@ -89,8 +84,8 @@ ConsumerPresentation::ConsumerPresentation(
 
   ConsumerPresentation::~ConsumerPresentation(){
     consumer->stop(topic,0);
-    consumer->~Consumer();
-    topic->~Topic();
+    delete consumer;
+    delete topic;
   }
   
   void ConsumerPresentation::check_new_message(){
@@ -115,7 +110,7 @@ ConsumerPresentation::ConsumerPresentation(
     run = run_val;
   }
 
-  BodyPresentationPacket ConsumerPresentation::get_pkg(){
+  BodyPresentationPacket ConsumerPresentation::get_pkt(){
     std::string prs_str = _prs_str_list.front();
     _prs_str_list.pop_front();
     BodyPresentationPacketDeserialiser d(prs_str.c_str());
@@ -178,8 +173,8 @@ ConsumerState::ConsumerState(
 
   ConsumerState::~ConsumerState(){
     consumer->stop(topic,0);
-    consumer->~Consumer();
-    topic->~Topic();
+    delete consumer;
+    delete topic;
   }
   
   void ConsumerState::check_new_message(){
@@ -205,7 +200,7 @@ ConsumerState::ConsumerState(
     run = run_val;
   }
 
-  BodyStatePacket ConsumerState::get_pkg(){
+  BodyStatePacket ConsumerState::get_pkt(){
     std::string st_str = _st_str_list.front();
     _st_str_list.pop_front();
     BodyStatePacketDeserialiser d(st_str.c_str());
@@ -267,8 +262,8 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
 
   ConsumerCollisionNotification::~ConsumerCollisionNotification(){
     consumer->stop(topic,0);
-    consumer->~Consumer();
-    topic->~Topic();
+    delete consumer;
+    delete topic;
   }
   
   void ConsumerCollisionNotification::check_new_message(){
@@ -285,8 +280,7 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
       }
 
       delete msg;
-      consumer->poll(0);  // interroga l'handler degli eventi di Kafka 
-
+      consumer->poll(0);  // interroga l'handler degli eventi di Kafka
     }
   }
 
@@ -294,7 +288,7 @@ ConsumerCollisionNotification::ConsumerCollisionNotification(
     run = run_val;
   }
 
-  CollisionNotificationPacket ConsumerCollisionNotification::get_pkg(){
+  CollisionNotificationPacket ConsumerCollisionNotification::get_pkt(){
     std::string ntf_str = _ntf_str_list.front();
     _ntf_str_list.pop_front();
     CollisionNotificationPacketDeserialiser d(ntf_str.c_str());
