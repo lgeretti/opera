@@ -53,7 +53,7 @@ public:
         // possible problem with following packet related to json decoding.... 
         //BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
 
-        std::thread cpt([=]{ consumer_pres->check_new_message();} );
+        std::thread cpt([&]{ consumer_pres->check_new_message();} );
 
         send_presentation(p, producer);
 
@@ -131,7 +131,7 @@ public:
         
         BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
-        std::thread cpt([=]{consumer_st->check_new_message();} );
+        std::thread cpt([&]{consumer_st->check_new_message();} );
 
         send_state(p, producer);
 
@@ -166,7 +166,7 @@ public:
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        std::thread cpt([=]{ consumer_ntf->check_new_message();} );
+        std::thread cpt([&]{ consumer_ntf->check_new_message();} );
                 
         send_collision_notification(p, producer);
 
