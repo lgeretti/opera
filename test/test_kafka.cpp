@@ -41,8 +41,7 @@ public:
     }
 
     void test_presentation(){
-        ConsumerPresentation * consumer_pres;
-        consumer_pres = new ConsumerPresentation(0,"localhost:9092", "", 0);
+        ConsumerPresentation consumer_pres(0,"localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
         
@@ -53,7 +52,7 @@ public:
         // possible problem with following packet related to json decoding.... 
         //BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
 
-        std::thread cpt([&]{ consumer_pres->check_new_message();} );
+        std::thread cpt([&]{ consumer_pres.check_new_message();} );
 
         send_presentation(p, producer);
 
@@ -62,14 +61,14 @@ public:
         usleep(3000000);   //needed to let kafka handle msgs
 
         
-        if(consumer_pres->number_new_msgs() == 0){
+        if(consumer_pres.number_new_msgs() == 0){
             std::cout<<"\nNo messages in the queue to read\n";
         }
 
         else{
-            BodyPresentationPacket p_received = consumer_pres->get_pkt();
+            BodyPresentationPacket p_received = consumer_pres.get_pkt();
             
-            consumer_pres->set_run(false);
+            consumer_pres.set_run(false);
             
             ARIADNE_TEST_EQUAL(p_received.id(), p.id());
 
@@ -88,14 +87,14 @@ public:
 
         }
 
-        if(consumer_pres->number_new_msgs() == 0){
+        if(consumer_pres.number_new_msgs() == 0){
             std::cout<<"\nNo messages in the queue to read\n";
         }
 
         else{
-            BodyPresentationPacket p_received = consumer_pres->get_pkt();
+            BodyPresentationPacket p_received = consumer_pres.get_pkt();
             
-            consumer_pres->set_run(false);
+            consumer_pres.set_run(false);
             
             ARIADNE_TEST_EQUAL(p_received.id(), p2.id());
 
@@ -114,14 +113,12 @@ public:
 
         }
         cpt.join();
-        delete consumer_pres;
         delete producer;
     }
 
     void test_state(){
 
-        ConsumerState * consumer_st;
-        consumer_st = new ConsumerState(0,"localhost:9092", "", 0);
+        ConsumerState consumer_st(0,"localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
@@ -129,19 +126,19 @@ public:
         
         BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
-        std::thread cpt([&]{consumer_st->check_new_message();} );
+        std::thread cpt([&]{consumer_st.check_new_message();} );
 
         send_state(p, producer);
 
         usleep(300000); //needed to let kafka handle msgs
 
-        if(consumer_st->number_new_msgs() == 0){
+        if(consumer_st.number_new_msgs() == 0){
             std::cout<<"\nNo messages in the queue to read\n";
         }
 
         else{
-            BodyStatePacket p_received = consumer_st->get_pkt();
-            consumer_st->set_run(false);
+            BodyStatePacket p_received = consumer_st.get_pkt();
+            consumer_st.set_run(false);
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
             ARIADNE_TEST_EQUAL(p_received.location(), p.location())
             ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp())
@@ -151,28 +148,26 @@ public:
         }
         
         cpt.join();
-        delete consumer_st;
         delete producer;
     }
 
     void test_notification(){
 
-        ConsumerCollisionNotification * consumer_ntf;
-        consumer_ntf = new ConsumerCollisionNotification(0,"localhost:9092", "", 0);
+        ConsumerCollisionNotification consumer_ntf(0,"localhost:9092", "", 0);
 
         RdKafka::Producer * producer = create_producer("localhost:9092");
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        std::thread cpt([&]{ consumer_ntf->check_new_message();} );
+        std::thread cpt([&]{ consumer_ntf.check_new_message();} );
                 
         send_collision_notification(p, producer);
 
         usleep(300000); //needed to let kafka handle msgs
         
-        CollisionNotificationPacket p_received = consumer_ntf->get_pkt();
+        CollisionNotificationPacket p_received = consumer_ntf.get_pkt();
         
-        consumer_ntf->set_run(false);
+        consumer_ntf.set_run(false);
         
         ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id())
         ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id())
@@ -183,7 +178,6 @@ public:
         ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d())
 
         cpt.join();
-        delete consumer_ntf;
         delete producer;
     }
 
