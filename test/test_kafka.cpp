@@ -55,12 +55,10 @@ public:
         std::thread cpt([&]{ consumer_pres.check_new_message();} );
 
         send_presentation(p, producer);
-
         send_presentation(p2, producer);
 
-        usleep(3000000);   //needed to let kafka handle msgs
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        
         if(consumer_pres.number_new_msgs() == 0){
             std::cout<<"\nNo messages in the queue to read\n";
         }
@@ -70,21 +68,16 @@ public:
             
             consumer_pres.set_run(false);
             
-            ARIADNE_TEST_EQUAL(p_received.id(), p.id());
-
-            ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human());
-
-            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency());
-
+            ARIADNE_TEST_EQUAL(p_received.id(), p.id())
+            ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human())
+            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency())
             for(int i = 0; i<p.point_ids().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p.point_ids()[i].first);
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p.point_ids()[i].second);
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p.point_ids()[i].first)
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p.point_ids()[i].second)
             }
-                    
             for(int i = 0; i<p.thicknesses().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p.thicknesses()[i]);
+                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p.thicknesses()[i])
             }
-
         }
 
         if(consumer_pres.number_new_msgs() == 0){
@@ -96,21 +89,16 @@ public:
             
             consumer_pres.set_run(false);
             
-            ARIADNE_TEST_EQUAL(p_received.id(), p2.id());
-
-            ARIADNE_TEST_EQUAL(p_received.is_human(), p2.is_human());
-
-            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p2.packet_frequency());
-
-            for(int i = 0; i<p2.point_ids().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p2.point_ids()[i].first);
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p2.point_ids()[i].second);
+            ARIADNE_TEST_EQUAL(p_received.id(), p2.id())
+            ARIADNE_TEST_EQUAL(p_received.is_human(), p2.is_human())
+            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p2.packet_frequency())
+            for(int i = 0; i<p2.point_ids().size(); i++) {
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p2.point_ids()[i].first)
+                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p2.point_ids()[i].second)
             }
-                    
             for(int i = 0; i<p2.thicknesses().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p2.thicknesses()[i]);
+                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p2.thicknesses()[i])
             }
-
         }
         cpt.join();
         delete producer;
@@ -130,7 +118,7 @@ public:
 
         send_state(p, producer);
 
-        usleep(300000); //needed to let kafka handle msgs
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
         if(consumer_st.number_new_msgs() == 0){
             std::cout<<"\nNo messages in the queue to read\n";
@@ -163,7 +151,7 @@ public:
                 
         send_collision_notification(p, producer);
 
-        usleep(300000); //needed to let kafka handle msgs
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
         CollisionNotificationPacket p_received = consumer_ntf.get_pkt();
         
@@ -188,37 +176,37 @@ int main() {
     if (id == 0){
         int idchild = fork();
         if(idchild>0){
-            std::cout<<"Starting Zookeeper server..." << std::endl;
+            std::cout << "Starting Zookeeper server..." << std::endl;
             std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; zookeeper-server-start zookeeper.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
-            std::cout<<"Stopped Zookeeper server." << std::endl;
+            std::cout << "Stopped Zookeeper server." << std::endl;
             exit(0);
         }
         else if(idchild ==0){
             std::this_thread::sleep_for(std::chrono::milliseconds(30000));
-            std::cout<<"Starting Kafka server..." << std::endl;
+            std::cout << "Starting Kafka server..." << std::endl;
             std::string command = std::string("cd ") + RESOURCES_PATH + std::string("kafka; kafka-server-start server.properties>>/dev/null 2>>/dev/null");
             system(command.c_str());
-            std::cout<<"Stopped Kafka server." << std::endl;
+            std::cout << "Stopped Kafka server." << std::endl;
             exit(0);
         }
     } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(40000));
-        std::cout<<"Creating topics..." << std::endl;
+        std::cout << "Creating topics..." << std::endl;
         system("kafka-topics --create --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --create --topic opera-collision-notification --bootstrap-server localhost:9092");
         TestKafka().test();
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-        std::cout<<"Deleting topics..." << std::endl;
+        std::cout << "Deleting topics..." << std::endl;
         system("kafka-topics --delete --topic opera-presentation --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-state --bootstrap-server localhost:9092");
         system("kafka-topics --delete --topic opera-collision-notification --bootstrap-server localhost:9092");
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-        std::cout<<"Stopping Kafka server..." << std::endl;
+        std::cout << "Stopping Kafka server..." << std::endl;
         system("kafka-server-stop");
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-        std::cout<<"Stopping Zookeeper server..." << std::endl;
+        std::cout << "Stopping Zookeeper server..." << std::endl;
         system("zookeeper-server-stop");
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         return ARIADNE_TEST_FAILURES;

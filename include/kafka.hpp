@@ -42,6 +42,10 @@
 
 namespace Opera{
 
+static const std::string OPERA_PRESENTATION_TOPIC = "opera-presentation";
+static const std::string OPERA_STATE_TOPIC = "opera-state";
+static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera-collision-notification";
+
 class Consumer{
     public:
         Consumer(int partition, std::string brokers, std::string errstr, int start_offset);

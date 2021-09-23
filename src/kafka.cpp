@@ -315,16 +315,11 @@ RdKafka::Producer * create_producer(std::string brokers){
     return producer;
 }
 
-
 void send_presentation(BodyPresentationPacket p , RdKafka::Producer * producer){
+    BodyPresentationPacketSerialiser serialiser(p);
+    std::string msg_to_send = serialiser.to_string();
 
-  BodyPresentationPacketSerialiser serialiser(p);
-  std::string msg_to_send = serialiser.to_string();
-
-	std::string topic_name = "opera-presentation";
-	int partition = 0;
-  
-	producer->produce(topic_name, partition,
+	producer->produce(OPERA_PRESENTATION_TOPIC, 0,
 						RdKafka::Producer::RK_MSG_COPY,
 						const_cast<char *>(msg_to_send.c_str()),
 						msg_to_send.size(),NULL, 0, 0, NULL);
@@ -332,25 +327,22 @@ void send_presentation(BodyPresentationPacket p , RdKafka::Producer * producer){
 
 void send_state(BodyStatePacket p, RdKafka::Producer * producer){
 	BodyStatePacketSerialiser serialiser(p);
-  std::string msg_to_send = serialiser.to_string();
-	std::string topic_name = "opera-state";
-	int partition = 0;
+    std::string msg_to_send = serialiser.to_string();
 	
-	producer->produce(topic_name, partition,
+	producer->produce(OPERA_STATE_TOPIC, 0,
 						RdKafka::Producer::RK_MSG_COPY,
 						const_cast<char *>(msg_to_send.c_str()),
 						msg_to_send.size(),NULL, 0, 0, NULL);
 }
 
 void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer){
-  CollisionNotificationPacketSerialiser serialiser(p);
-  std::string msg_to_send = serialiser.to_string();
-	std::string topic_name = "opera-collision-notification";
-	int partition = 0;
+    CollisionNotificationPacketSerialiser serialiser(p);
+    std::string msg_to_send = serialiser.to_string();
 
-	producer->produce(topic_name, partition,
+	producer->produce(OPERA_COLLISION_NOTIFICATION, 0,
 						RdKafka::Producer::RK_MSG_COPY,
 						const_cast<char *>(msg_to_send.c_str()),
 						msg_to_send.size(),NULL, 0, 0, NULL);
 }
+
 }
