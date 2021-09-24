@@ -60,11 +60,7 @@ template<class T> class ConsumerBase {
     ~ConsumerBase();
 
   private:
-    std::string topic_string;
-    std::string brokers;
-    std::string errstr;
     int partition;
-    int start_offset;
     bool run;
     RdKafka::Consumer *consumer;
     RdKafka::Topic *topic;
@@ -99,7 +95,7 @@ void send_state(BodyStatePacket p, RdKafka::Producer * producer);
 void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer);
 
 template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset) :
-        topic_string(topic_string), partition(partition), brokers(brokers), errstr(errstr), start_offset(start_offset), run(true) {
+        partition(partition), run(true) {
 
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
