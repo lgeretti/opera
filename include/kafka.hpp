@@ -48,7 +48,7 @@ static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera-collision-n
 
 template<class T> class ConsumerBase {
   protected:
-    ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset);
+    ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset);
   public:
     void check_new_message();
     void set_run(bool run_value);
@@ -70,19 +70,19 @@ template<class T> class ConsumerBase {
 
 class PresentationConsumer : public ConsumerBase<BodyPresentationPacket> {
   public:
-    PresentationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    PresentationConsumer(int partition, std::string brokers, int start_offset);
     BodyPresentationPacket get_packet() override;
 };
 
 class StateConsumer : public ConsumerBase<BodyStatePacket> {
   public:
-    StateConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    StateConsumer(int partition, std::string brokers, int start_offset);
     BodyStatePacket get_packet() override;
 };
 
 class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationPacket> {
   public:
-    CollisionNotificationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
+    CollisionNotificationConsumer(int partition, std::string brokers, int start_offset);
     CollisionNotificationPacket get_packet() override;
 };
 
@@ -119,11 +119,13 @@ public:
     void send(CollisionNotificationPacket const& p) override;
 };
 
-template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset) :
+template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset) :
         _partition(partition), _run(true) {
 
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
+
+    std::string errstr;
 
     conf->set("metadata.broker.list", brokers, errstr);
 

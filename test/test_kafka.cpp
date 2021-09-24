@@ -41,7 +41,7 @@ public:
     }
 
     void test_presentation(){
-        PresentationConsumer consumer(0,"localhost:9092", "", 0);
+        PresentationConsumer consumer(0,"localhost:9092", 0);
 
         PresentationProducer producer("localhost:9092");
 
@@ -78,7 +78,7 @@ public:
 
     void test_state(){
 
-        StateConsumer consumer(0,"localhost:9092", "", 0);
+        StateConsumer consumer(0,"localhost:9092", 0);
 
         StateProducer producer("localhost:9092");
 
@@ -111,7 +111,7 @@ public:
 
     void test_notification(){
 
-        CollisionNotificationConsumer consumer(0, "localhost:9092", "", 0);
+        CollisionNotificationConsumer consumer(0, "localhost:9092", 0);
         CollisionNotificationProducer producer("localhost:9092");
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
