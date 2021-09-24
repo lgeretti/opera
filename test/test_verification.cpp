@@ -45,6 +45,7 @@ class TestVerification {
         ARIADNE_TEST_EQUALS(trace.robot_segment_id(),3u)
         ARIADNE_TEST_EQUALS(trace.initial_time(),initial_time)
         ARIADNE_TEST_EQUALS(trace.initial_robot_discrete_state(),initial_location)
+        ARIADNE_TEST_EQUALS(trace.robot_discrete_trace().size(),0u)
     }
 };
 
