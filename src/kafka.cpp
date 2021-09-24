@@ -33,7 +33,7 @@ BodyPresentationPacket PresentationConsumer::get_packet(){
     std::string prs_str = _str_list.front();
     _str_list.pop_front();
     BodyPresentationPacketDeserialiser d(prs_str.c_str());
-    return d.make();    
+    return d.make();
 }
 
 StateConsumer::StateConsumer(int partition, std::string brokers, std::string errstr, int start_offset) :
@@ -49,50 +49,33 @@ BodyStatePacket StateConsumer::get_packet() {
 CollisionNotificationConsumer::CollisionNotificationConsumer(int partition, std::string brokers, std::string errstr, int start_offset)
     : ConsumerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, partition, brokers, errstr, start_offset) { }
 
-CollisionNotificationPacket CollisionNotificationConsumer::get_packet(){
+CollisionNotificationPacket CollisionNotificationConsumer::get_packet() {
     std::string ntf_str = _str_list.front();
     _str_list.pop_front();
     CollisionNotificationPacketDeserialiser d(ntf_str.c_str());
     return d.make();
 }
 
-RdKafka::Producer * create_producer(std::string brokers){
-    RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-    std::string errstr;
-    conf->set("metadata.broker.list", brokers, errstr);
-    RdKafka::Producer *producer = RdKafka::Producer::create(conf, errstr);
-    ARIADNE_ASSERT_MSG(producer,"Failed to create producer: " << errstr)
-    return producer;
+PresentationProducer::PresentationProducer(std::string const& brokers)
+    : ProducerBase(OPERA_PRESENTATION_TOPIC, brokers) { }
+
+
+StateProducer::StateProducer(std::string const& brokers)
+    : ProducerBase(OPERA_STATE_TOPIC, brokers) { }
+
+CollisionNotificationProducer::CollisionNotificationProducer(std::string const& brokers)
+    : ProducerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, brokers) { }
+
+void PresentationProducer::send(const BodyPresentationPacket &p) {
+    _send(BodyPresentationPacketSerialiser(p).to_string());
 }
 
-void send_presentation(BodyPresentationPacket p , RdKafka::Producer * producer){
-    BodyPresentationPacketSerialiser serialiser(p);
-    std::string msg_to_send = serialiser.to_string();
-
-	producer->produce(OPERA_PRESENTATION_TOPIC, 0,
-						RdKafka::Producer::RK_MSG_COPY,
-						const_cast<char *>(msg_to_send.c_str()),
-						msg_to_send.size(),NULL, 0, 0, NULL);
+void StateProducer::send(const BodyStatePacket &p) {
+    _send(BodyStatePacketSerialiser(p).to_string());
 }
 
-void send_state(BodyStatePacket p, RdKafka::Producer * producer){
-	BodyStatePacketSerialiser serialiser(p);
-    std::string msg_to_send = serialiser.to_string();
-	
-	producer->produce(OPERA_STATE_TOPIC, 0,
-						RdKafka::Producer::RK_MSG_COPY,
-						const_cast<char *>(msg_to_send.c_str()),
-						msg_to_send.size(),NULL, 0, 0, NULL);
-}
-
-void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer){
-    CollisionNotificationPacketSerialiser serialiser(p);
-    std::string msg_to_send = serialiser.to_string();
-
-	producer->produce(OPERA_COLLISION_NOTIFICATION_TOPIC, 0,
-						RdKafka::Producer::RK_MSG_COPY,
-						const_cast<char *>(msg_to_send.c_str()),
-						msg_to_send.size(),NULL, 0, 0, NULL);
+void CollisionNotificationProducer::send(const CollisionNotificationPacket &p) {
+    _send(CollisionNotificationPacketSerialiser(p).to_string());
 }
 
 }

@@ -40,7 +40,7 @@
 #include "serialisation.hpp"
 #include "deserialisation.hpp"
 
-namespace Opera{
+namespace Opera {
 
 static const std::string OPERA_PRESENTATION_TOPIC = "opera-presentation";
 static const std::string OPERA_STATE_TOPIC = "opera-state";
@@ -86,13 +86,38 @@ class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationP
     CollisionNotificationPacket get_packet() override;
 };
 
-RdKafka::Producer * create_producer(std::string brokers);
+template<class T> class ProducerBase {
+  protected:
+    ProducerBase(std::string const& topic_string, std::string const& brokers);
 
-void send_presentation(BodyPresentationPacket p, RdKafka::Producer * producer);
+    virtual void send(T const& p) = 0;
 
-void send_state(BodyStatePacket p, RdKafka::Producer * producer);
+    ~ProducerBase();
 
-void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer);
+  protected:
+    void _send(std::string const& serialised_packet);
+  private:
+    std::string const _topic_string;
+    RdKafka::Producer* _producer;
+};
+
+class PresentationProducer : public ProducerBase<BodyPresentationPacket> {
+public:
+    PresentationProducer(std::string const& brokers);
+    void send(BodyPresentationPacket const& p) override;
+};
+
+class StateProducer : public ProducerBase<BodyStatePacket> {
+public:
+    StateProducer(std::string const& brokers);
+    void send(BodyStatePacket const& p) override;
+};
+
+class CollisionNotificationProducer : public ProducerBase<CollisionNotificationPacket> {
+public:
+    CollisionNotificationProducer(std::string const& brokers);
+    void send(CollisionNotificationPacket const& p) override;
+};
 
 template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset) :
         _partition(partition), _run(true) {
@@ -139,6 +164,27 @@ template<class T> void ConsumerBase<T>::set_run(bool run_val){
 
 template<class T> int ConsumerBase<T>::number_new_msgs() {
     return _str_list.size();
+}
+
+template<class T> ProducerBase<T>::ProducerBase(std::string const& topic_string, std::string const& brokers)
+    : _topic_string(topic_string)
+{
+    RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+    std::string errstr;
+    conf->set("metadata.broker.list", brokers, errstr);
+    _producer = RdKafka::Producer::create(conf, errstr);
+    ARIADNE_ASSERT_MSG(_producer,"Failed to create producer: " << errstr)
+}
+
+template<class T> ProducerBase<T>::~ProducerBase() {
+    delete _producer;
+}
+
+template<class T> void ProducerBase<T>::_send(std::string const& serialised_packet) {
+    _producer->produce(_topic_string, 0,
+    RdKafka::Producer::RK_MSG_COPY,
+    const_cast<char *>(serialised_packet.c_str()),
+    serialised_packet.size(),NULL, 0, 0, NULL);
 }
 
 }

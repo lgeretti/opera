@@ -43,7 +43,7 @@ public:
     void test_presentation(){
         PresentationConsumer consumer(0,"localhost:9092", "", 0);
 
-        RdKafka::Producer * producer = create_producer("localhost:9092");
+        PresentationProducer producer("localhost:9092");
 
         List<BodyPresentationPacket> ps;
         ps.append(BodyPresentationPacket("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)}));
@@ -51,8 +51,8 @@ public:
 
         std::thread cpt([&]{ consumer.check_new_message();} );
 
-        send_presentation(ps.at(0), producer);
-        send_presentation(ps.at(1), producer);
+        producer.send(ps.at(0));
+        producer.send(ps.at(1));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -74,14 +74,13 @@ public:
 
         consumer.set_run(false);
         cpt.join();
-        delete producer;
     }
 
     void test_state(){
 
         StateConsumer consumer(0,"localhost:9092", "", 0);
 
-        RdKafka::Producer * producer = create_producer("localhost:9092");
+        StateProducer producer("localhost:9092");
 
         List<BodyStatePacket> ps;
         ps.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
@@ -89,8 +88,8 @@ public:
 
         std::thread cpt([&]{consumer.check_new_message();} );
 
-        send_state(ps.at(0), producer);
-        send_state(ps.at(1), producer);
+        producer.send(ps.at(0));
+        producer.send(ps.at(1));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -108,20 +107,18 @@ public:
         }
         
         cpt.join();
-        delete producer;
     }
 
     void test_notification(){
 
         CollisionNotificationConsumer consumer(0, "localhost:9092", "", 0);
-
-        RdKafka::Producer * producer = create_producer("localhost:9092");
+        CollisionNotificationProducer producer("localhost:9092");
 
         CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
         std::thread cpt([&]{ consumer.check_new_message();} );
                 
-        send_collision_notification(p, producer);
+        producer.send(p);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -140,7 +137,6 @@ public:
         ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d())
 
         cpt.join();
-        delete producer;
     }
 
 };
