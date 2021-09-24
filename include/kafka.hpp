@@ -106,36 +106,14 @@ template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int pa
 
     conf->set("metadata.broker.list", brokers, errstr);
 
-    /*
-     * Create consumer using accumulated global configuration.
-     */
     consumer = RdKafka::Consumer::create(conf, errstr);
-    if (!consumer) {
-        std::cerr << "Failed to create consumer: " << errstr << std::endl;
-        exit(1);
-    }
+    ARIADNE_ASSERT_MSG(consumer,"Failed to create consumer: " << errstr)
 
-    std::cout << "% Created consumer " << consumer->name() << std::endl;
-
-    /*
-     * Create topic handle.
-     */
     topic = RdKafka::Topic::create(consumer, topic_string, tconf, errstr);
-    if (!topic) {
-        std::cerr << "Failed to create topic: " << errstr << std::endl;
-        exit(1);
-    }
-
-    /*
-     * Start consumer for topic+partition at start offset
-     */
+    ARIADNE_ASSERT_MSG(topic,"Failed to create topic: " << errstr)
 
     RdKafka::ErrorCode resp = consumer->start(topic, partition, start_offset);
-    if (resp != RdKafka::ERR_NO_ERROR) {
-        std::cerr << "Failed to start consumer: " <<
-                  RdKafka::err2str(resp) << std::endl;
-        exit(1);
-    }
+    ARIADNE_ASSERT_MSG(resp == RdKafka::ERR_NO_ERROR,"Failed to start consumer: " << RdKafka::err2str(resp))
 }
 
 template<class T> ConsumerBase<T>::~ConsumerBase() {
@@ -150,15 +128,12 @@ template<class T> void ConsumerBase<T>::check_new_message(){
         if(msg->err() == RdKafka::ERR_NO_ERROR){
             std::string prs_str = static_cast<const char *> (msg->payload());
             _str_list.push_back(prs_str);
-        }
-        else if(msg->err() == RdKafka::ERR__TIMED_OUT){}
-        else{
-            std::cerr << "Consume failed: " << msg->errstr() << std::endl;
+        } else {
+            ARIADNE_ASSERT_MSG(msg->err() == RdKafka::ERR__TIMED_OUT,"Consume failed: " << msg->errstr())
         }
 
         delete msg;
         consumer->poll(0);  // interroga l'handler degli eventi di Kafka
-
     }
 }
 

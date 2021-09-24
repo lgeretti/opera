@@ -58,14 +58,10 @@ CollisionNotificationPacket CollisionNotificationConsumer::get_pkt(){
 
 RdKafka::Producer * create_producer(std::string brokers){
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-    RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
     std::string errstr;
     conf->set("metadata.broker.list", brokers, errstr);
     RdKafka::Producer *producer = RdKafka::Producer::create(conf, errstr);
-    if (!producer) {
-      std::cerr << "Failed to create producer: " << errstr << std::endl;
-      exit(1);
-    }
+    ARIADNE_ASSERT_MSG(producer,"Failed to create producer: " << errstr)
     return producer;
 }
 
