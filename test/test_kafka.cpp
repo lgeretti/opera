@@ -61,7 +61,7 @@ public:
         producer.put(sent.at(0));
         producer.put(sent.at(1));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         ARIADNE_TEST_EQUAL(received.size(),2)
             
@@ -105,7 +105,7 @@ public:
         producer.put(sent.at(0));
         producer.put(sent.at(1));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         ARIADNE_TEST_EQUAL(received.size(),2)
 
@@ -142,7 +142,7 @@ public:
 
         producer.put(s);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         ARIADNE_TEST_EQUAL(received.size(),1)
         auto const& r = received.at(0);
