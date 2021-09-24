@@ -53,7 +53,7 @@ template<class T> class ConsumerBase {
     void check_new_message();
     void set_run(bool run_value);
 
-    virtual T get_pkt() = 0;
+    virtual T get_packet() = 0;
 
     int number_new_msgs();
 
@@ -71,19 +71,19 @@ template<class T> class ConsumerBase {
 class PresentationConsumer : public ConsumerBase<BodyPresentationPacket> {
   public:
     PresentationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
-    BodyPresentationPacket get_pkt() override;
+    BodyPresentationPacket get_packet() override;
 };
 
 class StateConsumer : public ConsumerBase<BodyStatePacket> {
   public:
     StateConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
-    BodyStatePacket get_pkt() override;
+    BodyStatePacket get_packet() override;
 };
 
 class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationPacket> {
   public:
     CollisionNotificationConsumer(int partition, std::string brokers, std::string errstr, int start_offset);
-    CollisionNotificationPacket get_pkt() override;
+    CollisionNotificationPacket get_packet() override;
 };
 
 RdKafka::Producer * create_producer(std::string brokers);

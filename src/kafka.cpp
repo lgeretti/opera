@@ -29,7 +29,7 @@ namespace Opera {
 PresentationConsumer::PresentationConsumer(int partition, std::string brokers, std::string errstr, int start_offset) :
     ConsumerBase(OPERA_PRESENTATION_TOPIC, partition, brokers, errstr, start_offset) { }
 
-BodyPresentationPacket PresentationConsumer::get_pkt(){
+BodyPresentationPacket PresentationConsumer::get_packet(){
     std::string prs_str = _str_list.front();
     _str_list.pop_front();
     BodyPresentationPacketDeserialiser d(prs_str.c_str());
@@ -39,7 +39,7 @@ BodyPresentationPacket PresentationConsumer::get_pkt(){
 StateConsumer::StateConsumer(int partition, std::string brokers, std::string errstr, int start_offset) :
     ConsumerBase(OPERA_STATE_TOPIC, partition, brokers, errstr, start_offset) { }
 
-BodyStatePacket StateConsumer::get_pkt() {
+BodyStatePacket StateConsumer::get_packet() {
     std::string st_str = _str_list.front();
     _str_list.pop_front();
     BodyStatePacketDeserialiser d(st_str.c_str());
@@ -49,7 +49,7 @@ BodyStatePacket StateConsumer::get_pkt() {
 CollisionNotificationConsumer::CollisionNotificationConsumer(int partition, std::string brokers, std::string errstr, int start_offset)
     : ConsumerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, partition, brokers, errstr, start_offset) { }
 
-CollisionNotificationPacket CollisionNotificationConsumer::get_pkt(){
+CollisionNotificationPacket CollisionNotificationConsumer::get_packet(){
     std::string ntf_str = _str_list.front();
     _str_list.pop_front();
     CollisionNotificationPacketDeserialiser d(ntf_str.c_str());

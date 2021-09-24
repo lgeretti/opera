@@ -59,7 +59,7 @@ public:
         ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
             
         for (auto p : ps) {
-            BodyPresentationPacket p_received = consumer.get_pkt();
+            BodyPresentationPacket p_received = consumer.get_packet();
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
             ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human())
             ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency())
@@ -97,7 +97,7 @@ public:
         ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
 
         for (auto p : ps) {
-            BodyStatePacket p_received = consumer.get_pkt();
+            BodyStatePacket p_received = consumer.get_packet();
             consumer.set_run(false);
             ARIADNE_TEST_EQUAL(p_received.id(), p.id())
             ARIADNE_TEST_EQUAL(p_received.location(), p.location())
@@ -127,7 +127,7 @@ public:
 
         ARIADNE_TEST_ASSERT(consumer.number_new_msgs() > 0)
         
-        CollisionNotificationPacket p_received = consumer.get_pkt();
+        CollisionNotificationPacket p_received = consumer.get_packet();
         
         consumer.set_run(false);
         
