@@ -60,10 +60,10 @@ template<class T> class ConsumerBase {
     ~ConsumerBase();
 
   private:
-    int partition;
-    bool run;
-    RdKafka::Consumer *consumer;
-    RdKafka::Topic *topic;
+    int _partition;
+    bool _run;
+    RdKafka::Consumer* _consumer;
+    RdKafka::Topic* _topic;
   protected:
     std::list<std::string> _str_list;
 };
@@ -95,32 +95,32 @@ void send_state(BodyStatePacket p, RdKafka::Producer * producer);
 void send_collision_notification(CollisionNotificationPacket p, RdKafka::Producer * producer);
 
 template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, std::string errstr, int start_offset) :
-        partition(partition), run(true) {
+        _partition(partition), _run(true) {
 
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
     conf->set("metadata.broker.list", brokers, errstr);
 
-    consumer = RdKafka::Consumer::create(conf, errstr);
-    ARIADNE_ASSERT_MSG(consumer,"Failed to create consumer: " << errstr)
+    _consumer = RdKafka::Consumer::create(conf, errstr);
+    ARIADNE_ASSERT_MSG(_consumer, "Failed to create consumer: " << errstr)
 
-    topic = RdKafka::Topic::create(consumer, topic_string, tconf, errstr);
-    ARIADNE_ASSERT_MSG(topic,"Failed to create topic: " << errstr)
+    _topic = RdKafka::Topic::create(_consumer, topic_string, tconf, errstr);
+    ARIADNE_ASSERT_MSG(_topic,"Failed to create topic: " << errstr)
 
-    RdKafka::ErrorCode resp = consumer->start(topic, partition, start_offset);
+    RdKafka::ErrorCode resp = _consumer->start(_topic, partition, start_offset);
     ARIADNE_ASSERT_MSG(resp == RdKafka::ERR_NO_ERROR,"Failed to start consumer: " << RdKafka::err2str(resp))
 }
 
 template<class T> ConsumerBase<T>::~ConsumerBase() {
-    consumer->stop(topic,0);
-    delete topic;
-    delete consumer;
+    _consumer->stop(_topic, _partition);
+    delete _topic;
+    delete _consumer;
 }
 
 template<class T> void ConsumerBase<T>::check_new_message(){
-    while (run) {
-        RdKafka::Message *msg = consumer->consume(topic, partition, 1000);
+    while (_run) {
+        RdKafka::Message *msg = _consumer->consume(_topic, _partition, 1000);
         if(msg->err() == RdKafka::ERR_NO_ERROR){
             std::string prs_str = static_cast<const char *> (msg->payload());
             _str_list.push_back(prs_str);
@@ -129,12 +129,12 @@ template<class T> void ConsumerBase<T>::check_new_message(){
         }
 
         delete msg;
-        consumer->poll(0);  // interroga l'handler degli eventi di Kafka
+        _consumer->poll(0);  // interroga l'handler degli eventi di Kafka
     }
 }
 
 template<class T> void ConsumerBase<T>::set_run(bool run_val){
-    run = run_val;
+    _run = run_val;
 }
 
 template<class T> int ConsumerBase<T>::number_new_msgs() {
