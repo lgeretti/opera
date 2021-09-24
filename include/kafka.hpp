@@ -50,52 +50,46 @@ template<class T> class ConsumerBase {
   protected:
     ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset);
   public:
-    void check_new_message();
-    void set_run(bool run_value);
-
-    virtual T get_packet() = 0;
-
-    int number_new_msgs();
+    virtual List<T> get() = 0;
 
     ~ConsumerBase();
 
+  protected:
+    List<std::string> _get();
   private:
     int _partition;
-    bool _run;
     RdKafka::Consumer* _consumer;
     RdKafka::Topic* _topic;
-  protected:
-    std::list<std::string> _str_list;
 };
 
 class PresentationConsumer : public ConsumerBase<BodyPresentationPacket> {
   public:
     PresentationConsumer(int partition, std::string brokers, int start_offset);
-    BodyPresentationPacket get_packet() override;
+    List<BodyPresentationPacket> get() override;
 };
 
 class StateConsumer : public ConsumerBase<BodyStatePacket> {
   public:
     StateConsumer(int partition, std::string brokers, int start_offset);
-    BodyStatePacket get_packet() override;
+    List<BodyStatePacket> get() override;
 };
 
 class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationPacket> {
   public:
     CollisionNotificationConsumer(int partition, std::string brokers, int start_offset);
-    CollisionNotificationPacket get_packet() override;
+    List<CollisionNotificationPacket> get() override;
 };
 
 template<class T> class ProducerBase {
   protected:
     ProducerBase(std::string const& topic_string, std::string const& brokers);
 
-    virtual void send(T const& p) = 0;
+    virtual void put(T const& p) = 0;
 
     ~ProducerBase();
 
   protected:
-    void _send(std::string const& serialised_packet);
+    void _put(std::string const& serialised_packet);
   private:
     std::string const _topic_string;
     RdKafka::Producer* _producer;
@@ -104,23 +98,23 @@ template<class T> class ProducerBase {
 class PresentationProducer : public ProducerBase<BodyPresentationPacket> {
 public:
     PresentationProducer(std::string const& brokers);
-    void send(BodyPresentationPacket const& p) override;
+    void put(BodyPresentationPacket const& p) override;
 };
 
 class StateProducer : public ProducerBase<BodyStatePacket> {
 public:
     StateProducer(std::string const& brokers);
-    void send(BodyStatePacket const& p) override;
+    void put(BodyStatePacket const& p) override;
 };
 
 class CollisionNotificationProducer : public ProducerBase<CollisionNotificationPacket> {
 public:
     CollisionNotificationProducer(std::string const& brokers);
-    void send(CollisionNotificationPacket const& p) override;
+    void put(CollisionNotificationPacket const& p) override;
 };
 
 template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset) :
-        _partition(partition), _run(true) {
+        _partition(partition) {
 
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
@@ -145,27 +139,21 @@ template<class T> ConsumerBase<T>::~ConsumerBase() {
     delete _consumer;
 }
 
-template<class T> void ConsumerBase<T>::check_new_message(){
-    while (_run) {
-        RdKafka::Message *msg = _consumer->consume(_topic, _partition, 1000);
+template<class T> List<std::string> ConsumerBase<T>::_get(){
+    List<std::string> result;
+    while (true) {
+        RdKafka::Message *msg = _consumer->consume(_topic, _partition, 100);
         if(msg->err() == RdKafka::ERR_NO_ERROR){
-            std::string prs_str = static_cast<const char *> (msg->payload());
-            _str_list.push_back(prs_str);
+            result.append(static_cast<const char*>(msg->payload()));
+            delete msg;
         } else {
             ARIADNE_ASSERT_MSG(msg->err() == RdKafka::ERR__TIMED_OUT,"Consume failed: " << msg->errstr())
+            delete msg;
+            break;
         }
-
-        delete msg;
         _consumer->poll(0);  // interroga l'handler degli eventi di Kafka
     }
-}
-
-template<class T> void ConsumerBase<T>::set_run(bool run_val){
-    _run = run_val;
-}
-
-template<class T> int ConsumerBase<T>::number_new_msgs() {
-    return _str_list.size();
+    return result;
 }
 
 template<class T> ProducerBase<T>::ProducerBase(std::string const& topic_string, std::string const& brokers)
@@ -182,7 +170,7 @@ template<class T> ProducerBase<T>::~ProducerBase() {
     delete _producer;
 }
 
-template<class T> void ProducerBase<T>::_send(std::string const& serialised_packet) {
+template<class T> void ProducerBase<T>::_put(std::string const& serialised_packet) {
     _producer->produce(_topic_string, 0,
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char *>(serialised_packet.c_str()),

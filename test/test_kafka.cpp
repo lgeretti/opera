@@ -41,71 +41,86 @@ public:
     }
 
     void test_presentation(){
-        PresentationConsumer consumer(0,"localhost:9092", 0);
 
+        PresentationConsumer consumer(0,"localhost:9092", 0);
         PresentationProducer producer("localhost:9092");
 
-        List<BodyPresentationPacket> ps;
-        ps.append(BodyPresentationPacket("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)}));
-        ps.append(BodyPresentationPacket("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)}));
+        List<BodyPresentationPacket> sent;
+        sent.append(BodyPresentationPacket("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)}));
+        sent.append(BodyPresentationPacket("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)}));
 
-        std::thread cpt([&]{ consumer.check_new_message();} );
+        bool stop = false;
+        List<BodyPresentationPacket> received;
+        std::thread cpt([&]{
+            while(not stop) {
+                received.append(consumer.get());
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        });
 
-        producer.send(ps.at(0));
-        producer.send(ps.at(1));
+        producer.put(sent.at(0));
+        producer.put(sent.at(1));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
+        ARIADNE_TEST_EQUAL(received.size(),2)
             
-        for (auto p : ps) {
-            BodyPresentationPacket p_received = consumer.get_packet();
-            ARIADNE_TEST_EQUAL(p_received.id(), p.id())
-            ARIADNE_TEST_EQUAL(p_received.is_human(), p.is_human())
-            ARIADNE_TEST_EQUAL(p_received.packet_frequency(), p.packet_frequency())
-            for(int i = 0; i<p.point_ids().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].first, p.point_ids()[i].first)
-                ARIADNE_TEST_EQUAL(p_received.point_ids()[i].second, p.point_ids()[i].second)
+        for (SizeType i=0; i<received.size(); ++i) {
+            auto const& s = sent.at(i);
+            auto const& r = received.at(i);
+            ARIADNE_TEST_EQUAL(r.id(), s.id())
+            ARIADNE_TEST_EQUAL(r.is_human(), s.is_human())
+            ARIADNE_TEST_EQUAL(r.packet_frequency(), s.packet_frequency())
+            for(SizeType j = 0; j<s.point_ids().size(); j++){
+                ARIADNE_TEST_EQUAL(r.point_ids()[j].first, s.point_ids()[j].first)
+                ARIADNE_TEST_EQUAL(r.point_ids()[j].second, s.point_ids()[j].second)
             }
-            for(int i = 0; i<p.thicknesses().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.thicknesses()[i], p.thicknesses()[i])
+            for(SizeType j = 0; j<s.thicknesses().size(); j++){
+                ARIADNE_TEST_EQUAL(r.thicknesses()[j], s.thicknesses()[j])
             }
         }
 
-        consumer.set_run(false);
+        stop = true;
         cpt.join();
     }
 
     void test_state(){
 
         StateConsumer consumer(0,"localhost:9092", 0);
-
         StateProducer producer("localhost:9092");
 
-        List<BodyStatePacket> ps;
-        ps.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
-        ps.append(BodyStatePacket("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230));
+        List<BodyStatePacket> sent;
+        sent.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
+        sent.append(BodyStatePacket("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230));
 
-        std::thread cpt([&]{consumer.check_new_message();} );
+        bool stop = false;
+        List<BodyStatePacket> received;
+        std::thread cpt([&]{
+            while(not stop) {
+                received.append(consumer.get());
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        });
 
-        producer.send(ps.at(0));
-        producer.send(ps.at(1));
+        producer.put(sent.at(0));
+        producer.put(sent.at(1));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_EQUAL(consumer.number_new_msgs(),2)
+        ARIADNE_TEST_EQUAL(received.size(),2)
 
-        for (auto p : ps) {
-            BodyStatePacket p_received = consumer.get_packet();
-            consumer.set_run(false);
-            ARIADNE_TEST_EQUAL(p_received.id(), p.id())
-            ARIADNE_TEST_EQUAL(p_received.location(), p.location())
-            ARIADNE_TEST_EQUAL(p_received.timestamp(), p.timestamp())
-            for(int i = 0; i<p.points().size(); i++){
-                ARIADNE_TEST_EQUAL(p_received.points().at(i), p.points().at(i))
+        for (SizeType i=0; i<received.size(); ++i) {
+            auto const& s = sent.at(i);
+            auto const& r = received.at(i);
+            ARIADNE_TEST_EQUAL(s.id(), r.id())
+            ARIADNE_TEST_EQUAL(s.location(), r.location())
+            ARIADNE_TEST_EQUAL(s.timestamp(), r.timestamp())
+            for(int j = 0; j<s.points().size(); j++){
+                ARIADNE_TEST_EQUAL(s.points().at(j), r.points().at(j))
             }
         }
-        
+
+        stop = true;
         cpt.join();
     }
 
@@ -114,28 +129,33 @@ public:
         CollisionNotificationConsumer consumer(0, "localhost:9092", 0);
         CollisionNotificationProducer producer("localhost:9092");
 
-        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
+        CollisionNotificationPacket s("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        std::thread cpt([&]{ consumer.check_new_message();} );
-                
-        producer.send(p);
+        bool stop = false;
+        List<CollisionNotificationPacket> received;
+        std::thread cpt([&]{
+            while(not stop) {
+                received.append(consumer.get());
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        });
+
+        producer.put(s);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        ARIADNE_TEST_ASSERT(consumer.number_new_msgs() > 0)
+        ARIADNE_TEST_EQUAL(received.size(),1)
+        auto const& r = received.at(0);
         
-        CollisionNotificationPacket p_received = consumer.get_packet();
-        
-        consumer.set_run(false);
-        
-        ARIADNE_TEST_EQUAL(p_received.human_id(), p.human_id())
-        ARIADNE_TEST_EQUAL(p_received.robot_id(), p.robot_id())
-        ARIADNE_TEST_EQUAL(p_received.human_segment_id(), p.human_segment_id())
-        ARIADNE_TEST_EQUAL(p_received.robot_segment_id(), p.robot_segment_id())
-        ARIADNE_TEST_EQUAL(p_received.upper_collision_time(), p.upper_collision_time())
-        ARIADNE_TEST_EQUAL(p_received.lower_collision_time(), p.lower_collision_time())
-        ARIADNE_TEST_EQUAL(p_received.likelihood().get_d(), p.likelihood().get_d())
+        ARIADNE_TEST_EQUAL(r.human_id(), s.human_id())
+        ARIADNE_TEST_EQUAL(r.robot_id(), s.robot_id())
+        ARIADNE_TEST_EQUAL(r.human_segment_id(), s.human_segment_id())
+        ARIADNE_TEST_EQUAL(r.robot_segment_id(), s.robot_segment_id())
+        ARIADNE_TEST_EQUAL(r.upper_collision_time(), s.upper_collision_time())
+        ARIADNE_TEST_EQUAL(r.lower_collision_time(), s.lower_collision_time())
+        ARIADNE_TEST_EQUAL(r.likelihood().get_d(), s.likelihood().get_d())
 
+        stop = true;
         cpt.join();
     }
 

@@ -29,31 +29,34 @@ namespace Opera {
 PresentationConsumer::PresentationConsumer(int partition, std::string brokers, int start_offset) :
     ConsumerBase(OPERA_PRESENTATION_TOPIC, partition, brokers, start_offset) { }
 
-BodyPresentationPacket PresentationConsumer::get_packet(){
-    std::string prs_str = _str_list.front();
-    _str_list.pop_front();
-    BodyPresentationPacketDeserialiser d(prs_str.c_str());
-    return d.make();
+List<BodyPresentationPacket> PresentationConsumer::get() {
+    List<BodyPresentationPacket> result;
+    List<std::string> msg_list = _get();
+    for (auto msg : msg_list)
+        result.append(BodyPresentationPacketDeserialiser(msg.c_str()).make());
+    return result;
 }
 
 StateConsumer::StateConsumer(int partition, std::string brokers, int start_offset) :
     ConsumerBase(OPERA_STATE_TOPIC, partition, brokers, start_offset) { }
 
-BodyStatePacket StateConsumer::get_packet() {
-    std::string st_str = _str_list.front();
-    _str_list.pop_front();
-    BodyStatePacketDeserialiser d(st_str.c_str());
-    return d.make();
+List<BodyStatePacket> StateConsumer::get() {
+    List<BodyStatePacket> result;
+    List<std::string> msg_list = _get();
+    for (auto msg : msg_list)
+        result.append(BodyStatePacketDeserialiser(msg.c_str()).make());
+    return result;
 }
 
 CollisionNotificationConsumer::CollisionNotificationConsumer(int partition, std::string brokers, int start_offset)
     : ConsumerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, partition, brokers, start_offset) { }
 
-CollisionNotificationPacket CollisionNotificationConsumer::get_packet() {
-    std::string ntf_str = _str_list.front();
-    _str_list.pop_front();
-    CollisionNotificationPacketDeserialiser d(ntf_str.c_str());
-    return d.make();
+List<CollisionNotificationPacket> CollisionNotificationConsumer::get() {
+    List<CollisionNotificationPacket> result;
+    List<std::string> msg_list = _get();
+    for (auto msg : msg_list)
+        result.append(CollisionNotificationPacketDeserialiser(msg.c_str()).make());
+    return result;
 }
 
 PresentationProducer::PresentationProducer(std::string const& brokers)
@@ -66,16 +69,16 @@ StateProducer::StateProducer(std::string const& brokers)
 CollisionNotificationProducer::CollisionNotificationProducer(std::string const& brokers)
     : ProducerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, brokers) { }
 
-void PresentationProducer::send(const BodyPresentationPacket &p) {
-    _send(BodyPresentationPacketSerialiser(p).to_string());
+void PresentationProducer::put(const BodyPresentationPacket &p) {
+    _put(BodyPresentationPacketSerialiser(p).to_string());
 }
 
-void StateProducer::send(const BodyStatePacket &p) {
-    _send(BodyStatePacketSerialiser(p).to_string());
+void StateProducer::put(const BodyStatePacket &p) {
+    _put(BodyStatePacketSerialiser(p).to_string());
 }
 
-void CollisionNotificationProducer::send(const CollisionNotificationPacket &p) {
-    _send(CollisionNotificationPacketSerialiser(p).to_string());
+void CollisionNotificationProducer::put(const CollisionNotificationPacket &p) {
+    _put(CollisionNotificationPacketSerialiser(p).to_string());
 }
 
 }
