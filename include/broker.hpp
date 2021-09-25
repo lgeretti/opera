@@ -88,10 +88,23 @@ class BrokerManager {
     void add(Broker const& broker);
     //! \brief The number of brokers added
     SizeType num_brokers() const;
-    //! \brief Return the broker for the given \a kind
-    Broker& get(BrokerKind const& kind);
+    //! \brief Return if a broker of the given \a kind is present
+    bool has_broker(BrokerKind const& kind) const;
     //! \brief Remove the brokers
     void clear();
+
+    //! \brief Send the presentation packet \a p to all brokers
+    void send(BodyPresentationPacket const& p);
+    //! \brief Send the state packet \a p to all brokers
+    void send(BodyStatePacket const& p);
+    //! \brief Send the collision packet \a p to all brokers
+    void send(CollisionNotificationPacket const& p);
+    //! \brief Receive presentation packets from all brokers and append them to \a packets
+    void receive(List<BodyPresentationPacket>& packets);
+    //! \brief Receive state packets from all brokers and append them to \a packets
+    void receive(List<BodyStatePacket>& packets);
+    //! \brief Receive collision notification packets from all brokers and append them to \a packets
+    void receive(List<CollisionNotificationPacket>& packets);
 
   private:
     Ariadne::Map<BrokerKind,Broker> _brokers;

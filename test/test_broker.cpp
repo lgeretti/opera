@@ -39,15 +39,15 @@ public:
         auto& manager = BrokerManager::instance();
 
         ARIADNE_TEST_EQUALS(manager.num_brokers(),0)
-        ARIADNE_TEST_FAIL(manager.get(BrokerKind::MEMORY))
+        ARIADNE_TEST_ASSERT(not manager.has_broker(BrokerKind::MEMORY))
 
         manager.add(MemoryBroker());
         ARIADNE_TEST_EQUALS(manager.num_brokers(),1)
-        ARIADNE_TEST_EXECUTE(manager.get(BrokerKind::MEMORY))
+        ARIADNE_TEST_ASSERT(manager.has_broker(BrokerKind::MEMORY))
 
         manager.clear();
         ARIADNE_TEST_EQUALS(manager.num_brokers(),0)
-        ARIADNE_TEST_FAIL(manager.get(BrokerKind::MEMORY))
+        ARIADNE_TEST_ASSERT(not manager.has_broker(BrokerKind::MEMORY))
     }
 
     void test_broker_manager_with_memory() {
@@ -58,7 +58,7 @@ public:
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
         BrokerManager::instance().add(MemoryBroker());
-        Broker& sender_broker = BrokerManager::instance().get(BrokerKind::MEMORY);
+        auto& sender_manager = BrokerManager::instance();
 
         List<BodyPresentationPacket> bp_received;
         List<BodyStatePacket> bs_received;
@@ -66,20 +66,20 @@ public:
 
         bool stop = false;
         std::thread cpt([&]{
-            Broker& receiver_broker = BrokerManager::instance().get(BrokerKind::MEMORY);
+            auto& receiver_manager = BrokerManager::instance();
             while(not stop) {
-                receiver_broker.receive(bp_received);
-                receiver_broker.receive(bs_received);
-                receiver_broker.receive(cn_received);
+                receiver_manager.receive(bp_received);
+                receiver_manager.receive(bs_received);
+                receiver_manager.receive(cn_received);
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         });
 
-        sender_broker.send(hp);
-        sender_broker.send(rp);
-        sender_broker.send(hs);
-        sender_broker.send(rs);
-        sender_broker.send(cn);
+        sender_manager.send(hp);
+        sender_manager.send(rp);
+        sender_manager.send(hs);
+        sender_manager.send(rs);
+        sender_manager.send(cn);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

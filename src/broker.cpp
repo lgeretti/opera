@@ -34,13 +34,42 @@ SizeType BrokerManager::num_brokers() const {
     return _brokers.size();
 }
 
-Broker& BrokerManager::get(BrokerKind const& kind) {
-    ARIADNE_PRECONDITION(_brokers.has_key(kind))
-    return _brokers.at(kind);
+bool BrokerManager::has_broker(BrokerKind const& kind) const {
+    return _brokers.has_key(kind);
 }
 
 void BrokerManager::clear() {
     _brokers.clear();
+}
+
+void BrokerManager::send(BodyPresentationPacket const& p) {
+    for (auto& b : _brokers)
+        b.second.send(p);
+}
+
+void BrokerManager::send(BodyStatePacket const& p) {
+    for (auto& b : _brokers)
+        b.second.send(p);
+}
+
+void BrokerManager::send(CollisionNotificationPacket const& p) {
+    for (auto& b : _brokers)
+        b.second.send(p);
+}
+
+void BrokerManager::receive(List<BodyPresentationPacket>& packets) {
+    for (auto& b : _brokers)
+        b.second.receive(packets);
+}
+
+void BrokerManager::receive(List<BodyStatePacket>& packets) {
+    for (auto& b : _brokers)
+        b.second.receive(packets);
+}
+
+void BrokerManager::receive(List<CollisionNotificationPacket>& packets) {
+    for (auto& b : _brokers)
+        b.second.receive(packets);
 }
 
 }
