@@ -164,6 +164,8 @@ public:
 
         KafkaBroker broker(0, "localhost:9092", RdKafka::Topic::OFFSET_END);
 
+        ARIADNE_TEST_ASSERT(broker.kind() == BrokerKind::KAFKA)
+
         BodyPresentationPacket bp_sent("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         BodyStatePacket bs_sent("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn_sent("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));

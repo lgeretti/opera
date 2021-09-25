@@ -42,6 +42,7 @@ public:
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
         MemoryBroker sender_broker;
+        ARIADNE_TEST_ASSERT(sender_broker.kind() == BrokerKind::MEMORY)
 
         std::deque<BodyPresentationPacket> bp_received;
         std::deque<BodyStatePacket> bs_received;
