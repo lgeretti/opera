@@ -86,6 +86,8 @@ class BrokerManager {
 
     //! \brief Add a \a broker
     void add(Broker const& broker);
+    //! \brief Return the broker for the given \a kind
+    Broker& get(BrokerKind const& kind);
 
   private:
     Ariadne::Map<BrokerKind,Broker> _brokers;

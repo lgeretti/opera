@@ -7,6 +7,7 @@ set(UNIT_TESTS
     test_packet
     test_serialisation
     test_deserialisation
+    test_memory
     test_kafka
     test_barrier
     test_verification
