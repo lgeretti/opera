@@ -42,34 +42,4 @@ void BrokerManager::clear() {
     _brokers.clear();
 }
 
-void BrokerManager::send(BodyPresentationPacket const& p) {
-    for (auto& b : _brokers)
-        b.second.send(p);
-}
-
-void BrokerManager::send(BodyStatePacket const& p) {
-    for (auto& b : _brokers)
-        b.second.send(p);
-}
-
-void BrokerManager::send(CollisionNotificationPacket const& p) {
-    for (auto& b : _brokers)
-        b.second.send(p);
-}
-
-void BrokerManager::receive(List<BodyPresentationPacket>& packets) {
-    for (auto& b : _brokers)
-        b.second.receive(packets);
-}
-
-void BrokerManager::receive(List<BodyStatePacket>& packets) {
-    for (auto& b : _brokers)
-        b.second.receive(packets);
-}
-
-void BrokerManager::receive(List<CollisionNotificationPacket>& packets) {
-    for (auto& b : _brokers)
-        b.second.receive(packets);
-}
-
 }

@@ -62,12 +62,8 @@ class Broker : public Ariadne::Handle<BrokerInterface> {
   public:
     using Ariadne::Handle<BrokerInterface>::Handle;
     BrokerKind kind() const { return _ptr->kind(); }
-    void send(BodyPresentationPacket const& p) { _ptr->send(p); }
-    void send(BodyStatePacket const& p) { _ptr->send(p); }
-    void send(CollisionNotificationPacket const& p) { _ptr->send(p); }
-    void receive(List<BodyPresentationPacket>& packets) { return _ptr->receive(packets); }
-    void receive(List<BodyStatePacket>& packets) { return _ptr->receive(packets); }
-    void receive(List<CollisionNotificationPacket>& packets) { return _ptr->receive(packets); }
+    template<class T> void send(T const& p) { _ptr->send(p); }
+    template<class T> void receive(List<T>& packets) { return _ptr->receive(packets); }
 };
 
 //! \brief A class holding communication brokers for production/consumption of packets
@@ -93,18 +89,10 @@ class BrokerManager {
     //! \brief Remove the brokers
     void clear();
 
-    //! \brief Send the presentation packet \a p to all brokers
-    void send(BodyPresentationPacket const& p);
-    //! \brief Send the state packet \a p to all brokers
-    void send(BodyStatePacket const& p);
-    //! \brief Send the collision packet \a p to all brokers
-    void send(CollisionNotificationPacket const& p);
-    //! \brief Receive presentation packets from all brokers and append them to \a packets
-    void receive(List<BodyPresentationPacket>& packets);
-    //! \brief Receive state packets from all brokers and append them to \a packets
-    void receive(List<BodyStatePacket>& packets);
-    //! \brief Receive collision notification packets from all brokers and append them to \a packets
-    void receive(List<CollisionNotificationPacket>& packets);
+    //! \brief Send the packet \a p to all brokers
+    template<class T> void send(T const& p) { for (auto& b : _brokers) b.second.send(p); }
+    //! \brief Receive packets from all brokers and append them to \a packets
+    template<class T> void receive(List<T>& packets) { for (auto& b : _brokers) b.second.receive(packets); }
 
   private:
     Ariadne::Map<BrokerKind,Broker> _brokers;
