@@ -134,38 +134,41 @@ class NoCollisionScenario {
         broker_manager.add(MemoryBroker());
 
         Ariadne::Thread human_production([&]{
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
-                std::cout << "Human packet sent at " << p.timestamp() << std::endl;
+                ARIADNE_LOG_PRINTLN("Human packet sent at " << p.timestamp());
                 broker_manager.send(p);
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
-        },"hp");
+        },"h_pr");
 
         Ariadne::Thread robot_production([&]{
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             while (not robot_packets.empty()) {
                 auto& p = robot_packets.front();
-                std::cout << "Robot packet sent at " << p.timestamp() << std::endl;
+                ARIADNE_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
                 broker_manager.send(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
-        },"rp");
+        },"r_pr");
 
         bool stop = false;
         Ariadne::Thread state_consumption([&]{
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             std::deque<BodyStatePacket> packets;
             while (not stop) {
                 broker_manager.receive(packets);
                 while(not packets.empty()) {
                     auto& p = packets.front();
-                    std::cout << "State packet received at " << p.timestamp() << std::endl;
+                    ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp());
                     packets.pop_front();
                 }
                 std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
             }
-        },"sc");
+        },"s_co");
 
         while(not robot_packets.empty())
             std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
@@ -178,6 +181,6 @@ class NoCollisionScenario {
 int main(int argc, const char* argv[])
 {
     if (not Ariadne::CommandLineInterface::instance().acquire(argc,argv)) return -1;
-
+    Logger::instance().configuration().set_thread_name_printing_policy(Ariadne::ThreadNamePrintingPolicy::BEFORE);
     NoCollisionScenario().run();
 }
