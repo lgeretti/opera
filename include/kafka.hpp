@@ -167,7 +167,7 @@ template<class T> KafkaConsumerBase<T>::~KafkaConsumerBase() {
 template<class T> List<std::string> KafkaConsumerBase<T>::_get(){
     List<std::string> result;
     while (true) {
-        RdKafka::Message *msg = _consumer->consume(_topic, _partition, 100);
+        RdKafka::Message *msg = _consumer->consume(_topic, _partition, 1);
         if(msg->err() == RdKafka::ERR_NO_ERROR){
             result.append(static_cast<const char*>(msg->payload()));
             delete msg;

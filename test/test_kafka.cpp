@@ -38,11 +38,12 @@ public:
         ARIADNE_TEST_CALL(test_presentation())
         ARIADNE_TEST_CALL(test_state())
         ARIADNE_TEST_CALL(test_notification())
+        ARIADNE_TEST_CALL(test_broker())
     }
 
     void test_presentation(){
 
-        KafkaBodyPresentationConsumer consumer(0, "localhost:9092", 0);
+        KafkaBodyPresentationConsumer consumer(0, "localhost:9092", RdKafka::Topic::OFFSET_BEGINNING);
         KafkaBodyPresentationProducer producer("localhost:9092");
 
         List<BodyPresentationPacket> sent;
@@ -61,7 +62,7 @@ public:
         producer.put(sent.at(0));
         producer.put(sent.at(1));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         ARIADNE_TEST_EQUAL(received.size(),2)
             
@@ -86,7 +87,7 @@ public:
 
     void test_state(){
 
-        KafkaBodyStateConsumer consumer(0, "localhost:9092", 0);
+        KafkaBodyStateConsumer consumer(0, "localhost:9092", RdKafka::Topic::OFFSET_BEGINNING);
         KafkaBodyStateProducer producer("localhost:9092");
 
         List<BodyStatePacket> sent;
@@ -105,7 +106,7 @@ public:
         producer.put(sent.at(0));
         producer.put(sent.at(1));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         ARIADNE_TEST_EQUAL(received.size(),2)
 
@@ -126,7 +127,7 @@ public:
 
     void test_notification(){
 
-        KafkaCollisionNotificationConsumer consumer(0, "localhost:9092", 0);
+        KafkaCollisionNotificationConsumer consumer(0, "localhost:9092", RdKafka::Topic::OFFSET_BEGINNING);
         KafkaCollisionNotificationProducer producer("localhost:9092");
 
         CollisionNotificationPacket s("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
@@ -142,7 +143,7 @@ public:
 
         producer.put(s);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         ARIADNE_TEST_EQUAL(received.size(),1)
         auto const& r = received.at(0);
@@ -154,6 +155,44 @@ public:
         ARIADNE_TEST_EQUAL(r.upper_collision_time(), s.upper_collision_time())
         ARIADNE_TEST_EQUAL(r.lower_collision_time(), s.lower_collision_time())
         ARIADNE_TEST_EQUAL(r.likelihood().get_d(), s.likelihood().get_d())
+
+        stop = true;
+        cpt.join();
+    }
+
+    void test_broker() {
+
+        KafkaBroker broker(0, "localhost:9092", RdKafka::Topic::OFFSET_END);
+
+        BodyPresentationPacket bp_sent("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        BodyStatePacket bs_sent("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
+        CollisionNotificationPacket cn_sent("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
+
+        List<BodyPresentationPacket> bp_received;
+        List<BodyStatePacket> bs_received;
+        List<CollisionNotificationPacket> cn_received;
+
+        bool stop = false;
+        std::thread cpt([&]{
+            while(not stop) {
+                broker.receive(bp_received);
+                broker.receive(bs_received);
+                broker.receive(cn_received);
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        });
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        broker.send(bp_sent);
+        broker.send(bs_sent);
+        broker.send(cn_sent);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+        ARIADNE_TEST_EQUAL(bp_received.size(),1)
+        ARIADNE_TEST_EQUAL(bs_received.size(),1)
+        ARIADNE_TEST_EQUAL(cn_received.size(),1)
 
         stop = true;
         cpt.join();
