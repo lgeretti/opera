@@ -86,8 +86,12 @@ class BrokerManager {
 
     //! \brief Add a \a broker
     void add(Broker const& broker);
+    //! \brief The number of brokers added
+    SizeType num_brokers() const;
     //! \brief Return the broker for the given \a kind
     Broker& get(BrokerKind const& kind);
+    //! \brief Remove the brokers
+    void clear();
 
   private:
     Ariadne::Map<BrokerKind,Broker> _brokers;

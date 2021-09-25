@@ -30,9 +30,17 @@ void BrokerManager::add(Broker const& broker) {
     _brokers.insert(std::make_pair(broker.kind(),broker));
 }
 
+SizeType BrokerManager::num_brokers() const {
+    return _brokers.size();
+}
+
 Broker& BrokerManager::get(BrokerKind const& kind) {
     ARIADNE_PRECONDITION(_brokers.has_key(kind))
     return _brokers.at(kind);
+}
+
+void BrokerManager::clear() {
+    _brokers.clear();
 }
 
 }
