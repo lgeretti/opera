@@ -81,7 +81,7 @@ public:
         sender_manager.send(rs);
         sender_manager.send(cn);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
         ARIADNE_TEST_EQUAL(bp_received.size(),2)
         ARIADNE_TEST_EQUAL(bs_received.size(),2)
