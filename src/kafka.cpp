@@ -26,10 +26,10 @@
 
 namespace Opera {
 
-PresentationConsumer::PresentationConsumer(int partition, std::string brokers, int start_offset) :
-    ConsumerBase(OPERA_PRESENTATION_TOPIC, partition, brokers, start_offset) { }
+KafkaBodyPresentationConsumer::KafkaBodyPresentationConsumer(int partition, std::string brokers, int start_offset) :
+        KafkaConsumerBase(OPERA_PRESENTATION_TOPIC, partition, brokers, start_offset) { }
 
-List<BodyPresentationPacket> PresentationConsumer::get() {
+List<BodyPresentationPacket> KafkaBodyPresentationConsumer::get() {
     List<BodyPresentationPacket> result;
     List<std::string> msg_list = _get();
     for (auto msg : msg_list)
@@ -37,10 +37,10 @@ List<BodyPresentationPacket> PresentationConsumer::get() {
     return result;
 }
 
-StateConsumer::StateConsumer(int partition, std::string brokers, int start_offset) :
-    ConsumerBase(OPERA_STATE_TOPIC, partition, brokers, start_offset) { }
+KafkaBodyStateConsumer::KafkaBodyStateConsumer(int partition, std::string brokers, int start_offset) :
+        KafkaConsumerBase(OPERA_STATE_TOPIC, partition, brokers, start_offset) { }
 
-List<BodyStatePacket> StateConsumer::get() {
+List<BodyStatePacket> KafkaBodyStateConsumer::get() {
     List<BodyStatePacket> result;
     List<std::string> msg_list = _get();
     for (auto msg : msg_list)
@@ -48,10 +48,10 @@ List<BodyStatePacket> StateConsumer::get() {
     return result;
 }
 
-CollisionNotificationConsumer::CollisionNotificationConsumer(int partition, std::string brokers, int start_offset)
-    : ConsumerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, partition, brokers, start_offset) { }
+KafkaCollisionNotificationConsumer::KafkaCollisionNotificationConsumer(int partition, std::string brokers, int start_offset)
+    : KafkaConsumerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, partition, brokers, start_offset) { }
 
-List<CollisionNotificationPacket> CollisionNotificationConsumer::get() {
+List<CollisionNotificationPacket> KafkaCollisionNotificationConsumer::get() {
     List<CollisionNotificationPacket> result;
     List<std::string> msg_list = _get();
     for (auto msg : msg_list)
@@ -59,25 +59,25 @@ List<CollisionNotificationPacket> CollisionNotificationConsumer::get() {
     return result;
 }
 
-PresentationProducer::PresentationProducer(std::string const& brokers)
-    : ProducerBase(OPERA_PRESENTATION_TOPIC, brokers) { }
+KafkaBodyPresentationProducer::KafkaBodyPresentationProducer(std::string const& brokers)
+    : KafkaProducerBase(OPERA_PRESENTATION_TOPIC, brokers) { }
 
 
-StateProducer::StateProducer(std::string const& brokers)
-    : ProducerBase(OPERA_STATE_TOPIC, brokers) { }
+KafkaBodyStateProducer::KafkaBodyStateProducer(std::string const& brokers)
+    : KafkaProducerBase(OPERA_STATE_TOPIC, brokers) { }
 
-CollisionNotificationProducer::CollisionNotificationProducer(std::string const& brokers)
-    : ProducerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, brokers) { }
+KafkaCollisionNotificationProducer::KafkaCollisionNotificationProducer(std::string const& brokers)
+    : KafkaProducerBase(OPERA_COLLISION_NOTIFICATION_TOPIC, brokers) { }
 
-void PresentationProducer::put(const BodyPresentationPacket &p) {
+void KafkaBodyPresentationProducer::put(const BodyPresentationPacket &p) {
     _put(BodyPresentationPacketSerialiser(p).to_string());
 }
 
-void StateProducer::put(const BodyStatePacket &p) {
+void KafkaBodyStateProducer::put(const BodyStatePacket &p) {
     _put(BodyStatePacketSerialiser(p).to_string());
 }
 
-void CollisionNotificationProducer::put(const CollisionNotificationPacket &p) {
+void KafkaCollisionNotificationProducer::put(const CollisionNotificationPacket &p) {
     _put(CollisionNotificationPacketSerialiser(p).to_string());
 }
 

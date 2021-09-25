@@ -42,8 +42,8 @@ public:
 
     void test_presentation(){
 
-        PresentationConsumer consumer(0,"localhost:9092", 0);
-        PresentationProducer producer("localhost:9092");
+        KafkaBodyPresentationConsumer consumer(0, "localhost:9092", 0);
+        KafkaBodyPresentationProducer producer("localhost:9092");
 
         List<BodyPresentationPacket> sent;
         sent.append(BodyPresentationPacket("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)}));
@@ -86,8 +86,8 @@ public:
 
     void test_state(){
 
-        StateConsumer consumer(0,"localhost:9092", 0);
-        StateProducer producer("localhost:9092");
+        KafkaBodyStateConsumer consumer(0, "localhost:9092", 0);
+        KafkaBodyStateProducer producer("localhost:9092");
 
         List<BodyStatePacket> sent;
         sent.append(BodyStatePacket("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290));
@@ -126,8 +126,8 @@ public:
 
     void test_notification(){
 
-        CollisionNotificationConsumer consumer(0, "localhost:9092", 0);
-        CollisionNotificationProducer producer("localhost:9092");
+        KafkaCollisionNotificationConsumer consumer(0, "localhost:9092", 0);
+        KafkaCollisionNotificationProducer producer("localhost:9092");
 
         CollisionNotificationPacket s("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 

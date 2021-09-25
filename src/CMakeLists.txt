@@ -5,6 +5,7 @@ add_library(OPERA_SRC OBJECT
    state.cpp
    serialisation.cpp
    deserialisation.cpp
+   broker.cpp
    kafka.cpp
    barrier.cpp
    verification.cpp

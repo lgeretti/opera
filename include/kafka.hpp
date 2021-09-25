@@ -36,7 +36,7 @@
 
 #include <librdkafka/rdkafkacpp.h>
 
-#include "packet.hpp"
+#include "broker.hpp"
 #include "serialisation.hpp"
 #include "deserialisation.hpp"
 
@@ -46,13 +46,13 @@ static const std::string OPERA_PRESENTATION_TOPIC = "opera-presentation";
 static const std::string OPERA_STATE_TOPIC = "opera-state";
 static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera-collision-notification";
 
-template<class T> class ConsumerBase {
+template<class T> class KafkaConsumerBase {
   protected:
-    ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset);
+    KafkaConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset);
   public:
     virtual List<T> get() = 0;
 
-    ~ConsumerBase();
+    ~KafkaConsumerBase();
 
   protected:
     List<std::string> _get();
@@ -62,31 +62,31 @@ template<class T> class ConsumerBase {
     RdKafka::Topic* _topic;
 };
 
-class PresentationConsumer : public ConsumerBase<BodyPresentationPacket> {
+class KafkaBodyPresentationConsumer : public KafkaConsumerBase<BodyPresentationPacket> {
   public:
-    PresentationConsumer(int partition, std::string brokers, int start_offset);
+    KafkaBodyPresentationConsumer(int partition, std::string brokers, int start_offset);
     List<BodyPresentationPacket> get() override;
 };
 
-class StateConsumer : public ConsumerBase<BodyStatePacket> {
+class KafkaBodyStateConsumer : public KafkaConsumerBase<BodyStatePacket> {
   public:
-    StateConsumer(int partition, std::string brokers, int start_offset);
+    KafkaBodyStateConsumer(int partition, std::string brokers, int start_offset);
     List<BodyStatePacket> get() override;
 };
 
-class CollisionNotificationConsumer : public ConsumerBase<CollisionNotificationPacket> {
+class KafkaCollisionNotificationConsumer : public KafkaConsumerBase<CollisionNotificationPacket> {
   public:
-    CollisionNotificationConsumer(int partition, std::string brokers, int start_offset);
+    KafkaCollisionNotificationConsumer(int partition, std::string brokers, int start_offset);
     List<CollisionNotificationPacket> get() override;
 };
 
-template<class T> class ProducerBase {
+template<class T> class KafkaProducerBase {
   protected:
-    ProducerBase(std::string const& topic_string, std::string const& brokers);
+    KafkaProducerBase(std::string const& topic_string, std::string const& brokers);
 
     virtual void put(T const& p) = 0;
 
-    ~ProducerBase();
+    ~KafkaProducerBase();
 
   protected:
     void _put(std::string const& serialised_packet);
@@ -95,25 +95,25 @@ template<class T> class ProducerBase {
     RdKafka::Producer* _producer;
 };
 
-class PresentationProducer : public ProducerBase<BodyPresentationPacket> {
+class KafkaBodyPresentationProducer : public KafkaProducerBase<BodyPresentationPacket> {
 public:
-    PresentationProducer(std::string const& brokers);
+    KafkaBodyPresentationProducer(std::string const& brokers);
     void put(BodyPresentationPacket const& p) override;
 };
 
-class StateProducer : public ProducerBase<BodyStatePacket> {
+class KafkaBodyStateProducer : public KafkaProducerBase<BodyStatePacket> {
 public:
-    StateProducer(std::string const& brokers);
+    KafkaBodyStateProducer(std::string const& brokers);
     void put(BodyStatePacket const& p) override;
 };
 
-class CollisionNotificationProducer : public ProducerBase<CollisionNotificationPacket> {
+class KafkaCollisionNotificationProducer : public KafkaProducerBase<CollisionNotificationPacket> {
 public:
-    CollisionNotificationProducer(std::string const& brokers);
+    KafkaCollisionNotificationProducer(std::string const& brokers);
     void put(CollisionNotificationPacket const& p) override;
 };
 
-template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset) :
+template<class T> KafkaConsumerBase<T>::KafkaConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset) :
         _partition(partition) {
 
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -133,13 +133,13 @@ template<class T> ConsumerBase<T>::ConsumerBase(std::string topic_string, int pa
     ARIADNE_ASSERT_MSG(resp == RdKafka::ERR_NO_ERROR,"Failed to start consumer: " << RdKafka::err2str(resp))
 }
 
-template<class T> ConsumerBase<T>::~ConsumerBase() {
+template<class T> KafkaConsumerBase<T>::~KafkaConsumerBase() {
     _consumer->stop(_topic, _partition);
     delete _topic;
     delete _consumer;
 }
 
-template<class T> List<std::string> ConsumerBase<T>::_get(){
+template<class T> List<std::string> KafkaConsumerBase<T>::_get(){
     List<std::string> result;
     while (true) {
         RdKafka::Message *msg = _consumer->consume(_topic, _partition, 100);
@@ -156,7 +156,7 @@ template<class T> List<std::string> ConsumerBase<T>::_get(){
     return result;
 }
 
-template<class T> ProducerBase<T>::ProducerBase(std::string const& topic_string, std::string const& brokers)
+template<class T> KafkaProducerBase<T>::KafkaProducerBase(std::string const& topic_string, std::string const& brokers)
     : _topic_string(topic_string)
 {
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -166,11 +166,11 @@ template<class T> ProducerBase<T>::ProducerBase(std::string const& topic_string,
     ARIADNE_ASSERT_MSG(_producer,"Failed to create producer: " << errstr)
 }
 
-template<class T> ProducerBase<T>::~ProducerBase() {
+template<class T> KafkaProducerBase<T>::~KafkaProducerBase() {
     delete _producer;
 }
 
-template<class T> void ProducerBase<T>::_put(std::string const& serialised_packet) {
+template<class T> void KafkaProducerBase<T>::_put(std::string const& serialised_packet) {
     _producer->produce(_topic_string, 0,
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char *>(serialised_packet.c_str()),
