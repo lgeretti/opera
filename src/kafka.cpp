@@ -106,16 +106,19 @@ void KafkaBroker::send(CollisionNotificationPacket const& p) {
     _collision_notification_p.put(p);
 }
 
-void KafkaBroker::receive(List<BodyPresentationPacket>& packets) {
-    packets.append(_body_presentation_c.get());
+void KafkaBroker::receive(std::deque<BodyPresentationPacket>& packets) {
+    auto packets_got = _body_presentation_c.get();
+    for (auto& p : packets_got) packets.push_back(p);
 }
 
-void KafkaBroker::receive(List<BodyStatePacket>& packets) {
-    packets.append(_body_state_c.get());
+void KafkaBroker::receive(std::deque<BodyStatePacket>& packets) {
+    auto packets_got = _body_state_c.get();
+    for (auto& p : packets_got) packets.push_back(p);
 }
 
-void KafkaBroker::receive(List<CollisionNotificationPacket>& packets) {
-    packets.append(_collision_notification_c.get());
+void KafkaBroker::receive(std::deque<CollisionNotificationPacket>& packets) {
+    auto packets_got = _collision_notification_c.get();
+    for (auto& p : packets_got) packets.push_back(p);
 }
 
 }

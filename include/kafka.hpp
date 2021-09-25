@@ -125,9 +125,9 @@ class KafkaBroker : public BrokerInterface {
     void send(BodyStatePacket const& p) override;
     void send(CollisionNotificationPacket const& p) override;
 
-    void receive(List<BodyPresentationPacket>& packets) override;
-    void receive(List<BodyStatePacket>& packets) override;
-    void receive(List<CollisionNotificationPacket>& packets) override;
+    void receive(std::deque<BodyPresentationPacket>& packets) override;
+    void receive(std::deque<BodyStatePacket>& packets) override;
+    void receive(std::deque<CollisionNotificationPacket>& packets) override;
 
   private:
     KafkaBodyPresentationConsumer _body_presentation_c;

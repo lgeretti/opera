@@ -168,9 +168,9 @@ public:
         BodyStatePacket bs_sent("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn_sent("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        List<BodyPresentationPacket> bp_received;
-        List<BodyStatePacket> bs_received;
-        List<CollisionNotificationPacket> cn_received;
+        std::deque<BodyPresentationPacket> bp_received;
+        std::deque<BodyStatePacket> bs_received;
+        std::deque<CollisionNotificationPacket> cn_received;
 
         bool stop = false;
         std::thread cpt([&]{

@@ -29,6 +29,7 @@
 #include "utility.hpp"
 #include "packet.hpp"
 #include "deserialisation.hpp"
+#include "memory.hpp"
 #include "barrier.hpp"
 
 using namespace Opera;
@@ -114,38 +115,62 @@ class NoCollisionScenario {
             }
         }
 
-        List<BodyStatePacket> human_packets;
+        std::deque<BodyStatePacket> human_packets;
         SizeType idx = 1;
         while (true) {
             auto filepath = Resources::path("json/scenarios/human/nocollision/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            human_packets.append(BodyStatePacketDeserialiser(filepath).make());
+            human_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
         }
-        List<BodyStatePacket> robot_packets;
+        std::deque<BodyStatePacket> robot_packets;
         idx = 1;
         while (true) {
             auto filepath = Resources::path("json/scenarios/robot/10hz/10/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            robot_packets.append(BodyStatePacketDeserialiser(filepath).make());
+            robot_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
         }
 
-        Ariadne::Thread human_consumption([&]{
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            for (auto p : human_packets) {
-                ARIADNE_LOG_PRINTLN("Human packet received at " << p.timestamp());
+        auto& broker_manager = BrokerManager::instance();
+        broker_manager.add(MemoryBroker());
 
+        Ariadne::Thread human_production([&]{
+            while (not human_packets.empty()) {
+                auto& p = human_packets.front();
+                std::cout << "Human packet sent at " << p.timestamp() << std::endl;
+                broker_manager.send(p);
+                human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
-        },"hc");
+        },"hp");
 
-        Ariadne::Thread robot_consumption([&]{
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            for (auto p : robot_packets) {
-                ARIADNE_LOG_PRINTLN("Robot packet received at " << p.timestamp());
-                history.acquire(p.location(),p.points(),p.timestamp());
+        Ariadne::Thread robot_production([&]{
+            while (not robot_packets.empty()) {
+                auto& p = robot_packets.front();
+                std::cout << "Robot packet sent at " << p.timestamp() << std::endl;
+                broker_manager.send(p);
+                robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
-        },"rc");
+        },"rp");
+
+        bool stop = false;
+        Ariadne::Thread state_consumption([&]{
+            std::deque<BodyStatePacket> packets;
+            while (not stop) {
+                broker_manager.receive(packets);
+                while(not packets.empty()) {
+                    auto& p = packets.front();
+                    std::cout << "State packet received at " << p.timestamp() << std::endl;
+                    packets.pop_front();
+                }
+                std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
+            }
+        },"sc");
+
+        while(not robot_packets.empty())
+            std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
+        std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
+        stop = true;
     }
 
 };

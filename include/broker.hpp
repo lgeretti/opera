@@ -52,9 +52,9 @@ class BrokerInterface {
     virtual void send(BodyStatePacket const& p) = 0;
     virtual void send(CollisionNotificationPacket const& p) = 0;
 
-    virtual void receive(List<BodyPresentationPacket>& packets) = 0;
-    virtual void receive(List<BodyStatePacket>& packets) = 0;
-    virtual void receive(List<CollisionNotificationPacket>& packets) = 0;
+    virtual void receive(std::deque<BodyPresentationPacket>& packets) = 0;
+    virtual void receive(std::deque<BodyStatePacket>& packets) = 0;
+    virtual void receive(std::deque<CollisionNotificationPacket>& packets) = 0;
 };
 
 //! \brief Handle for a broker
@@ -63,7 +63,7 @@ class Broker : public Ariadne::Handle<BrokerInterface> {
     using Ariadne::Handle<BrokerInterface>::Handle;
     BrokerKind kind() const { return _ptr->kind(); }
     template<class T> void send(T const& p) { _ptr->send(p); }
-    template<class T> void receive(List<T>& packets) { return _ptr->receive(packets); }
+    template<class T> void receive(std::deque<T>& packets) { return _ptr->receive(packets); }
 };
 
 //! \brief A class holding communication brokers for production/consumption of packets
@@ -92,7 +92,7 @@ class BrokerManager {
     //! \brief Send the packet \a p to all brokers
     template<class T> void send(T const& p) { for (auto& b : _brokers) b.second.send(p); }
     //! \brief Receive packets from all brokers and append them to \a packets
-    template<class T> void receive(List<T>& packets) { for (auto& b : _brokers) b.second.receive(packets); }
+    template<class T> void receive(std::deque<T>& packets) { for (auto& b : _brokers) b.second.receive(packets); }
 
   private:
     Ariadne::Map<BrokerKind,Broker> _brokers;

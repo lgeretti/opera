@@ -43,9 +43,9 @@ public:
 
         MemoryBroker sender_broker;
 
-        List<BodyPresentationPacket> bp_received;
-        List<BodyStatePacket> bs_received;
-        List<CollisionNotificationPacket> cn_received;
+        std::deque<BodyPresentationPacket> bp_received;
+        std::deque<BodyStatePacket> bs_received;
+        std::deque<CollisionNotificationPacket> cn_received;
 
         bool stop = false;
         std::thread cpt([&]{

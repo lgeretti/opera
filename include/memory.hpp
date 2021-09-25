@@ -58,13 +58,13 @@ class PacketMemoryServer {
     void put(BodyStatePacket const& p);
     void put(CollisionNotificationPacket const& p);
 
-    void get(List<BodyPresentationPacket>& packets);
-    void get(List<BodyStatePacket>& packets);
-    void get(List<CollisionNotificationPacket>& packets);
+    void get(std::deque<BodyPresentationPacket>& packets);
+    void get(std::deque<BodyStatePacket>& packets);
+    void get(std::deque<CollisionNotificationPacket>& packets);
   private:
-    List<BodyPresentationPacket> _body_presentations;
-    List<BodyStatePacket> _body_states;
-    List<CollisionNotificationPacket> _collision_notifications;
+    std::deque<BodyPresentationPacket> _body_presentations;
+    std::deque<BodyStatePacket> _body_states;
+    std::deque<CollisionNotificationPacket> _collision_notifications;
     std::mutex _mux;
 };
 
@@ -77,9 +77,9 @@ class MemoryBroker : public BrokerInterface {
     void send(BodyStatePacket const& p) override;
     void send(CollisionNotificationPacket const& p) override;
 
-    void receive(List<BodyPresentationPacket>& packets) override;
-    void receive(List<BodyStatePacket>& packets) override;
-    void receive(List<CollisionNotificationPacket>& packets) override;
+    void receive(std::deque<BodyPresentationPacket>& packets) override;
+    void receive(std::deque<BodyStatePacket>& packets) override;
+    void receive(std::deque<CollisionNotificationPacket>& packets) override;
 };
 
 }
