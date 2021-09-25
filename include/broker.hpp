@@ -46,7 +46,7 @@ enum class BrokerKind { MEMORY, KAFKA, ROS };
 class BrokerInterface {
   public:
     //! \brief The kind of the broker
-    virtual BrokerKind const& kind() const = 0;
+    virtual BrokerKind kind() const = 0;
 
     virtual void send(BodyPresentationPacket const& p) = 0;
     virtual void send(BodyStatePacket const& p) = 0;
@@ -61,7 +61,7 @@ class BrokerInterface {
 class Broker : public Ariadne::Handle<BrokerInterface> {
   public:
     using Ariadne::Handle<BrokerInterface>::Handle;
-    BrokerKind const& kind() const { return _ptr->kind(); }
+    BrokerKind kind() const { return _ptr->kind(); }
     void send(BodyPresentationPacket const& p) { _ptr->send(p); }
     void send(BodyStatePacket const& p) { _ptr->send(p); }
     void send(CollisionNotificationPacket const& p) { _ptr->send(p); }

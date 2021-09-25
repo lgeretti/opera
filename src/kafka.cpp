@@ -81,4 +81,41 @@ void KafkaCollisionNotificationProducer::put(const CollisionNotificationPacket &
     _put(CollisionNotificationPacketSerialiser(p).to_string());
 }
 
+KafkaBroker::KafkaBroker(int partition, std::string brokers, int start_offset) :
+    _body_presentation_c(partition,brokers,start_offset),
+    _body_state_c(partition,brokers,start_offset),
+    _collision_notification_c(partition,brokers,start_offset),
+    _body_presentation_p(brokers),
+    _body_state_p(brokers),
+    _collision_notification_p(brokers)
+{ }
+
+BrokerKind KafkaBroker::kind() const {
+    return BrokerKind::KAFKA;
+}
+
+void KafkaBroker::send(BodyPresentationPacket const& p) {
+    _body_presentation_p.put(p);
+}
+
+void KafkaBroker::send(BodyStatePacket const& p) {
+    _body_state_p.put(p);
+}
+
+void KafkaBroker::send(CollisionNotificationPacket const& p) {
+    _collision_notification_p.put(p);
+}
+
+void KafkaBroker::receive(List<BodyPresentationPacket>& packets) {
+    packets.append(_body_presentation_c.get());
+}
+
+void KafkaBroker::receive(List<BodyStatePacket>& packets) {
+    packets.append(_body_state_c.get());
+}
+
+void KafkaBroker::receive(List<CollisionNotificationPacket>& packets) {
+    packets.append(_collision_notification_c.get());
+}
+
 }

@@ -113,6 +113,31 @@ public:
     void put(CollisionNotificationPacket const& p) override;
 };
 
+//! \brief A broker to handle packets using Kafka
+class KafkaBroker : public BrokerInterface {
+  public:
+    //! \brief Construct from consumer/producer required arguments
+    KafkaBroker(int partition, std::string brokers, int start_offset);
+
+    BrokerKind kind() const override;
+
+    void send(BodyPresentationPacket const& p) override;
+    void send(BodyStatePacket const& p) override;
+    void send(CollisionNotificationPacket const& p) override;
+
+    void receive(List<BodyPresentationPacket>& packets) override;
+    void receive(List<BodyStatePacket>& packets) override;
+    void receive(List<CollisionNotificationPacket>& packets) override;
+
+  private:
+    KafkaBodyPresentationConsumer _body_presentation_c;
+    KafkaBodyStateConsumer _body_state_c;
+    KafkaCollisionNotificationConsumer _collision_notification_c;
+    KafkaBodyPresentationProducer _body_presentation_p;
+    KafkaBodyStateProducer _body_state_p;
+    KafkaCollisionNotificationProducer _collision_notification_p;
+};
+
 template<class T> KafkaConsumerBase<T>::KafkaConsumerBase(std::string topic_string, int partition, std::string brokers, int start_offset) :
         _partition(partition) {
 
