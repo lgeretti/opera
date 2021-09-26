@@ -71,6 +71,7 @@ class PacketMemoryServer {
 //! \brief A broker to handle packets using memory
 class MemoryBroker : public BrokerInterface {
   public:
+    MemoryBroker();
     BrokerKind kind() const override;
 
     void send(BodyPresentationPacket const& p) override;

@@ -47,7 +47,6 @@ public:
         std::deque<BodyPresentationPacket> bp_received;
         std::deque<BodyStatePacket> bs_received;
         std::deque<CollisionNotificationPacket> cn_received;
-
         bool stop = false;
         std::thread cpt([&]{
             MemoryBroker receiver_broker;
@@ -55,7 +54,7 @@ public:
                 receiver_broker.receive(bp_received);
                 receiver_broker.receive(bs_received);
                 receiver_broker.receive(cn_received);
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         });
 
@@ -81,6 +80,5 @@ public:
 
 int main() {
     TestMemory().test();
-
     return ARIADNE_TEST_FAILURES;
 }

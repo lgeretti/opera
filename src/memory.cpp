@@ -59,6 +59,8 @@ SizeType PacketMemoryServer::get(std::deque<CollisionNotificationPacket>& packet
     return _collision_notifications.size()-from;
 }
 
+MemoryBroker::MemoryBroker() : _body_presentation_index(0), _body_state_index(0), _collision_notification_index(0) { }
+
 BrokerKind MemoryBroker::kind() const {
     return BrokerKind::MEMORY;
 }
