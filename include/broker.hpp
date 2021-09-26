@@ -68,17 +68,8 @@ class Broker : public Ariadne::Handle<BrokerInterface> {
 
 //! \brief A class holding communication brokers for production/consumption of packets
 class BrokerManager {
-  private:
-    BrokerManager() = default;
   public:
-    BrokerManager(BrokerManager const&) = delete;
-    void operator=(BrokerManager const&) = delete;
-
-    //! \brief The singleton instance of this class
-    static BrokerManager& instance() {
-        static BrokerManager instance;
-        return instance;
-    }
+    BrokerManager() = default;
 
     //! \brief Add a \a broker
     void add(Broker const& broker);

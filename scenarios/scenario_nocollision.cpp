@@ -130,7 +130,7 @@ class NoCollisionScenario {
             robot_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
         }
 
-        auto& broker_manager = BrokerManager::instance();
+        BrokerManager broker_manager;
         broker_manager.add(MemoryBroker());
 
         Ariadne::Thread human_production([&]{

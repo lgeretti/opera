@@ -36,7 +36,7 @@ public:
     }
 
     void test_broker_manager_population() {
-        auto& manager = BrokerManager::instance();
+        BrokerManager manager;
 
         ARIADNE_TEST_EQUALS(manager.num_brokers(),0)
         ARIADNE_TEST_ASSERT(not manager.has_broker(BrokerKind::MEMORY))
@@ -57,8 +57,8 @@ public:
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        BrokerManager::instance().add(MemoryBroker());
-        auto& sender_manager = BrokerManager::instance();
+        BrokerManager sender_manager;
+        sender_manager.add(MemoryBroker());
 
         std::deque<BodyPresentationPacket> bp_received;
         std::deque<BodyStatePacket> bs_received;
@@ -66,7 +66,8 @@ public:
 
         bool stop = false;
         std::thread cpt([&]{
-            auto& receiver_manager = BrokerManager::instance();
+            BrokerManager receiver_manager;
+            receiver_manager.add(MemoryBroker());
             while(not stop) {
                 receiver_manager.receive(bp_received);
                 receiver_manager.receive(bs_received);

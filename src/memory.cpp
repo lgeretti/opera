@@ -41,22 +41,22 @@ void PacketMemoryServer::put(CollisionNotificationPacket const& p) {
     _collision_notifications.push_back(p);
 }
 
-void PacketMemoryServer::get(std::deque<BodyPresentationPacket>& packets) {
+SizeType PacketMemoryServer::get(std::deque<BodyPresentationPacket>& packets, SizeType const& from) {
     std::lock_guard<std::mutex> lock(_mux);
-    for (auto& p : _body_presentations) packets.push_back(p);
-    _body_presentations.clear();
+    for (SizeType i=from; i<_body_presentations.size(); ++i) packets.push_back(_body_presentations.at(i));
+    return _body_presentations.size()-from;
 }
 
-void PacketMemoryServer::get(std::deque<BodyStatePacket>& packets) {
+SizeType PacketMemoryServer::get(std::deque<BodyStatePacket>& packets, SizeType const& from) {
     std::lock_guard<std::mutex> lock(_mux);
-    for (auto& p : _body_states) packets.push_back(p);
-    _body_states.clear();
+    for (SizeType i=from; i<_body_states.size(); ++i) packets.push_back(_body_states.at(i));
+    return _body_states.size()-from;
 }
 
-void PacketMemoryServer::get(std::deque<CollisionNotificationPacket>& packets) {
+SizeType PacketMemoryServer::get(std::deque<CollisionNotificationPacket>& packets, SizeType const& from) {
     std::lock_guard<std::mutex> lock(_mux);
-    for (auto& p : _collision_notifications) packets.push_back(p);
-    _collision_notifications.clear();
+    for (SizeType i=from; i<_collision_notifications.size(); ++i) packets.push_back(_collision_notifications.at(i));
+    return _collision_notifications.size()-from;
 }
 
 BrokerKind MemoryBroker::kind() const {
@@ -76,15 +76,15 @@ void MemoryBroker::send(CollisionNotificationPacket const& p) {
 }
 
 void MemoryBroker::receive(std::deque<BodyPresentationPacket>& packets) {
-    PacketMemoryServer::instance().get(packets);
+    _body_presentation_index += PacketMemoryServer::instance().get(packets,_body_presentation_index);
 }
 
 void MemoryBroker::receive(std::deque<BodyStatePacket>& packets) {
-    PacketMemoryServer::instance().get(packets);
+    _body_state_index += PacketMemoryServer::instance().get(packets,_body_state_index);
 }
 
 void MemoryBroker::receive(std::deque<CollisionNotificationPacket>& packets) {
-    PacketMemoryServer::instance().get(packets);
+    _collision_notification_index += PacketMemoryServer::instance().get(packets,_collision_notification_index);
 }
 
 }
