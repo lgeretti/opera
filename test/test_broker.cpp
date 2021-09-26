@@ -72,7 +72,7 @@ public:
                 receiver_manager.receive(bp_received);
                 receiver_manager.receive(bs_received);
                 receiver_manager.receive(cn_received);
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         });
 
@@ -82,7 +82,7 @@ public:
         sender_manager.send(rs);
         sender_manager.send(cn);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         ARIADNE_TEST_EQUAL(bp_received.size(),2)
         ARIADNE_TEST_EQUAL(bs_received.size(),2)
