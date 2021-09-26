@@ -82,11 +82,13 @@ public:
         sender_manager.send(rs);
         sender_manager.send(cn);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        SizeType i=0;
+        while (bp_received.size() != 2 or bs_received.size() != 2 or cn_received.size() != 1) {
+            ++i;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
 
-        ARIADNE_TEST_EQUAL(bp_received.size(),2)
-        ARIADNE_TEST_EQUAL(bs_received.size(),2)
-        ARIADNE_TEST_EQUAL(cn_received.size(),1)
+        ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
 
         stop = true;
         cpt.join();
