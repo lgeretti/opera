@@ -10,6 +10,7 @@ add_library(OPERA_SRC OBJECT
    kafka.cpp
    barrier.cpp
    verification.cpp
+   websocket.cpp
 )
 
 if(COVERAGE)

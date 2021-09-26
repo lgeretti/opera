@@ -3,25 +3,41 @@
 #include <iostream>
 #include <ctype.h>
 #include "deserialisation.hpp"
+#include "serialisation.hpp"
 #include <algorithm>
+#include <mutex>
+#include "broker.hpp"
 
 using namespace std;
-using namespace Opera;
+namespace Opera {
 
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
-shared_ptr<WsServer::Connection> connections;
-std::vector<String> presentations;
+std::vector<BodyPresentationPacket> presentations;
 std::vector<BodyStatePacket> states;
+std::map<shared_ptr<WsServer::Connection>, std::string> robot_connection;
+std::map<std::string, std::vector<std::string>> robot_human_map;
+std::mutex mtx;
+bool close_server = false;
 
-class websocket {
-
+class websocket : public BrokerInterface {
   public:
+    BrokerKind kind() const override;
+
+    void send(BodyPresentationPacket const& p) override;
+    void send(BodyStatePacket const& p) override;
+    void send(CollisionNotificationPacket const& p) override;
+
+    void receive(std::deque<BodyPresentationPacket>& packets) override;
+    void receive(std::deque<BodyStatePacket>& packets) override;
+    void receive(std::deque<CollisionNotificationPacket>& packets) override;
+
     websocket() {}
     start_websocket(int port)
     {
-      // WebSocket (WS)-server at port 8080 using 1 thread
+
       WsServer server;
+      // WebSocket (WS)-server at port 8080 using 1 thread
       server.config.port = port;
 
       cout<<"Open connection"<<endl;
@@ -32,117 +48,136 @@ class websocket {
       //   var ws=new WebSocket("ws://localhost:8080/echo");
       //   ws.onmessage=function(evt){console.log(evt.data);};
       //   ws.send("test");
-      auto &echo_presentation = server.endpoint["^/presentation/?$"];
-      auto &echo_state = server.endpoint["^/state/?$"];
+      auto &opera_endpoint = server.endpoint["^/opera/?$"];
 
-      echo_presentation.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 
-        //cout << "Server: Presentation received: \"" << in_message->string() << "\" from " << connection.get() << endl;
-
-        presentations.push_back(in_message->string());
-
-        //cout << "Server: Sending message \"" << "presentation received" << "\" to " << connection.get() << endl;
-
-        // connection->send is an asynchronous function
-        connection->send("presentation received", [](const SimpleWeb::error_code &ec) {
-          if(ec) {
-            cout << "Server: Error sending message. " <<
-                // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
-                "Error: " << ec << ", error message: " << ec.message() << endl;
-          }
-        });
-      };
-
-      echo_state.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
+      opera_endpoint.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 
         //cout << "Server: State received: \"" << in_message->string() << "\" from " << connection.get() << endl;
         
-        /*.c_str() put some dirty char at the end of the converted string, &* somehow doesn't have the same problem*/
-        states.push_back(BodyStatePacketDeserialiser(&*in_message->string().begin()).make());
-
-        //cout << "Server: Sending message \"" << in_message->string() << "\" to " << connection.get() << endl;
-
-        // connection->send is an asynchronous function
-        connection->send(std::to_string(states.size()), [](const SimpleWeb::error_code &ec) {
+        if(in_message->string().find("isHuman") != string::npos)
+        {
+          BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(&*in_message->string().begin()).make();
+          if (p0.is_human())
+          //fare controlli che id robot e human non ci siano già (insomma, metteteli diversi cribbio!)
+            robot_connection.insert(std::pair<shared_ptr<WsServer::Connection>,string>(connection,p0.id()));
+          else
+            robot_human_map[robot_connection[connection]].push_back(p0.id());
+          presentations.push_back(p0);
+          //cout<<"added presentation"<<endl;
+        }
+        else if(in_message->string().find("timestamp") != string::npos)
+        {
+          BodyStatePacket p0 = BodyStatePacketDeserialiser(&*in_message->string().begin()).make();
+          states.push_back(p0);
+        }
+        else
+        {
+          connection->send("Message type not recognized", [](const SimpleWeb::error_code &ec) {
           if(ec) {
             cout << "Server: Error sending message. " <<
                 // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
                 "Error: " << ec << ", error message: " << ec.message() << endl;
           }
         });
+        connection->send_close(-1);
+        }
+        //cout << "Server: Sending message \"" << in_message->string() << "\" to " << connection.get() << endl;
+
       };
 
-      echo_presentation.on_open = [](shared_ptr<WsServer::Connection> connection) {
-        connections = connection;
+      opera_endpoint.on_open = [](shared_ptr<WsServer::Connection> connection) {
         cout << "Server: Opened connection " << connection.get() << endl;
       };
 
-      echo_state.on_open = [](shared_ptr<WsServer::Connection> connection) {
-        connections = connection;
-        cout << "Server: Opened connection " << connection.get() << endl;
-      };
-
-      // See RFC 6455 7.4.1. for status codes
-      echo_presentation.on_close = [](shared_ptr<WsServer::Connection> connection, int status, const string & /*reason*/) {
+      opera_endpoint.on_close = [](shared_ptr<WsServer::Connection> connection, int status, const string & /*reason*/) {
         cout << "Server: Closed connection " << connection.get() << " with status code " << status << endl;
-        connections = NULL;
       };
 
-      echo_state.on_close = [](shared_ptr<WsServer::Connection> connection, int status, const string & /*reason*/) {
-        cout << "Server: Closed connection " << connection.get() << " with status code " << status << endl;
-        connections = NULL;
-      };
-
-      // Can modify handshake response headers here if needed
-      echo_presentation.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
+      opera_endpoint.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
         return SimpleWeb::StatusCode::information_switching_protocols; // Upgrade to websocket
       };
 
-      echo_state.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
-        return SimpleWeb::StatusCode::information_switching_protocols; // Upgrade to websocket
-      };
-
-      // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
-      echo_presentation.on_error = [](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
+      opera_endpoint.on_error = [](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
         cout << "Server: Error in connection " << connection.get() << ". "
             << "Error: " << ec << ", error message: " << ec.message() << endl;
-
-        connections = NULL;
       };
-
-      echo_state.on_error = [](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
-        cout << "Server: Error in connection " << connection.get() << ". "
-            << "Error: " << ec << ", error message: " << ec.message() << endl;
-
-        connections = NULL;
-      };
-
+      
       // Start server and receive assigned port when server is listening for requests
-      promise<unsigned short> server_port;
-      thread server_thread([&server, &server_port]() {
-        // Start server
-        server.start([&server_port](unsigned short port) {
-          server_port.set_value(port);
+        promise<unsigned short> server_port;
+        thread server_thread([&server, &server_port]() {
+            // Start server
+            server.start([&server_port](unsigned short port) {
+            server_port.set_value(port);
+            });
         });
-      });
-      cout << "Server listening on port " << server_port.get_future().get() << endl
-          << endl;
+      cout << "Server listening on port " << server_port.get_future().get() << endl;
 
+      while(!close_server)
+        this_thread::sleep_for(chrono::milliseconds(5));
+
+      server.stop();
       server_thread.join();
     }
 
-    send_notification_message(String out_message) {
-      connections->send(out_message, [](const SimpleWeb::error_code &ec) {
-          if(ec) {
-            cout << "Server: Error sending message. " <<
-                // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
-                "Error: " << ec << ", error message: " << ec.message() << endl;
-          }
-        });
+    void send_notification_message(CollisionNotificationPacket out_message) {
+      for ( const auto &p : robot_connection )
+      {
+        if(p.second == out_message.robot_id())
+        {
+          CollisionNotificationPacketSerialiser serialiser(out_message);
+          p.first->send(serialiser.to_string(), [](const SimpleWeb::error_code &ec) {
+            if(ec) {
+              cout << "Server: Error sending message. " <<
+                  // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
+                  "Error: " << ec << ", error message: " << ec.message() << endl;
+            }
+          });
+          return;
+        }
+      }
+      
     }
 
-    std::vector<BodyStatePacket> get_human_states() {
-      return states;
+    int num_received_presentations(){
+      return presentations.size();
     }
+
+    BodyPresentationPacket get_presentation(int index){
+      return presentations[index];
+    }
+
+    void stop(){
+      close_server = true;
+    }
+
+
+    /*inactivity_remove(string id_robot = "h0")
+    {
+      mtx.lock();
+
+      std::vector<std::string> temp = robot_human_map[id_robot];
+      //delete all the human entries connected with id_robot
+      for(int i = 0; i < temp.size(); i++)
+      {
+        presentations.erase(temp[i]);
+        states.erase(temp[i]);
+      }
+      //delete all the robot entries with id_robot
+      presentations.erase(id_robot);
+      states.erase(id_robot);
+
+      //close the connection (just in case) and remove the entry
+      for ( const auto &p : robot_connection )
+        if(p.second == id_robot)
+        {
+          p.first->send_close(-1);
+          robot_connection.erase(p.first);
+          break;
+        }
+
+      mtx.unlock();
+    }*/
 
 };
+}

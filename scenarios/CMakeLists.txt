@@ -1,6 +1,5 @@
 set(SCENARIOS
         scenario_nocollision
-        scenario_nocollision_ws
     )
 
 foreach(SCENARIO ${SCENARIOS})

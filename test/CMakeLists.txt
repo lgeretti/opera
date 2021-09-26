@@ -12,8 +12,7 @@ set(UNIT_TESTS
     test_kafka
     test_barrier
     test_verification
-    test_websocket_server
-    test_websocket_client
+    test_websocket
 )
 
 foreach(TEST ${UNIT_TESTS})
