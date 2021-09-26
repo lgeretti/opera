@@ -95,9 +95,7 @@ public:
     }
 };
 
-
 int main() {
     TestBroker().test();
-
     return ARIADNE_TEST_FAILURES;
 }
