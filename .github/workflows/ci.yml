@@ -64,7 +64,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev mosquitto mosquitto-dev rapidjson-dev ariadne
+        sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev mosquitto libmosquittopp-dev rapidjson-dev ariadne
         export KAFKA_PARENT_DIR=~
         cd $KAFKA_PARENT_DIR
         wget https://archive.apache.org/dist/kafka/2.8.0/kafka-2.8.0-src.tgz
