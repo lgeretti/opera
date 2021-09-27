@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - mqtt
   pull_request:
 
 env:
@@ -53,15 +54,17 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install ariadne-cps/tap/ariadne
-        brew install ninja gcc@10 rapidjson kafka
+        brew install ninja gcc@10 rapidjson kafka mosquitto
         HOMEBREW_CXX=g++-10 HOMEBREW_CC=gcc-10 brew install librdkafka --build-from-source
         export PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig
+        ln -sfv /usr/local/opt/mosquitto/*.plist ~/Library/LaunchAgents
+        launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mosquitto.plist
 
     - name: Set Up Linux Dependencies
       if: runner.os == 'Linux'
       run: |
         sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev rapidjson-dev ariadne
+        sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 librdkafka-dev mosquitto mosquitto-dev rapidjson-dev ariadne
         export KAFKA_PARENT_DIR=~
         cd $KAFKA_PARENT_DIR
         wget https://archive.apache.org/dist/kafka/2.8.0/kafka-2.8.0-src.tgz
