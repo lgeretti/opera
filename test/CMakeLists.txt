@@ -10,7 +10,6 @@ set(UNIT_TESTS
     test_broker
     test_memory
     test_mqtt
-    test_kafka
     test_barrier
     test_verification
 )

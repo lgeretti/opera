@@ -40,7 +40,7 @@
 namespace Opera {
 
 //! \brief The different kinds of communication brokers supported
-enum class BrokerKind { MEMORY, KAFKA, ROS };
+enum class BrokerKind { MEMORY, MQTT };
 
 //! \brief Interface for a communication broker
 class BrokerInterface {
