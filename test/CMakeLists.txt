@@ -7,7 +7,6 @@ set(UNIT_TESTS
     test_packet
     test_serialisation
     test_deserialisation
-    test_broker
     test_memory
     test_mqtt
     test_barrier

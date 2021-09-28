@@ -39,54 +39,54 @@
 
 namespace Opera {
 
-//! \brief The different kinds of communication brokers supported
-enum class BrokerKind { MEMORY, MQTT };
-
-//! \brief Interface for a communication broker
-class BrokerInterface {
+//! \brief An interface for publishing objects
+template<class T> class PublisherInterface {
   public:
-    //! \brief The kind of the broker
-    virtual BrokerKind kind() const = 0;
-
-    virtual void send(BodyPresentationPacket const& p) = 0;
-    virtual void send(BodyStatePacket const& p) = 0;
-    virtual void send(CollisionNotificationPacket const& p) = 0;
-
-    virtual void receive(std::deque<BodyPresentationPacket>& packets) = 0;
-    virtual void receive(std::deque<BodyStatePacket>& packets) = 0;
-    virtual void receive(std::deque<CollisionNotificationPacket>& packets) = 0;
+    virtual void put(T const& obj) = 0;
 };
 
-//! \brief Handle for a broker
-class Broker : public Ariadne::Handle<BrokerInterface> {
+//! \brief An interface for subscribing to objects published
+template<class T> class SubscriberInterface {
   public:
-    using Ariadne::Handle<BrokerInterface>::Handle;
-    BrokerKind kind() const { return _ptr->kind(); }
-    template<class T> void send(T const& p) { _ptr->send(p); }
-    template<class T> void receive(std::deque<T>& packets) { return _ptr->receive(packets); }
+    virtual void get(std::deque<T>& objs) = 0;
 };
 
-//! \brief A class holding communication brokers for production/consumption of packets
-class BrokerManager {
+//! \brief Handle class for a publisher
+template<class T> class Publisher : public Ariadne::Handle<PublisherInterface<T>> {
   public:
-    BrokerManager() = default;
+    using Ariadne::Handle<PublisherInterface<T>>::Handle;
+    void put(T const& obj) { this->_ptr->put(obj); }
+};
 
-    //! \brief Add a \a broker
-    void add(Broker const& broker);
-    //! \brief The number of brokers added
-    SizeType num_brokers() const;
-    //! \brief Return if a broker of the given \a kind is present
-    bool has_broker(BrokerKind const& kind) const;
-    //! \brief Remove the brokers
-    void clear();
+//! \brief Handle class for a subscriber
+template<class T> class Subscriber : public Ariadne::Handle<SubscriberInterface<T>> {
+public:
+    using Ariadne::Handle<SubscriberInterface<T>>::Handle;
+    void get(std::deque<T>& objs) { this->_ptr->get(objs); }
+};
 
-    //! \brief Send the packet \a p to all brokers
-    template<class T> void send(T const& p) { for (auto& b : _brokers) b.second.send(p); }
-    //! \brief Receive packets from all brokers and append them to \a packets
-    template<class T> void receive(std::deque<T>& packets) { for (auto& b : _brokers) b.second.receive(packets); }
+//! \brief Interface for access to a communication broker
+class BrokerAccessInterface {
+  public:
+    virtual Publisher<BodyPresentationPacket> body_presentation_publisher() const = 0;
+    virtual Publisher<BodyStatePacket> body_state_publisher() const = 0;
+    virtual Publisher<CollisionNotificationPacket> collision_notification_publisher() const = 0;
 
-  private:
-    Ariadne::Map<BrokerKind,Broker> _brokers;
+    virtual Subscriber<BodyPresentationPacket> body_presentation_subscriber() const = 0;
+    virtual Subscriber<BodyStatePacket> body_state_subscriber() const = 0;
+    virtual Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const = 0;
+};
+
+//! \brief Handle for a broker access
+class BrokerAccess : public Ariadne::Handle<BrokerAccessInterface> {
+  public:
+    using Ariadne::Handle<BrokerAccessInterface>::Handle;
+    Publisher<BodyPresentationPacket> body_presentation_publisher() const { return _ptr->body_presentation_publisher(); }
+    Publisher<BodyStatePacket> body_state_publisher() const { return _ptr->body_state_publisher(); }
+    Publisher<CollisionNotificationPacket> collision_notification_publisher() const { return _ptr->collision_notification_publisher(); }
+    Subscriber<BodyPresentationPacket> body_presentation_subscriber() const { return _ptr->body_presentation_subscriber(); }
+    Subscriber<BodyStatePacket> body_state_subscriber() const { return _ptr->body_state_subscriber(); }
+    Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const { return _ptr->collision_notification_subscriber(); }
 };
 
 }

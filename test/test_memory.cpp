@@ -41,28 +41,33 @@ public:
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        MemoryBroker sender_broker;
-        ARIADNE_TEST_ASSERT(sender_broker.kind() == BrokerKind::MEMORY)
+        BrokerAccess access = MemoryBrokerAccess();
 
         std::deque<BodyPresentationPacket> bp_received;
         std::deque<BodyStatePacket> bs_received;
         std::deque<CollisionNotificationPacket> cn_received;
         bool stop = false;
         std::thread cpt([&]{
-            MemoryBroker receiver_broker;
+            auto bp_subscriber = access.body_presentation_subscriber();
+            auto bs_subscriber = access.body_state_subscriber();
+            auto cn_subscriber = access.collision_notification_subscriber();
             while(not stop) {
-                receiver_broker.receive(bp_received);
-                receiver_broker.receive(bs_received);
-                receiver_broker.receive(cn_received);
+                bp_subscriber.get(bp_received);
+                bs_subscriber.get(bs_received);
+                cn_subscriber.get(cn_received);
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         });
 
-        sender_broker.send(hp);
-        sender_broker.send(rp);
-        sender_broker.send(hs);
-        sender_broker.send(rs);
-        sender_broker.send(cn);
+        auto bp_publisher = access.body_presentation_publisher();
+        auto bs_publisher = access.body_state_publisher();
+        auto cn_publisher = access.collision_notification_publisher();
+
+        bp_publisher.put(hp);
+        bp_publisher.put(rp);
+        bs_publisher.put(hs);
+        bs_publisher.put(rs);
+        cn_publisher.put(cn);
 
         SizeType i=0;
         while (bp_received.size() != 2 or bs_received.size() != 2 or cn_received.size() != 1) {

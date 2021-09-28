@@ -40,17 +40,18 @@
 
 namespace Opera {
 
-//! A static class to hold packets synchronously, when using a memory broker
-class PacketMemoryServer {
+//! \brief A static class to hold packets synchronously using memory
+//! \details Packets are accumulated indefinitely
+class MemoryBroker {
   private:
-    PacketMemoryServer() = default;
+    MemoryBroker() = default;
   public:
-    PacketMemoryServer(PacketMemoryServer const&) = delete;
-    void operator=(PacketMemoryServer const&) = delete;
+    MemoryBroker(MemoryBroker const&) = delete;
+    void operator=(MemoryBroker const&) = delete;
 
     //! \brief The singleton instance of this class
-    static PacketMemoryServer& instance() {
-        static PacketMemoryServer instance;
+    static MemoryBroker& instance() {
+        static MemoryBroker instance;
         return instance;
     }
 
@@ -68,24 +69,32 @@ class PacketMemoryServer {
     std::mutex _mux;
 };
 
-//! \brief A broker to handle packets using memory
-class MemoryBroker : public BrokerInterface {
+//! \brief The publisher of objects to memory
+template<class T> class MemoryPublisher : public PublisherInterface<T> {
   public:
-    MemoryBroker();
-    BrokerKind kind() const override;
+    void put(T const& obj) override { MemoryBroker::instance().put(obj); }
+};
 
-    void send(BodyPresentationPacket const& p) override;
-    void send(BodyStatePacket const& p) override;
-    void send(CollisionNotificationPacket const& p) override;
-
-    void receive(std::deque<BodyPresentationPacket>& packets) override;
-    void receive(std::deque<BodyStatePacket>& packets) override;
-    void receive(std::deque<CollisionNotificationPacket>& packets) override;
-
+//! \brief The subscriber to objects published to memory
+//! \details The advancement of acquisition is local to the subscriber, but for simplicity
+//! a new subscriber starts from the beginning of memory content
+template<class T> class MemorySubscriber : public SubscriberInterface<T> {
+  public:
+    MemorySubscriber() : _current_index(0) { }
+    void get(std::deque<T>& objs) override { _current_index += MemoryBroker::instance().get(objs, _current_index); }
   private:
-    SizeType _body_presentation_index;
-    SizeType _body_state_index;
-    SizeType _collision_notification_index;
+    SizeType _current_index;
+};
+
+//! \brief A broker to handle packets using memory
+class MemoryBrokerAccess : public BrokerAccessInterface {
+  public:
+    Publisher<BodyPresentationPacket> body_presentation_publisher() const override;
+    Publisher<BodyStatePacket> body_state_publisher() const override;
+    Publisher<CollisionNotificationPacket> collision_notification_publisher() const override;
+    Subscriber<BodyPresentationPacket> body_presentation_subscriber() const override;
+    Subscriber<BodyStatePacket> body_state_subscriber() const override;
+    Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const override;
 };
 
 }

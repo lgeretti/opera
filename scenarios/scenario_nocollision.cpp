@@ -130,15 +130,15 @@ class NoCollisionScenario {
             robot_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
         }
 
-        BrokerManager broker_manager;
-        broker_manager.add(MemoryBroker());
+        BrokerAccess access = MemoryBrokerAccess();
 
         Ariadne::Thread human_production([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            auto publisher = access.body_state_publisher();
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
                 ARIADNE_LOG_PRINTLN("Human packet sent at " << p.timestamp());
-                broker_manager.send(p);
+                publisher.put(p);
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
@@ -146,10 +146,11 @@ class NoCollisionScenario {
 
         Ariadne::Thread robot_production([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            auto publisher = access.body_state_publisher();
             while (not robot_packets.empty()) {
                 auto& p = robot_packets.front();
                 ARIADNE_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
-                broker_manager.send(p);
+                publisher.put(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
@@ -159,8 +160,9 @@ class NoCollisionScenario {
         Ariadne::Thread state_consumption([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             std::deque<BodyStatePacket> packets;
+            auto subscriber = access.body_state_subscriber();
             while (not stop) {
-                broker_manager.receive(packets);
+                subscriber.get(packets);
                 while(not packets.empty()) {
                     auto& p = packets.front();
                     ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp());
