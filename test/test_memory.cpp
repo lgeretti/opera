@@ -25,6 +25,7 @@
 #include "test.hpp"
 #include "utility.hpp"
 #include "memory.hpp"
+#include "mqtt.hpp"
 
 using namespace Opera;
 
@@ -41,7 +42,7 @@ public:
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        BrokerAccess access = MemoryBrokerAccess();
+        BrokerAccess access = MqttBrokerAccess("localhost",1883);
 
         List<BodyPresentationPacket> bp_received;
         List<BodyStatePacket> bs_received;
@@ -50,9 +51,9 @@ public:
         auto bp_subscriber = access.body_presentation_subscriber();
         auto bs_subscriber = access.body_state_subscriber();
         auto cn_subscriber = access.collision_notification_subscriber();
-        bp_subscriber->loop_get([&](BodyPresentationPacket const& p){bp_received.push_back(p);});
-        bs_subscriber->loop_get([&](BodyStatePacket const& p){bs_received.push_back(p);});
-        cn_subscriber->loop_get([&](CollisionNotificationPacket const& p){ cn_received.push_back(cn); });
+        bp_subscriber->loop_get([&](auto p){ bp_received.push_back(p); });
+        bs_subscriber->loop_get([&](auto p){ bs_received.push_back(p); });
+        cn_subscriber->loop_get([&](auto p){ cn_received.push_back(cn); });
 
         auto bp_publisher = access.body_presentation_publisher();
         auto bs_publisher = access.body_state_publisher();

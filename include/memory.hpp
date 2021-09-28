@@ -35,8 +35,6 @@
 #include <thread>
 
 #include "broker.hpp"
-#include "serialisation.hpp"
-#include "deserialisation.hpp"
 
 namespace Opera {
 
@@ -129,19 +127,19 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
 };
 
 class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {
-  public:
+  protected:
     bool has_new_objects() const override;
     BodyPresentationPacket const& get_new_object() const override;
 };
 
 class BodyStatePacketMemorySubscriber : public MemorySubscriberBase<BodyStatePacket> {
-  public:
+  protected:
     bool has_new_objects() const override;
     BodyStatePacket const& get_new_object() const override;
 };
 
 class CollisionNotificationPacketMemorySubscriber : public MemorySubscriberBase<CollisionNotificationPacket> {
-  public:
+  protected:
     bool has_new_objects() const override;
     CollisionNotificationPacket const& get_new_object() const override;
 };
