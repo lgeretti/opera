@@ -9,8 +9,7 @@ set(UNIT_TESTS
     test_deserialisation
     test_broker
     test_memory
-    test_mqtt_publish
-    test_mqtt_subscribe
+    test_mqtt
     test_kafka
     test_barrier
     test_verification
