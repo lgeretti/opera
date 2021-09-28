@@ -42,7 +42,10 @@ namespace Opera {
 //! \brief An interface for publishing objects
 template<class T> class PublisherInterface {
   public:
+    //! \brief Publish the \a obj
     virtual void put(T const& obj) = 0;
+    //! \brief Default destructor to avoid destructor not being called on objects of this type
+    virtual ~PublisherInterface() = default;
 };
 
 //! \brief An interface for subscribing to objects published
@@ -50,20 +53,8 @@ template<class T> class SubscriberInterface {
   public:
     //! \brief Start the get loop, calling \a callback when an object is received
     virtual void loop_get(std::function<void(T const&)> const& callback) = 0;
-};
-
-//! \brief Handle class for a publisher
-template<class T> class Publisher : public Ariadne::Handle<PublisherInterface<T>> {
-  public:
-    using Ariadne::Handle<PublisherInterface<T>>::Handle;
-    void put(T const& obj) { this->_ptr->put(obj); }
-};
-
-//! \brief Handle class for a subscriber
-template<class T> class Subscriber : public Ariadne::Handle<SubscriberInterface<T>> {
-  public:
-    using Ariadne::Handle<SubscriberInterface<T>>::Handle;
-    void loop_get(std::function<void(T const&)> const& callback) { this->_ptr->loop_get(callback); };
+    //! \brief Default destructor to avoid destructor not being called on objects of this type
+    virtual ~SubscriberInterface() = default;
 };
 
 //! \brief Interface for access to a communication broker
