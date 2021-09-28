@@ -134,48 +134,41 @@ class NoCollisionScenario {
 
         Ariadne::Thread human_production([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            auto publisher = access.body_state_publisher();
+            auto* publisher = access.body_state_publisher();
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
                 ARIADNE_LOG_PRINTLN("Human packet sent at " << p.timestamp());
-                publisher.put(p);
+                publisher->put(p);
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
+            delete publisher;
         },"h_pr");
 
         Ariadne::Thread robot_production([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            auto publisher = access.body_state_publisher();
+            auto* publisher = access.body_state_publisher();
             while (not robot_packets.empty()) {
                 auto& p = robot_packets.front();
                 ARIADNE_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
-                publisher.put(p);
+                publisher->put(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
+            delete publisher;
         },"r_pr");
 
-        bool stop = false;
+        auto* subscriber = access.body_state_subscriber();
         Ariadne::Thread state_consumption([&]{
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            std::deque<BodyStatePacket> packets;
-            auto subscriber = access.body_state_subscriber();
-            while (not stop) {
-                subscriber.get(packets);
-                while(not packets.empty()) {
-                    auto& p = packets.front();
-                    ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp());
-                    packets.pop_front();
-                }
-                std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
-            }
+            subscriber->loop_get([](BodyStatePacket const& p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
+            std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
         },"s_co");
 
         while(not robot_packets.empty())
             std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
         std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
-        stop = true;
+        //delete subscriber;
     }
 
 };

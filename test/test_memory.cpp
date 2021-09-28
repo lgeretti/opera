@@ -43,31 +43,30 @@ public:
 
         BrokerAccess access = MemoryBrokerAccess();
 
-        std::deque<BodyPresentationPacket> bp_received;
-        std::deque<BodyStatePacket> bs_received;
-        std::deque<CollisionNotificationPacket> cn_received;
-        bool stop = false;
-        std::thread cpt([&]{
-            auto bp_subscriber = access.body_presentation_subscriber();
-            auto bs_subscriber = access.body_state_subscriber();
-            auto cn_subscriber = access.collision_notification_subscriber();
-            while(not stop) {
-                bp_subscriber.get(bp_received);
-                bs_subscriber.get(bs_received);
-                cn_subscriber.get(cn_received);
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-        });
+        List<BodyPresentationPacket> bp_received;
+        List<BodyStatePacket> bs_received;
+        List<CollisionNotificationPacket> cn_received;
+
+        auto bp_subscriber = access.body_presentation_subscriber();
+        auto bs_subscriber = access.body_state_subscriber();
+        auto cn_subscriber = access.collision_notification_subscriber();
+        bp_subscriber->loop_get([&](BodyPresentationPacket const& p){bp_received.push_back(p);});
+        bs_subscriber->loop_get([&](BodyStatePacket const& p){bs_received.push_back(p);});
+        cn_subscriber->loop_get([&](CollisionNotificationPacket const& p){ cn_received.push_back(cn); });
 
         auto bp_publisher = access.body_presentation_publisher();
         auto bs_publisher = access.body_state_publisher();
         auto cn_publisher = access.collision_notification_publisher();
 
-        bp_publisher.put(hp);
-        bp_publisher.put(rp);
-        bs_publisher.put(hs);
-        bs_publisher.put(rs);
-        cn_publisher.put(cn);
+        bp_publisher->put(hp);
+        bp_publisher->put(rp);
+        bs_publisher->put(hs);
+        bs_publisher->put(rs);
+        cn_publisher->put(cn);
+
+        delete bp_publisher;
+        delete bs_publisher;
+        delete cn_publisher;
 
         SizeType i=0;
         while (bp_received.size() != 2 or bs_received.size() != 2 or cn_received.size() != 1) {
@@ -77,8 +76,10 @@ public:
 
         ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
 
-        stop = true;
-        cpt.join();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        delete bp_subscriber;
+        delete bs_subscriber;
+        delete cn_subscriber;
     }
 };
 

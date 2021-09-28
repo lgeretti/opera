@@ -59,14 +59,18 @@ class MemoryBroker {
     void put(BodyStatePacket const& p);
     void put(CollisionNotificationPacket const& p);
 
-    SizeType get(std::deque<BodyPresentationPacket>& packets, SizeType const& from);
-    SizeType get(std::deque<BodyStatePacket>& packets, SizeType const& from);
-    SizeType get(std::deque<CollisionNotificationPacket>& packets, SizeType const& from);
+    BodyPresentationPacket const& get_body_presentation(SizeType const& idx) const;
+    BodyStatePacket const& get_body_state(SizeType const& idx) const;
+    CollisionNotificationPacket const& get_collision_notification(SizeType const& at) const;
+
+    SizeType body_presentations_size() const;
+    SizeType body_states_size() const;
+    SizeType collision_notifications_size() const;
   private:
     List<BodyPresentationPacket> _body_presentations;
     List<BodyStatePacket> _body_states;
     List<CollisionNotificationPacket> _collision_notifications;
-    std::mutex _mux;
+    mutable std::mutex _mux;
 };
 
 //! \brief The publisher of objects to memory
@@ -78,23 +82,79 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 //! \brief The subscriber to objects published to memory
 //! \details The advancement of acquisition is local to the subscriber, but for simplicity
 //! a new subscriber starts from the beginning of memory content
-template<class T> class MemorySubscriber : public SubscriberInterface<T> {
+template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
+    typedef std::function<void(T const&)> FunctionType;
+  protected:
+    //! \brief Set the next index and make sure that _stop is false
+    MemorySubscriberBase() : _next_index(0), _started(false), _stop(false) { }
+
+    //! \brief Whether there are new objects that have not been got yet
+    virtual bool has_new_objects() const = 0;
+
+    //! \brief Get the new object with respect to the current index
+    virtual T const& get_new_object() const = 0;
+
   public:
-    MemorySubscriber() : _current_index(0) { }
-    void get(std::deque<T>& objs) override { _current_index += MemoryBroker::instance().get(objs, _current_index); }
-  private:
-    SizeType _current_index;
+    //! \brief The main asynchronous loop for getting objects from memory
+    //! \details Allows multiple calls, waiting to finish the previous callback if necessary
+    void loop_get(FunctionType const& callback) override {
+        if (_started) {
+            _stop = true;
+            _thr.join();
+            _started = false;
+        }
+        _thr = std::thread([&,callback] {
+            while (not _stop) {
+                if (has_new_objects()) {
+                    callback(get_new_object());
+                    _next_index++;
+                } else {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+            }
+        });
+        _started = true;
+    }
+
+    virtual ~MemorySubscriberBase() {
+        _stop = true;
+        _thr.join();
+    }
+
+  protected:
+    SizeType _next_index;
+    bool _started;
+    bool _stop;
+    std::thread _thr;
+};
+
+class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {
+  public:
+    bool has_new_objects() const override;
+    BodyPresentationPacket const& get_new_object() const override;
+};
+
+class BodyStatePacketMemorySubscriber : public MemorySubscriberBase<BodyStatePacket> {
+  public:
+    bool has_new_objects() const override;
+    BodyStatePacket const& get_new_object() const override;
+};
+
+class CollisionNotificationPacketMemorySubscriber : public MemorySubscriberBase<CollisionNotificationPacket> {
+  public:
+    bool has_new_objects() const override;
+    CollisionNotificationPacket const& get_new_object() const override;
 };
 
 //! \brief A broker to handle packets using memory
 class MemoryBrokerAccess : public BrokerAccessInterface {
   public:
-    Publisher<BodyPresentationPacket> body_presentation_publisher() const override;
-    Publisher<BodyStatePacket> body_state_publisher() const override;
-    Publisher<CollisionNotificationPacket> collision_notification_publisher() const override;
-    Subscriber<BodyPresentationPacket> body_presentation_subscriber() const override;
-    Subscriber<BodyStatePacket> body_state_subscriber() const override;
-    Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const override;
+    PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const override;
+    PublisherInterface<BodyStatePacket>* body_state_publisher() const override;
+    PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const override;
+    SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const override;
+    SubscriberInterface<BodyStatePacket>* body_state_subscriber() const override;
+    SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const override;
 };
 
 }

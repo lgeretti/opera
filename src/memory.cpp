@@ -41,46 +41,79 @@ void MemoryBroker::put(CollisionNotificationPacket const& p) {
     _collision_notifications.push_back(p);
 }
 
-SizeType MemoryBroker::get(std::deque<BodyPresentationPacket>& packets, SizeType const& from) {
+BodyPresentationPacket const& MemoryBroker::get_body_presentation(SizeType const& idx) const {
     std::lock_guard<std::mutex> lock(_mux);
-    for (SizeType i=from; i<_body_presentations.size(); ++i) packets.push_back(_body_presentations.at(i));
-    return _body_presentations.size()-from;
+    return _body_presentations.at(idx);
 }
 
-SizeType MemoryBroker::get(std::deque<BodyStatePacket>& packets, SizeType const& from) {
+BodyStatePacket const& MemoryBroker::get_body_state(SizeType const& idx) const {
     std::lock_guard<std::mutex> lock(_mux);
-    for (SizeType i=from; i<_body_states.size(); ++i) packets.push_back(_body_states.at(i));
-    return _body_states.size()-from;
+    return _body_states.at(idx);
 }
 
-SizeType MemoryBroker::get(std::deque<CollisionNotificationPacket>& packets, SizeType const& from) {
+CollisionNotificationPacket const& MemoryBroker::get_collision_notification(SizeType const& idx) const {
     std::lock_guard<std::mutex> lock(_mux);
-    for (SizeType i=from; i<_collision_notifications.size(); ++i) packets.push_back(_collision_notifications.at(i));
-    return _collision_notifications.size()-from;
+    return _collision_notifications.at(idx);
 }
 
-Publisher<BodyPresentationPacket> MemoryBrokerAccess::body_presentation_publisher() const {
-    return MemoryPublisher<BodyPresentationPacket>();
+SizeType MemoryBroker::body_presentations_size() const {
+    return _body_presentations.size();
 }
 
-Publisher<BodyStatePacket> MemoryBrokerAccess::body_state_publisher() const {
-    return MemoryPublisher<BodyStatePacket>();
+SizeType MemoryBroker::body_states_size() const {
+    return _body_states.size();
 }
 
-Publisher<CollisionNotificationPacket> MemoryBrokerAccess::collision_notification_publisher() const {
-    return MemoryPublisher<CollisionNotificationPacket>();
+SizeType MemoryBroker::collision_notifications_size() const {
+    return _collision_notifications.size();
 }
 
-Subscriber<BodyPresentationPacket> MemoryBrokerAccess::body_presentation_subscriber() const {
-    return MemorySubscriber<BodyPresentationPacket>();
+PublisherInterface<BodyPresentationPacket>* MemoryBrokerAccess::body_presentation_publisher() const {
+    return new MemoryPublisher<BodyPresentationPacket>();
 }
 
-Subscriber<BodyStatePacket> MemoryBrokerAccess::body_state_subscriber() const {
-    return MemorySubscriber<BodyStatePacket>();
+PublisherInterface<BodyStatePacket>* MemoryBrokerAccess::body_state_publisher() const {
+    return new MemoryPublisher<BodyStatePacket>();
 }
 
-Subscriber<CollisionNotificationPacket> MemoryBrokerAccess::collision_notification_subscriber() const {
-    return MemorySubscriber<CollisionNotificationPacket>();
+PublisherInterface<CollisionNotificationPacket>* MemoryBrokerAccess::collision_notification_publisher() const {
+    return new MemoryPublisher<CollisionNotificationPacket>();
+}
+
+SubscriberInterface<BodyPresentationPacket>* MemoryBrokerAccess::body_presentation_subscriber() const {
+    return new BodyPresentationPacketMemorySubscriber();
+}
+
+SubscriberInterface<BodyStatePacket>* MemoryBrokerAccess::body_state_subscriber() const {
+    return new BodyStatePacketMemorySubscriber();
+}
+
+SubscriberInterface<CollisionNotificationPacket>* MemoryBrokerAccess::collision_notification_subscriber() const {
+    return new CollisionNotificationPacketMemorySubscriber();
+}
+
+bool BodyPresentationPacketMemorySubscriber::has_new_objects() const {
+    return MemoryBroker::instance().body_presentations_size() > _next_index;
+}
+
+BodyPresentationPacket const& BodyPresentationPacketMemorySubscriber::get_new_object() const {
+    return MemoryBroker::instance().get_body_presentation(_next_index);
+}
+
+bool BodyStatePacketMemorySubscriber::has_new_objects() const {
+    return MemoryBroker::instance().body_states_size() > _next_index;
+}
+
+BodyStatePacket const& BodyStatePacketMemorySubscriber::get_new_object() const {
+    return MemoryBroker::instance().get_body_state(_next_index);
+}
+
+bool CollisionNotificationPacketMemorySubscriber::has_new_objects() const {
+    return MemoryBroker::instance().collision_notifications_size() > _next_index;
+}
+
+CollisionNotificationPacket const& CollisionNotificationPacketMemorySubscriber::get_new_object() const {
+    return MemoryBroker::instance().get_collision_notification(_next_index);
 }
 
 }

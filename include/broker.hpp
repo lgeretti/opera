@@ -48,7 +48,8 @@ template<class T> class PublisherInterface {
 //! \brief An interface for subscribing to objects published
 template<class T> class SubscriberInterface {
   public:
-    virtual void get(std::deque<T>& objs) = 0;
+    //! \brief Start the get loop, calling \a callback when an object is received
+    virtual void loop_get(std::function<void(T const&)> const& callback) = 0;
 };
 
 //! \brief Handle class for a publisher
@@ -60,33 +61,33 @@ template<class T> class Publisher : public Ariadne::Handle<PublisherInterface<T>
 
 //! \brief Handle class for a subscriber
 template<class T> class Subscriber : public Ariadne::Handle<SubscriberInterface<T>> {
-public:
+  public:
     using Ariadne::Handle<SubscriberInterface<T>>::Handle;
-    void get(std::deque<T>& objs) { this->_ptr->get(objs); }
+    void loop_get(std::function<void(T const&)> const& callback) { this->_ptr->loop_get(callback); };
 };
 
 //! \brief Interface for access to a communication broker
 class BrokerAccessInterface {
   public:
-    virtual Publisher<BodyPresentationPacket> body_presentation_publisher() const = 0;
-    virtual Publisher<BodyStatePacket> body_state_publisher() const = 0;
-    virtual Publisher<CollisionNotificationPacket> collision_notification_publisher() const = 0;
+    virtual PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const = 0;
+    virtual PublisherInterface<BodyStatePacket>* body_state_publisher() const = 0;
+    virtual PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const = 0;
 
-    virtual Subscriber<BodyPresentationPacket> body_presentation_subscriber() const = 0;
-    virtual Subscriber<BodyStatePacket> body_state_subscriber() const = 0;
-    virtual Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const = 0;
+    virtual SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const = 0;
+    virtual SubscriberInterface<BodyStatePacket>* body_state_subscriber() const = 0;
+    virtual SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const = 0;
 };
 
 //! \brief Handle for a broker access
 class BrokerAccess : public Ariadne::Handle<BrokerAccessInterface> {
   public:
     using Ariadne::Handle<BrokerAccessInterface>::Handle;
-    Publisher<BodyPresentationPacket> body_presentation_publisher() const { return _ptr->body_presentation_publisher(); }
-    Publisher<BodyStatePacket> body_state_publisher() const { return _ptr->body_state_publisher(); }
-    Publisher<CollisionNotificationPacket> collision_notification_publisher() const { return _ptr->collision_notification_publisher(); }
-    Subscriber<BodyPresentationPacket> body_presentation_subscriber() const { return _ptr->body_presentation_subscriber(); }
-    Subscriber<BodyStatePacket> body_state_subscriber() const { return _ptr->body_state_subscriber(); }
-    Subscriber<CollisionNotificationPacket> collision_notification_subscriber() const { return _ptr->collision_notification_subscriber(); }
+    PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const { return _ptr->body_presentation_publisher(); }
+    PublisherInterface<BodyStatePacket>* body_state_publisher() const { return _ptr->body_state_publisher(); }
+    PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const { return _ptr->collision_notification_publisher(); }
+    SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const { return _ptr->body_presentation_subscriber(); }
+    SubscriberInterface<BodyStatePacket>* body_state_subscriber() const { return _ptr->body_state_subscriber(); }
+    SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const { return _ptr->collision_notification_subscriber(); }
 };
 
 }
