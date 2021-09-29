@@ -36,7 +36,8 @@ class TestBrokerAccess {
 
     void test() {
         ARIADNE_TEST_CALL(test_create_destroy())
-        ARIADNE_TEST_CALL(test_transfer())
+        ARIADNE_TEST_CALL(test_single_transfer())
+        ARIADNE_TEST_CALL(test_multiple_transfer())
     }
 
     void test_create_destroy() {
@@ -62,7 +63,29 @@ class TestBrokerAccess {
         ARIADNE_TEST_EXECUTE(delete publisher2)
     }
 
-    void test_transfer() {
+    void test_single_transfer() {
+        BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
+        CallbackQueue<BodyPresentationPacket> bp_received;
+
+        auto bp_subscriber = _access.body_presentation_subscriber();
+        bp_subscriber->loop_get(bp_received);
+        auto bp_publisher = _access.body_presentation_publisher();
+        bp_publisher->put(hp);
+
+        SizeType i=0;
+        while (bp_received.size() != 1) {
+            ++i;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        delete bp_subscriber;
+        delete bp_publisher;
+    }
+
+    void test_multiple_transfer() {
         BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
         BodyPresentationPacket rp("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         BodyStatePacket hs("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290);
@@ -87,9 +110,6 @@ class TestBrokerAccess {
         bs_publisher->put(hs);
         bs_publisher->put(rs);
         cn_publisher->put(cn);
-        delete bp_publisher;
-        delete bs_publisher;
-        delete cn_publisher;
         SizeType i=0;
         while (bp_received.size() != 2 or bs_received.size() != 2 or cn_received.size() != 1) {
             ++i;
@@ -98,9 +118,11 @@ class TestBrokerAccess {
 
         ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         delete bp_subscriber;
         delete bs_subscriber;
         delete cn_subscriber;
+        delete bp_publisher;
+        delete bs_publisher;
+        delete cn_publisher;
     }
 };
