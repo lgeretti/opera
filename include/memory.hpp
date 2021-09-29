@@ -83,7 +83,7 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
   protected:
     //! \brief Set the next index and make sure that _stop is false
-    MemorySubscriberBase() : _next_index(0), _started(false), _stop(false) { }
+    MemorySubscriberBase() : _next_index(0), _started(false), _exit_future(_exit_promise.get_future()) { }
 
     //! \brief Whether there are new objects that have not been got yet
     virtual bool has_new_objects() const = 0;
@@ -97,26 +97,25 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
         ARIADNE_ASSERT_MSG(not _started,"The loop can't be restarted on the same object.")
         _started = true;
         _thr = std::thread([&] {
-            while (not _stop) {
+            while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
                 if (has_new_objects()) {
                     queue.add(get_new_object());
                     _next_index++;
-                } else {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
         });
     }
 
     virtual ~MemorySubscriberBase() {
-        _stop = true;
-        _thr.join();
+        _exit_promise.set_value();
+        if (_thr.joinable()) _thr.join();
     }
 
   protected:
     SizeType _next_index;
     bool _started;
-    bool _stop;
+    std::promise<void> _exit_promise;
+    std::future<void> _exit_future;
     std::thread _thr;
 };
 

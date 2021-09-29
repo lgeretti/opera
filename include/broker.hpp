@@ -68,6 +68,9 @@ class BrokerAccessInterface {
     virtual SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const = 0;
     virtual SubscriberInterface<BodyStatePacket>* body_state_subscriber() const = 0;
     virtual SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const = 0;
+
+    //! \brief Default destructor to avoid destructor not being called on objects of this type
+    virtual ~BrokerAccessInterface() = default;
 };
 
 //! \brief Handle for a broker access
