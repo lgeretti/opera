@@ -96,19 +96,19 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     void loop_get(CallbackQueue<T>& queue) override {
         ARIADNE_ASSERT_MSG(not _started,"The loop can't be restarted on the same object.")
         _started = true;
-        _thr = std::thread([&] {
+        _thr = new Ariadne::Thread([&] {
             while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
                 if (has_new_objects()) {
                     queue.add(get_new_object());
                     _next_index++;
                 }
             }
-        });
+        },"subc");
     }
 
     virtual ~MemorySubscriberBase() {
         _exit_promise.set_value();
-        if (_thr.joinable()) _thr.join();
+        delete _thr;
     }
 
   protected:
@@ -116,7 +116,7 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     bool _started;
     std::promise<void> _exit_promise;
     std::future<void> _exit_future;
-    std::thread _thr;
+    Ariadne::Thread* _thr;
 };
 
 class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {

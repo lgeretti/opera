@@ -164,7 +164,7 @@ class NoCollisionScenario {
         {
             Ariadne::Thread state_consumption([&]{
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                queue.set_add_callback([](auto p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
+                queue.set_add_callback([](auto p){ ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp()) });
                 subscriber->loop_get(queue);
             },"s_co");
 
