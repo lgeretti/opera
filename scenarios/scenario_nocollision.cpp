@@ -142,7 +142,7 @@ class NoCollisionScenario {
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
-            delete publisher;
+            //delete publisher;
         },"h_pr");
 
         Ariadne::Thread robot_production([&]{
@@ -155,13 +155,15 @@ class NoCollisionScenario {
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
-            delete publisher;
+            //delete publisher;
         },"r_pr");
 
         auto* subscriber = access.body_state_subscriber();
         Ariadne::Thread state_consumption([&]{
+            CallbackQueue<BodyStatePacket> queue;
+            queue.set_add_callback([](auto p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            subscriber->loop_get([](BodyStatePacket const& p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
+            subscriber->loop_get(queue);
             std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
         },"s_co");
 

@@ -56,8 +56,8 @@ template<class T> class MqttPublisherBase : public PublisherInterface<T> {
          * clean session = true -> the broker should remove old sessions when we connect
          * obj = NULL -> we aren't passing any of our private data for callbacks
          */
-        _mosquitto_publisher = mosquitto_new(NULL, true, NULL);
-        ARIADNE_ASSERT_MSG(_mosquitto_publisher != NULL, "Error: Out of memory.")
+        _mosquitto_publisher = mosquitto_new(nullptr, true, nullptr);
+        ARIADNE_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
 
         /* Connect to test.mosquitto.org on port 1883, with a keepalive of 60 seconds.
          * This call makes the socket connection only, it does not complete the MQTT
@@ -79,7 +79,7 @@ template<class T> class MqttPublisherBase : public PublisherInterface<T> {
 
     void put(T const& obj) override {
         const char* payload = serialise(obj).c_str();
-        int rc = mosquitto_publish(_mosquitto_publisher, NULL, _topic.c_str(), strlen(payload), payload, 2, false);
+        int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), strlen(payload), payload, 2, false);
         ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
     }
 
@@ -142,7 +142,7 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
     }
 
     //! \brief Provide a callback when a message is received
-    virtual void message_callback_set() = 0;
+    virtual void set_message_callback() = 0;
 
   public:
     //! \brief The main asynchronous loop for getting objects from memory
@@ -151,11 +151,11 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
         if (_started) {
             mosquitto_disconnect(_subscriber);
         } else {
-            _subscriber = mosquitto_new(NULL, true, (void*)&queue);
-            ARIADNE_ASSERT_MSG(_subscriber != NULL,"Error: out of memory.")
+            _subscriber = mosquitto_new(nullptr, true, (void*)&queue);
+            ARIADNE_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
         }
 
-        message_callback_set();
+        set_message_callback();
 
         int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
         if (rc != MOSQ_ERR_SUCCESS) {
@@ -163,7 +163,7 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
             ARIADNE_ERROR("Error connecting: " << mosquitto_strerror(rc))
         }
 
-        rc = mosquitto_subscribe(_subscriber, NULL, _topic.c_str(), 1);
+        rc = mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
             ARIADNE_ERROR("Error subscribing: " << mosquitto_strerror(rc))
@@ -189,21 +189,21 @@ class BodyPresentationPacketMqttSubscriber : public MqttSubscriberBase<BodyPrese
   public:
     BodyPresentationPacketMqttSubscriber(std::string const& hostname, int port);
   protected:
-    void message_callback_set() override;
+    void set_message_callback() override;
 };
 
 class BodyStatePacketMqttSubscriber : public MqttSubscriberBase<BodyStatePacket> {
   public:
     BodyStatePacketMqttSubscriber(std::string const& hostname, int port);
   protected:
-    void message_callback_set() override;
+    void set_message_callback() override;
 };
 
 class CollisionNotificationPacketMqttSubscriber : public MqttSubscriberBase<CollisionNotificationPacket> {
   public:
     CollisionNotificationPacketMqttSubscriber(std::string const& hostname, int port);
   protected:
-    void message_callback_set() override;
+    void set_message_callback() override;
 };
 
 //! \brief A broker to handle packets using MQTT

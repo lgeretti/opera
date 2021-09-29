@@ -60,21 +60,21 @@ std::string CollisionNotificationPacketMqttPublisher::serialise(CollisionNotific
 BodyPresentationPacketMqttSubscriber::BodyPresentationPacketMqttSubscriber(std::string const& hostname, int port)
     : MqttSubscriberBase<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,hostname,port) { }
 
-void BodyPresentationPacketMqttSubscriber::message_callback_set() {
+void BodyPresentationPacketMqttSubscriber::set_message_callback() {
     mosquitto_message_callback_set(_subscriber, subscriber_on_body_presentation_message);
 }
 
 BodyStatePacketMqttSubscriber::BodyStatePacketMqttSubscriber(std::string const& hostname, int port)
     : MqttSubscriberBase<BodyStatePacket>(OPERA_STATE_TOPIC,hostname,port) { }
 
-void BodyStatePacketMqttSubscriber::message_callback_set() {
+void BodyStatePacketMqttSubscriber::set_message_callback() {
     mosquitto_message_callback_set(_subscriber, subscriber_on_body_state_message);
 }
 
 CollisionNotificationPacketMqttSubscriber::CollisionNotificationPacketMqttSubscriber(std::string const& hostname, int port)
     : MqttSubscriberBase<CollisionNotificationPacket>(OPERA_COLLISION_NOTIFICATION_TOPIC,hostname,port) { }
 
-void CollisionNotificationPacketMqttSubscriber::message_callback_set() {
+void CollisionNotificationPacketMqttSubscriber::set_message_callback() {
     mosquitto_message_callback_set(_subscriber, subscriber_on_collision_notification_message);
 }
 
