@@ -45,7 +45,7 @@ class NoCollisionScenario {
     }
 
     void acquire_human_nocollision_samples() {
-        BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/human/presentation.json")).make();
+        BodyPresentationPacket p0 = Deserialiser<BodyPresentationPacket>(Resources::path("json/scenarios/human/presentation.json")).make();
         Human human(p0.id(),p0.point_ids(),p0.thicknesses());
         ARIADNE_ASSERT_EQUAL(human.num_points(),18)
 
@@ -54,7 +54,7 @@ class NoCollisionScenario {
         while (true) {
             auto filepath = Resources::path("json/scenarios/human/nocollision/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            human_packets.append(BodyStatePacketDeserialiser(filepath).make());
+            human_packets.append(Deserialiser<BodyStatePacket>(filepath).make());
         }
 
         List<HumanStateInstance> instances;
@@ -65,7 +65,7 @@ class NoCollisionScenario {
     }
 
     void check_robot_traces() {
-        BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
+        BodyPresentationPacket p0 = Deserialiser<BodyPresentationPacket>(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
         ARIADNE_ASSERT_EQUAL(robot.num_points(),9)
 
@@ -77,7 +77,7 @@ class NoCollisionScenario {
             while (true) {
                 auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
                 if (not exists(filepath)) break;
-                auto pkt = BodyStatePacketDeserialiser(filepath).make();
+                auto pkt = Deserialiser<BodyStatePacket>(filepath).make();
                 ARIADNE_ASSERT(pkt.timestamp() > current_timestamp)
                 current_timestamp = pkt.timestamp();
                 history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
@@ -101,7 +101,7 @@ class NoCollisionScenario {
 
         int speedup = 100;
 
-        BodyPresentationPacket p0 = BodyPresentationPacketDeserialiser(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
+        BodyPresentationPacket p0 = Deserialiser<BodyPresentationPacket>(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
         RobotStateHistory history(&robot);
 
@@ -110,7 +110,7 @@ class NoCollisionScenario {
             while (true) {
                 auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
                 if (not exists(filepath)) break;
-                auto pkt = BodyStatePacketDeserialiser(filepath).make();
+                auto pkt = Deserialiser<BodyStatePacket>(filepath).make();
                 history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
             }
         }
@@ -120,14 +120,14 @@ class NoCollisionScenario {
         while (true) {
             auto filepath = Resources::path("json/scenarios/human/nocollision/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            human_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
+            human_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
         std::deque<BodyStatePacket> robot_packets;
         idx = 1;
         while (true) {
             auto filepath = Resources::path("json/scenarios/robot/10hz/10/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            robot_packets.push_back(BodyStatePacketDeserialiser(filepath).make());
+            robot_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
 
         BrokerAccess access = MemoryBrokerAccess();

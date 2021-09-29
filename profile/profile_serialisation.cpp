@@ -44,7 +44,7 @@ class ProfileSerialisation : public Profiler {
         SizeType num_samples = 1000;
         List<BodyPresentationPacket> packets;
         for (SizeType i=0; i<num_tries(); ++i)
-            packets.append(BodyPresentationPacketDeserialiser(Resources::path("json/examples/presentation/human0.json")).make());
+            packets.append(Deserialiser<BodyPresentationPacket>(Resources::path("json/examples/presentation/human0.json")).make());
 
         profile("Serialisation of a BodyPresentationPacket into a human presentation JSON String",[&](SizeType i){
             Serialiser<BodyPresentationPacket>(packets.at(i)).to_string();
@@ -56,7 +56,7 @@ class ProfileSerialisation : public Profiler {
 
         List<BodyStatePacket> packets;
         for (SizeType i=0; i<num_samples; ++i)
-            packets.append(BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make());
+            packets.append(Deserialiser<BodyStatePacket>(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make());
 
         profile("Serialisation of a BodyStatePacket into a human sample JSON String",[&](SizeType i){
             Serialiser<BodyStatePacket>(packets.at(i)).to_string();
@@ -67,7 +67,7 @@ class ProfileSerialisation : public Profiler {
         SizeType num_samples = 1000;
         List<CollisionNotificationPacket> packets;
         for (SizeType i=0; i<num_tries(); ++i)
-            packets.append(CollisionNotificationPacketDeserialiser(Resources::path("json/examples/notification/notification0.json")).make());
+            packets.append(Deserialiser<CollisionNotificationPacket>(Resources::path("json/examples/notification/notification0.json")).make());
 
         profile("Serialisation of a CollisionNotificationPacket into a human presentation JSON String",[&](SizeType i){
             Serialiser<CollisionNotificationPacket>(packets.at(i)).to_string();

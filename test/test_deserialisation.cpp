@@ -38,10 +38,10 @@ public:
     }
 
     void test_bodypresentationpacket_make_human() {
-        BodyPresentationPacketDeserialiser d1(Resources::path("json/examples/presentation/human0.json"));
+        Deserialiser<BodyPresentationPacket> d1(Resources::path("json/examples/presentation/human0.json"));
         auto p1 = d1.make();
         ARIADNE_TEST_ASSERT(p1.is_human())
-        BodyPresentationPacketDeserialiser d2("{\n"
+        Deserialiser<BodyPresentationPacket> d2("{\n"
                                    "  \"id\": \"h0\",\n"
                                    "  \"isHuman\": true,\n"
                                    "  \"pointIds\": [[14,12],[11,12],[5,7],[6,8],[7,9],[8,10],[1,2],[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[17,0],[17,5],[17,6],[17,11],[17,12]],\n"
@@ -51,9 +51,9 @@ public:
         ARIADNE_TEST_EQUALS(p1.id(),p2.id())
     }
     void test_bodypresentationpacket_make_robot() {
-        BodyPresentationPacketDeserialiser d1(Resources::path("json/examples/presentation/robot0.json"));
+        Deserialiser<BodyPresentationPacket> d1(Resources::path("json/examples/presentation/robot0.json"));
         auto p1 = d1.make();
-        BodyPresentationPacketDeserialiser d2("{\n"
+        Deserialiser<BodyPresentationPacket> d2("{\n"
                             "  \"id\": \"r0\",\n"
                             "  \"isHuman\": false,\n"
                             "  \"packetFrequency\": 10,\n"
@@ -66,7 +66,7 @@ public:
 
     void test_bodystatepacket_make() {
         DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
-        BodyStatePacketDeserialiser d(Resources::path("json/examples/state/robot0.json"));
+        Deserialiser<BodyStatePacket> d(Resources::path("json/examples/state/robot0.json"));
         auto p = d.make();
         ARIADNE_TEST_EQUALS(p.id(),"r0")
         ARIADNE_TEST_EQUALS(p.location(),loc)
@@ -85,7 +85,7 @@ public:
 
     void test_collisiondetectionpacket_make() {
         DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
-        CollisionNotificationPacketDeserialiser d(Resources::path("json/examples/notification/notification0.json"));
+        Deserialiser<CollisionNotificationPacket> d(Resources::path("json/examples/notification/notification0.json"));
         auto p = d.make();
         ARIADNE_TEST_EQUALS(p.human_id(),"h0")
         ARIADNE_TEST_EQUALS(p.human_segment_id(),0)

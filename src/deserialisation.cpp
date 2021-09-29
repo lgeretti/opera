@@ -29,7 +29,7 @@ namespace Opera {
 using namespace rapidjson;
 using Ariadne::Map;
 
-BodyPresentationPacket BodyPresentationPacketDeserialiser::make() const {
+BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
     List<Pair<IdType,IdType>> point_ids;
     for (auto& extremes : _document["pointIds"].GetArray())
         point_ids.append(std::make_pair(extremes[0].GetUint(),extremes[1].GetUint()));
@@ -44,7 +44,7 @@ BodyPresentationPacket BodyPresentationPacketDeserialiser::make() const {
         return BodyPresentationPacket(_document["id"].GetString(), _document["packetFrequency"].GetUint(), point_ids, thicknesses);
 }
 
-BodyStatePacket BodyStatePacketDeserialiser::make() const {
+BodyStatePacket Deserialiser<BodyStatePacket>::make() const {
     Map<StringVariable,String> discrete_state_values;
     if (_document.HasMember("discreteState"))
         for (auto& v : _document["discreteState"].GetObject())
@@ -60,7 +60,7 @@ BodyStatePacket BodyStatePacketDeserialiser::make() const {
     return BodyStatePacket(_document["bodyId"].GetString(),DiscreteLocation(discrete_state_values),points,_document["timestamp"].GetUint64());
 }
 
-CollisionNotificationPacket CollisionNotificationPacketDeserialiser::make() const {
+CollisionNotificationPacket Deserialiser<CollisionNotificationPacket>::make() const {
     Map<StringVariable,String> discrete_state_values;
     for (auto& v : _document["discreteState"].GetObject())
         discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));

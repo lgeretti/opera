@@ -72,22 +72,24 @@ template<class T> class DeserialiserBase {
     rapidjson::Document _document;
 };
 
+template<class T> class Deserialiser;
+
 //! \brief Converter to a BodyPresentationPacket from a JSON description file
-class BodyPresentationPacketDeserialiser : public DeserialiserBase<BodyPresentationPacket> {
+template<> class Deserialiser<BodyPresentationPacket> : public DeserialiserBase<BodyPresentationPacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
     BodyPresentationPacket make() const override;
 };
 
 //! \brief Converter to a BodyStatePacket from a JSON description file
-class BodyStatePacketDeserialiser : public DeserialiserBase<BodyStatePacket> {
+template<> class Deserialiser<BodyStatePacket> : public DeserialiserBase<BodyStatePacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
     BodyStatePacket make() const override;
 };
 
 //! \brief Convert to a CollisionNotificationPacket from a JSON description file
-class CollisionNotificationPacketDeserialiser : public DeserialiserBase<CollisionNotificationPacket> {
+template<> class Deserialiser<CollisionNotificationPacket> : public DeserialiserBase<CollisionNotificationPacket> {
   public:
     using DeserialiserBase::DeserialiserBase;
     CollisionNotificationPacket make() const override;

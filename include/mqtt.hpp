@@ -92,39 +92,19 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
     struct mosquitto* _mosquitto_publisher;
 };
 
-void subscriber_on_body_state_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-    auto queue = static_cast<CallbackQueue<BodyStatePacket>*>(obj);
-    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for body state" << std::endl;
-    BodyStatePacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
-    queue->add(deserialiser.make());
-}
-
-void subscriber_on_body_presentation_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-    auto queue = static_cast<CallbackQueue<BodyPresentationPacket>*>(obj);
-    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for body presentation" << std::endl;
-    BodyPresentationPacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
-    queue->add(deserialiser.make());
-}
-
-void subscriber_on_collision_notification_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-    auto queue = static_cast<CallbackQueue<CollisionNotificationPacket>*>(obj);
-    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for collision notification" << std::endl;
-    CollisionNotificationPacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
+template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+    auto queue = static_cast<CallbackQueue<T>*>(obj);
+    ARIADNE_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
+    Deserialiser<T> deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
     queue->add(deserialiser.make());
 }
 
 //! \brief The subscriber to objects published to MQTT
-template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
-    typedef std::function<void(T const&)> FunctionType;
-  protected:
-    //! \brief Set the next index and make sure that _stop is false
-    MqttSubscriberBase(std::string const& topic, std::string const& hostname, int port) : _topic(topic), _hostname(hostname), _port(port), _started(false) {
-    }
-
-    //! \brief Provide a callback when a message is received
-    virtual void set_message_callback() = 0;
-
+template<class T> class MqttSubscriber : public SubscriberInterface<T> {
   public:
+    //! \brief Set the next index and make sure that _stop is false
+    MqttSubscriber(std::string const& topic, std::string const& hostname, int port) : _topic(topic), _hostname(hostname), _port(port), _started(false) { }
+
     //! \brief The main asynchronous loop for getting objects from memory
     //! \details Allows multiple calls, waiting to finish the previous callback if necessary
     void loop_get(CallbackQueue<T>& queue) override {
@@ -135,7 +115,7 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
             ARIADNE_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
         }
 
-        set_message_callback();
+        mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
 
         int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
         if (rc != MOSQ_ERR_SUCCESS) {
@@ -153,7 +133,7 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
         _started = true;
     }
 
-    virtual ~MqttSubscriberBase() {
+    virtual ~MqttSubscriber() {
         mosquitto_disconnect(_subscriber);
     }
 
@@ -163,27 +143,6 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
     std::string const _hostname;
     int const _port;
     bool _started;
-};
-
-class BodyPresentationPacketMqttSubscriber : public MqttSubscriberBase<BodyPresentationPacket> {
-  public:
-    BodyPresentationPacketMqttSubscriber(std::string const& hostname, int port);
-  protected:
-    void set_message_callback() override;
-};
-
-class BodyStatePacketMqttSubscriber : public MqttSubscriberBase<BodyStatePacket> {
-  public:
-    BodyStatePacketMqttSubscriber(std::string const& hostname, int port);
-  protected:
-    void set_message_callback() override;
-};
-
-class CollisionNotificationPacketMqttSubscriber : public MqttSubscriberBase<CollisionNotificationPacket> {
-  public:
-    CollisionNotificationPacketMqttSubscriber(std::string const& hostname, int port);
-  protected:
-    void set_message_callback() override;
 };
 
 //! \brief A broker to handle packets using MQTT

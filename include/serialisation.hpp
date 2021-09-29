@@ -77,7 +77,7 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     T const& obj;
 };
 
-template<class T> class Serialiser : public SerialiserBase<T> {};
+template<class T> class Serialiser;
 
 //! \brief Utility for making a JSON description from a presentation packet
 template<> class Serialiser<BodyPresentationPacket> : public SerialiserBase<BodyPresentationPacket> {
