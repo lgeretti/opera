@@ -77,8 +77,10 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     T const& obj;
 };
 
+template<class T> class Serialiser : public SerialiserBase<T> {};
+
 //! \brief Utility for making a JSON description from a presentation packet
-class BodyPresentationPacketSerialiser : public SerialiserBase<BodyPresentationPacket> {
+template<> class Serialiser<BodyPresentationPacket> : public SerialiserBase<BodyPresentationPacket> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:
@@ -86,7 +88,7 @@ class BodyPresentationPacketSerialiser : public SerialiserBase<BodyPresentationP
 };
 
 //! \brief Utility for making a JSON description from a state packet
-class BodyStatePacketSerialiser : public SerialiserBase<BodyStatePacket> {
+template<> class Serialiser<BodyStatePacket> : public SerialiserBase<BodyStatePacket> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:
@@ -94,7 +96,7 @@ class BodyStatePacketSerialiser : public SerialiserBase<BodyStatePacket> {
 };
 
 //! \brief Utility for making a JSON description from a notification packet
-class CollisionNotificationPacketSerialiser : public SerialiserBase<CollisionNotificationPacket> {
+template<> class Serialiser<CollisionNotificationPacket> : public SerialiserBase<CollisionNotificationPacket> {
   public:
     using SerialiserBase::SerialiserBase;
   protected:

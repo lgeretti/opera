@@ -28,7 +28,7 @@ namespace Opera {
 
 using namespace rapidjson;
 
-Document BodyPresentationPacketSerialiser::to_document() const {
+Document Serialiser<BodyPresentationPacket>::to_document() const {
 
     Document document;
     document.SetObject();
@@ -58,7 +58,7 @@ Document BodyPresentationPacketSerialiser::to_document() const {
     return document;
 }
 
-Document BodyStatePacketSerialiser::to_document() const {
+Document Serialiser<BodyStatePacket>::to_document() const {
 
     Document document;
     document.SetObject();
@@ -98,7 +98,7 @@ Document BodyStatePacketSerialiser::to_document() const {
     return document;
 }
 
-Document CollisionNotificationPacketSerialiser::to_document() const {
+Document Serialiser<CollisionNotificationPacket>::to_document() const {
 
     Document document;
     document.SetObject();

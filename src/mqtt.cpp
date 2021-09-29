@@ -36,27 +36,6 @@ MqttBrokerAccess::~MqttBrokerAccess() {
     ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error cleaning up Mosquito library: " << mosquitto_strerror(rc))
 }
 
-BodyPresentationPacketMqttPublisher::BodyPresentationPacketMqttPublisher(std::string const& hostname, int port)
-    : MqttPublisherBase<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,hostname,port) { }
-
-std::string BodyPresentationPacketMqttPublisher::serialise(BodyPresentationPacket const& obj) const {
-    return BodyPresentationPacketSerialiser(obj).to_string();
-}
-
-BodyStatePacketMqttPublisher::BodyStatePacketMqttPublisher(std::string const& hostname, int port)
-    : MqttPublisherBase<BodyStatePacket>(OPERA_STATE_TOPIC,hostname,port) { }
-
-std::string BodyStatePacketMqttPublisher::serialise(BodyStatePacket const& obj) const {
-    return BodyStatePacketSerialiser(obj).to_string();
-}
-
-CollisionNotificationPacketMqttPublisher::CollisionNotificationPacketMqttPublisher(std::string const& hostname, int port)
-    : MqttPublisherBase<CollisionNotificationPacket>(OPERA_COLLISION_NOTIFICATION_TOPIC,hostname,port) { }
-
-std::string CollisionNotificationPacketMqttPublisher::serialise(CollisionNotificationPacket const& obj) const {
-    return CollisionNotificationPacketSerialiser(obj).to_string();
-}
-
 BodyPresentationPacketMqttSubscriber::BodyPresentationPacketMqttSubscriber(std::string const& hostname, int port)
     : MqttSubscriberBase<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,hostname,port) { }
 
@@ -79,15 +58,15 @@ void CollisionNotificationPacketMqttSubscriber::set_message_callback() {
 }
 
 PublisherInterface<BodyPresentationPacket>* MqttBrokerAccess::body_presentation_publisher() const {
-    return new BodyPresentationPacketMqttPublisher(_hostname,_port);
+    return new MqttPublisher<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,_hostname,_port);
 }
 
 PublisherInterface<BodyStatePacket>* MqttBrokerAccess::body_state_publisher() const {
-    return new BodyStatePacketMqttPublisher(_hostname,_port);
+    return new MqttPublisher<BodyStatePacket>(OPERA_STATE_TOPIC,_hostname,_port);
 }
 
 PublisherInterface<CollisionNotificationPacket>* MqttBrokerAccess::collision_notification_publisher() const {
-    return new CollisionNotificationPacketMqttPublisher(_hostname,_port);
+    return new MqttPublisher<CollisionNotificationPacket>(OPERA_COLLISION_NOTIFICATION_TOPIC,_hostname,_port);
 }
 
 SubscriberInterface<BodyPresentationPacket>* MqttBrokerAccess::body_presentation_subscriber() const {

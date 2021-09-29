@@ -47,7 +47,7 @@ class ProfileSerialisation : public Profiler {
             packets.append(BodyPresentationPacketDeserialiser(Resources::path("json/examples/presentation/human0.json")).make());
 
         profile("Serialisation of a BodyPresentationPacket into a human presentation JSON String",[&](SizeType i){
-            BodyPresentationPacketSerialiser(packets.at(i)).to_string();
+            Serialiser<BodyPresentationPacket>(packets.at(i)).to_string();
             },num_samples);
     }
 
@@ -59,7 +59,7 @@ class ProfileSerialisation : public Profiler {
             packets.append(BodyStatePacketDeserialiser(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make());
 
         profile("Serialisation of a BodyStatePacket into a human sample JSON String",[&](SizeType i){
-            BodyStatePacketSerialiser(packets.at(i)).to_string();
+            Serialiser<BodyStatePacket>(packets.at(i)).to_string();
         },num_samples);
     }
 
@@ -70,7 +70,7 @@ class ProfileSerialisation : public Profiler {
             packets.append(CollisionNotificationPacketDeserialiser(Resources::path("json/examples/notification/notification0.json")).make());
 
         profile("Serialisation of a CollisionNotificationPacket into a human presentation JSON String",[&](SizeType i){
-            CollisionNotificationPacketSerialiser(packets.at(i)).to_string();
+            Serialiser<CollisionNotificationPacket>(packets.at(i)).to_string();
             },num_samples);
     }
 };

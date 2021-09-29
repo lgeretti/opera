@@ -46,9 +46,9 @@ static const std::string OPERA_STATE_TOPIC = "opera/state";
 static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera/collision-notification";
 
 //! \brief The publisher of objects to the MQTT broker
-template<class T> class MqttPublisherBase : public PublisherInterface<T> {
-  protected:
-    MqttPublisherBase(std::string const& topic, std::string const& hostname, int port) : _topic(topic) {
+template<class T> class MqttPublisher : public PublisherInterface<T> {
+  public:
+    MqttPublisher(std::string const& topic, std::string const& hostname, int port) : _topic(topic) {
         int rc;
 
         /* Create a new client instance.
@@ -78,38 +78,18 @@ template<class T> class MqttPublisherBase : public PublisherInterface<T> {
     }
 
     void put(T const& obj) override {
-        const char* payload = serialise(obj).c_str();
+        const char* payload = Serialiser<T>(obj).to_string().c_str();
         int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), strlen(payload), payload, 2, false);
         ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
     }
 
-    virtual std::string serialise(T const& obj) const = 0;
-
-    ~MqttPublisherBase() {
+    ~MqttPublisher() {
         delete _mosquitto_publisher;
     }
 
   private:
     std::string const _topic;
     struct mosquitto* _mosquitto_publisher;
-};
-
-class BodyPresentationPacketMqttPublisher : public MqttPublisherBase<BodyPresentationPacket> {
-public:
-    BodyPresentationPacketMqttPublisher(std::string const& hostname, int port);
-    std::string serialise(BodyPresentationPacket const& obj) const override;
-};
-
-class BodyStatePacketMqttPublisher : public MqttPublisherBase<BodyStatePacket> {
-public:
-    BodyStatePacketMqttPublisher(std::string const& hostname, int port);
-    std::string serialise(BodyStatePacket const& obj) const override;
-};
-
-class CollisionNotificationPacketMqttPublisher : public MqttPublisherBase<CollisionNotificationPacket> {
-public:
-    CollisionNotificationPacketMqttPublisher(std::string const& hostname, int port);
-    std::string serialise(CollisionNotificationPacket const& obj) const override;
 };
 
 void subscriber_on_body_state_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
