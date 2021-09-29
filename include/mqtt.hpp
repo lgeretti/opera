@@ -84,7 +84,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
     }
 
     ~MqttPublisher() {
-        delete _mosquitto_publisher;
+        mosquitto_destroy(_mosquitto_publisher);
     }
 
   private:
@@ -103,7 +103,7 @@ template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, 
 template<class T> class MqttSubscriber : public SubscriberInterface<T> {
   public:
     //! \brief Set the next index and make sure that _stop is false
-    MqttSubscriber(std::string const& topic, std::string const& hostname, int port) : _topic(topic), _hostname(hostname), _port(port), _started(false) { }
+    MqttSubscriber(std::string const& topic, std::string const& hostname, int port) : _subscriber(nullptr), _topic(topic), _hostname(hostname), _port(port), _started(false) { }
 
     //! \brief The main asynchronous loop for getting objects from memory
     //! \details Allows multiple calls, waiting to finish the previous callback if necessary
@@ -134,7 +134,9 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
     }
 
     virtual ~MqttSubscriber() {
-        mosquitto_disconnect(_subscriber);
+        if (_subscriber != nullptr) {
+            mosquitto_destroy(_subscriber);
+        }
     }
 
   protected:
