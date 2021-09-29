@@ -112,36 +112,24 @@ public:
     std::string serialise(CollisionNotificationPacket const& obj) const override;
 };
 
-void subscriber_on_connect(struct mosquitto *mosq, void *obj, int reason_code)
-{
-    if(reason_code != 0){
-        mosquitto_disconnect(mosq);
-    }
-    auto topic = static_cast<std::string*>(obj);
-    std::cout << "topic: " << *topic << std::endl;
-
-    int rc = mosquitto_subscribe(mosq, NULL, topic->c_str(), 1);
-    if(rc != MOSQ_ERR_SUCCESS){
-        mosquitto_disconnect(mosq);
-        fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
-    }
-}
-
 void subscriber_on_body_state_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
     auto queue = static_cast<CallbackQueue<BodyStatePacket>*>(obj);
-    BodyStatePacketDeserialiser deserialiser((char *)msg->payload);
+    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for body state" << std::endl;
+    BodyStatePacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
     queue->add(deserialiser.make());
 }
 
 void subscriber_on_body_presentation_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
     auto queue = static_cast<CallbackQueue<BodyPresentationPacket>*>(obj);
-    BodyPresentationPacketDeserialiser deserialiser((char *)msg->payload);
+    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for body presentation" << std::endl;
+    BodyPresentationPacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
     queue->add(deserialiser.make());
 }
 
 void subscriber_on_collision_notification_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
     auto queue = static_cast<CallbackQueue<CollisionNotificationPacket>*>(obj);
-    CollisionNotificationPacketDeserialiser deserialiser((char *)msg->payload);
+    if (strlen((char*)msg->payload)!=msg->payloadlen) std::cout << "Payload length inconsistent for collision notification" << std::endl;
+    CollisionNotificationPacketDeserialiser deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
     queue->add(deserialiser.make());
 }
 
@@ -167,12 +155,8 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
             ARIADNE_ASSERT_MSG(_subscriber != NULL,"Error: out of memory.")
         }
 
-        //mosquitto_connect_callback_set(_subscriber, subscriber_on_connect);
         message_callback_set();
 
-        /* This call makes the socket connection only, it does not complete the MQTT
-         * CONNECT/CONNACK flow, you should use mosquitto_loop_start() or
-         * mosquitto_loop_forever() for processing net traffic. */
         int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);

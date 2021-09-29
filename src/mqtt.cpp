@@ -26,30 +26,6 @@
 
 namespace Opera {
 
-/* Callback called when the broker sends a SUBACK in response to a SUBSCRIBE. */
-void subscriber_on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos)
-{
-    int i;
-    bool have_subscription = false;
-
-    /* In this example we only subscribe to a single topic at once, but a
-     * SUBSCRIBE can contain many topics at once, so this is one way to check
-     * them all. */
-    for(i=0; i<qos_count; i++){
-        printf("on_subscribe: %d:granted qos = %d\n", i, granted_qos[i]);
-        if(granted_qos[i] <= 2){
-            have_subscription = true;
-        }
-    }
-    if(have_subscription == false){
-        /* The broker rejected all of our subscriptions, we know we only sent
-         * the one SUBSCRIBE, so there is no point remaining connected. */
-        fprintf(stderr, "Error: All subscriptions rejected.\n");
-        mosquitto_disconnect(mosq);
-    }
-}
-
-
 MqttBrokerAccess::MqttBrokerAccess(std::string const& hostname, int port) : _hostname(hostname), _port(port) {
     int rc = mosquitto_lib_init();
     ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error initialising Mosquito library: " << mosquitto_strerror(rc))
