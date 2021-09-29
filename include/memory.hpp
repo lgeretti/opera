@@ -81,7 +81,6 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 //! \details The advancement of acquisition is local to the subscriber, but for simplicity
 //! a new subscriber starts from the beginning of memory content
 template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
-    typedef std::function<void(T const&)> FunctionType;
   protected:
     //! \brief Set the next index and make sure that _stop is false
     MemorySubscriberBase() : _next_index(0), _started(false), _stop(false) { }
@@ -94,24 +93,19 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
 
   public:
     //! \brief The main asynchronous loop for getting objects from memory
-    //! \details Allows multiple calls, waiting to finish the previous callback if necessary
-    void loop_get(FunctionType const& callback) override {
-        if (_started) {
-            _stop = true;
-            _thr.join();
-            _started = false;
-        }
-        _thr = std::thread([&,callback] {
+    void loop_get(CallbackQueue<T>& queue) override {
+        ARIADNE_ASSERT_MSG(not _started,"The loop can't be restarted on the same object.")
+        _started = true;
+        _thr = std::thread([&] {
             while (not _stop) {
                 if (has_new_objects()) {
-                    callback(get_new_object());
+                    queue.add(get_new_object());
                     _next_index++;
                 } else {
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
         });
-        _started = true;
     }
 
     virtual ~MemorySubscriberBase() {

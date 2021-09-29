@@ -36,6 +36,7 @@
 #include <ariadne/utility/handle.hpp>
 #include <ariadne/utility/container.hpp>
 #include "packet.hpp"
+#include "callback_queue.hpp"
 
 namespace Opera {
 
@@ -51,8 +52,8 @@ template<class T> class PublisherInterface {
 //! \brief An interface for subscribing to objects published
 template<class T> class SubscriberInterface {
   public:
-    //! \brief Start the get loop, calling \a callback when an object is received
-    virtual void loop_get(std::function<void(T const&)> const& callback) = 0;
+    //! \brief Start the get loop which adds to the \a queue
+    virtual void loop_get(CallbackQueue<T>& queue) = 0;
     //! \brief Default destructor to avoid destructor not being called on objects of this type
     virtual ~SubscriberInterface() = default;
 };

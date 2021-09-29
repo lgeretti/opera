@@ -117,7 +117,6 @@ void subscriber_on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     if(reason_code != 0){
         mosquitto_disconnect(mosq);
     }
-    std::cout << "callback on connect" << std::endl;
     auto topic = static_cast<std::string*>(obj);
     std::cout << "topic: " << *topic << std::endl;
 
@@ -128,12 +127,22 @@ void subscriber_on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     }
 }
 
-template<class T> class CallbackData {
-    std::string const& topic;
-};
+void subscriber_on_body_state_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+    auto queue = static_cast<CallbackQueue<BodyStatePacket>*>(obj);
+    BodyStatePacketDeserialiser deserialiser((char *)msg->payload);
+    queue->add(deserialiser.make());
+}
 
-void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+void subscriber_on_body_presentation_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+    auto queue = static_cast<CallbackQueue<BodyPresentationPacket>*>(obj);
+    BodyPresentationPacketDeserialiser deserialiser((char *)msg->payload);
+    queue->add(deserialiser.make());
+}
 
+void subscriber_on_collision_notification_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+    auto queue = static_cast<CallbackQueue<CollisionNotificationPacket>*>(obj);
+    CollisionNotificationPacketDeserialiser deserialiser((char *)msg->payload);
+    queue->add(deserialiser.make());
 }
 
 //! \brief The subscriber to objects published to MQTT
@@ -144,19 +153,22 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
     MqttSubscriberBase(std::string const& topic, std::string const& hostname, int port) : _topic(topic), _hostname(hostname), _port(port), _started(false) {
     }
 
+    //! \brief Provide a callback when a message is received
+    virtual void message_callback_set() = 0;
+
   public:
     //! \brief The main asynchronous loop for getting objects from memory
     //! \details Allows multiple calls, waiting to finish the previous callback if necessary
-    void loop_get(FunctionType const& callback) override {
+    void loop_get(CallbackQueue<T>& queue) override {
         if (_started) {
             mosquitto_disconnect(_subscriber);
         } else {
-            _subscriber = mosquitto_new(NULL, true, (void*)&_topic);
+            _subscriber = mosquitto_new(NULL, true, (void*)&queue);
             ARIADNE_ASSERT_MSG(_subscriber != NULL,"Error: out of memory.")
         }
 
-        mosquitto_connect_callback_set(_subscriber, subscriber_on_connect);
-        mosquitto_message_callback_set(_subscriber, subscriber_on_message);
+        //mosquitto_connect_callback_set(_subscriber, subscriber_on_connect);
+        message_callback_set();
 
         /* This call makes the socket connection only, it does not complete the MQTT
          * CONNECT/CONNACK flow, you should use mosquitto_loop_start() or
@@ -192,16 +204,22 @@ template<class T> class MqttSubscriberBase : public SubscriberInterface<T> {
 class BodyPresentationPacketMqttSubscriber : public MqttSubscriberBase<BodyPresentationPacket> {
   public:
     BodyPresentationPacketMqttSubscriber(std::string const& hostname, int port);
+  protected:
+    void message_callback_set() override;
 };
 
 class BodyStatePacketMqttSubscriber : public MqttSubscriberBase<BodyStatePacket> {
   public:
     BodyStatePacketMqttSubscriber(std::string const& hostname, int port);
+  protected:
+    void message_callback_set() override;
 };
 
 class CollisionNotificationPacketMqttSubscriber : public MqttSubscriberBase<CollisionNotificationPacket> {
   public:
     CollisionNotificationPacketMqttSubscriber(std::string const& hostname, int port);
+  protected:
+    void message_callback_set() override;
 };
 
 //! \brief A broker to handle packets using MQTT

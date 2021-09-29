@@ -25,7 +25,6 @@
 #include "test.hpp"
 #include "utility.hpp"
 #include "memory.hpp"
-#include "mqtt.hpp"
 
 using namespace Opera;
 
@@ -42,33 +41,29 @@ public:
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        BrokerAccess access = MqttBrokerAccess("localhost",1883);
+        BrokerAccess access = MemoryBrokerAccess();
 
-        List<BodyPresentationPacket> bp_received;
-        List<BodyStatePacket> bs_received;
-        List<CollisionNotificationPacket> cn_received;
+        CallbackQueue<BodyPresentationPacket> bp_received;
+        CallbackQueue<BodyStatePacket> bs_received;
+        CallbackQueue<CollisionNotificationPacket> cn_received;
 
         auto bp_subscriber = access.body_presentation_subscriber();
         auto bs_subscriber = access.body_state_subscriber();
         auto cn_subscriber = access.collision_notification_subscriber();
-        bp_subscriber->loop_get([&](auto p){ bp_received.push_back(p); });
-        bs_subscriber->loop_get([&](auto p){ bs_received.push_back(p); });
-        cn_subscriber->loop_get([&](auto p){ cn_received.push_back(cn); });
-
+        bp_subscriber->loop_get(bp_received);
+        bs_subscriber->loop_get(bs_received);
+        cn_subscriber->loop_get(cn_received);
         auto bp_publisher = access.body_presentation_publisher();
         auto bs_publisher = access.body_state_publisher();
         auto cn_publisher = access.collision_notification_publisher();
-
         bp_publisher->put(hp);
         bp_publisher->put(rp);
         bs_publisher->put(hs);
         bs_publisher->put(rs);
         cn_publisher->put(cn);
-
         delete bp_publisher;
         delete bs_publisher;
         delete cn_publisher;
-
         SizeType i=0;
         while (bp_received.size() != 2 or bs_received.size() != 2 or cn_received.size() != 1) {
             ++i;

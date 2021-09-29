@@ -48,9 +48,9 @@ template<class T> class CallbackQueue {
     CallbackQueue() : _add_callback([](auto){}), _remove_callback([](auto){}) { }
 
     //! \brief Set the callback for adding an element
-    void set_add_callback(CallbackType const& cb) { _add_callback = cb; }
+    void set_add_callback(CallbackType const& cb) { LockGuard lock(_mux); _add_callback = cb; }
     //! \brief Set the callback for removing an element
-    void set_remove_callback(CallbackType const& cb) { _remove_callback = cb; }
+    void set_remove_callback(CallbackType const& cb) { LockGuard lock(_mux); _remove_callback = cb; }
 
     //! \brief Add an element
     void add(T const& e) { _add_callback(e); LockGuard lock(_mux); _deque.push_back(e); }
