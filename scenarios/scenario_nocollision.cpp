@@ -105,7 +105,7 @@ class NoCollisionScenario {
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
         RobotStateHistory history(&robot);
 
-        for (SizeType folder=1; folder<=9; ++folder) {
+        for (SizeType folder=1; folder<=1; ++folder) {
             SizeType file = 1;
             while (true) {
                 auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
@@ -142,7 +142,7 @@ class NoCollisionScenario {
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
-            //delete publisher;
+            delete publisher;
         },"h_pr");
 
         Ariadne::Thread robot_production([&]{
@@ -155,22 +155,23 @@ class NoCollisionScenario {
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
-            //delete publisher;
+            delete publisher;
         },"r_pr");
 
         auto* subscriber = access.body_state_subscriber();
-        Ariadne::Thread state_consumption([&]{
-            CallbackQueue<BodyStatePacket> queue;
-            queue.set_add_callback([](auto p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            subscriber->loop_get(queue);
-            std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
-        },"s_co");
+        CallbackQueue<BodyStatePacket> queue;
 
-        while(not robot_packets.empty())
-            std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
-        std::this_thread::sleep_for(std::chrono::microseconds(200000/speedup));
-        //delete subscriber;
+        {
+            Ariadne::Thread state_consumption([&]{
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                queue.set_add_callback([](auto p){ std::cout <<"State packet received at " << p.timestamp() << std::endl; });
+                subscriber->loop_get(queue);
+            },"s_co");
+
+            while(not robot_packets.empty())
+                std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
+        }
+        delete subscriber;
     }
 
 };
