@@ -130,7 +130,6 @@ void subscriber_on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 
 template<class T> class CallbackData {
     std::string const& topic;
-    T const&
 };
 
 void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {

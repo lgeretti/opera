@@ -5,6 +5,7 @@ set(UNIT_TESTS
     test_body
     test_state
     test_packet
+    test_callback_queue
     test_serialisation
     test_deserialisation
     test_memory
