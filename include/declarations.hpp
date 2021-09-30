@@ -34,12 +34,13 @@ typedef Ariadne::Positive<FloatType> PositiveFloatType;
 typedef Ariadne::Interval<FloatType> FloatIntervalType;
 typedef Ariadne::Box<FloatIntervalType> BoundingType;
 
-using Ariadne::SizeType;
 using Ariadne::dp;
 using Ariadne::Interval;
 using Ariadne::Natural;
 using Ariadne::StringStream;
 using Ariadne::StringVariable;
+
+using SizeType = size_t;
 
 static const PositiveFloatType pa_infty = cast_positive(cast_approximate(Ariadne::infty));
 static const PositiveFloatType pa_one = cast_positive(FloatType(1.0,dp));

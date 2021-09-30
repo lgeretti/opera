@@ -42,6 +42,8 @@ class Resources {
     }
 };
 
+template<class T> inline std::string to_string(const T& t) { std::stringstream ss; ss << t; return ss.str(); }
+
 }
 
 #endif //OPERA_UTILITY_HPP
