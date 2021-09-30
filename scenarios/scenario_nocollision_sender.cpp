@@ -53,7 +53,7 @@ class NoCollisionScenario {
                 BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
                 OPERA_LOG_PRINTLN("Robot packet " << i++ << " sent");
                 publisher->put(p);
-                std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
+                std::this_thread::sleep_for(std::chrono::microseconds(1000000/speedup));
             }
             delete publisher;
         },"rb_p");
