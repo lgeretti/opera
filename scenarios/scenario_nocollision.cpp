@@ -22,10 +22,6 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-
 #include "thread.hpp"
 #include "utility.hpp"
 #include "packet.hpp"
@@ -33,10 +29,9 @@
 #include "mqtt.hpp"
 #include "memory.hpp"
 #include "barrier.hpp"
+#include "logging.hpp"
 
 using namespace Opera;
-
-using Ariadne::Logger;
 
 class NoCollisionScenario {
   public:
@@ -49,7 +44,7 @@ class NoCollisionScenario {
     void acquire_human_nocollision_samples() {
         BodyPresentationPacket p0 = Deserialiser<BodyPresentationPacket>(Resources::path("json/scenarios/human/presentation.json")).make();
         Human human(p0.id(),p0.point_ids(),p0.thicknesses());
-        ARIADNE_ASSERT_EQUAL(human.num_points(),18)
+        OPERA_ASSERT_EQUAL(human.num_points(),18)
 
         List<BodyStatePacket> human_packets;
         SizeType idx = 1;
@@ -69,7 +64,7 @@ class NoCollisionScenario {
     void check_robot_traces() {
         BodyPresentationPacket p0 = Deserialiser<BodyPresentationPacket>(Resources::path("json/scenarios/robot/10hz/presentation.json")).make();
         Robot robot(p0.id(),p0.packet_frequency(),p0.point_ids(),p0.thicknesses());
-        ARIADNE_ASSERT_EQUAL(robot.num_points(),9)
+        OPERA_ASSERT_EQUAL(robot.num_points(),9)
 
         List<RobotDiscreteTrace> traces;
         TimestampType current_timestamp = 0;
@@ -80,7 +75,7 @@ class NoCollisionScenario {
                 auto filepath = Resources::path("json/scenarios/robot/10hz/"+std::to_string(folder)+"/"+std::to_string(file++)+".json");
                 if (not exists(filepath)) break;
                 auto pkt = Deserialiser<BodyStatePacket>(filepath).make();
-                ARIADNE_ASSERT(pkt.timestamp() > current_timestamp)
+                OPERA_ASSERT(pkt.timestamp() > current_timestamp)
                 current_timestamp = pkt.timestamp();
                 history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
             }
@@ -133,14 +128,14 @@ class NoCollisionScenario {
             robot_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
 
-        //BrokerAccess access = MqttBrokerAccess("localhost",1883);
-        BrokerAccess access = MemoryBrokerAccess();
+        BrokerAccess access = MqttBrokerAccess("localhost",1883);
+        //BrokerAccess access = MemoryBrokerAccess();
 /*
         Thread human_production([&]{
             auto* publisher = access.make_body_state_publisher();
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
-                ARIADNE_LOG_PRINTLN("Human packet sent at " << p.timestamp());
+                OPERA_LOG_PRINTLN("Human packet sent at " << p.timestamp());
                 publisher->put(p);
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
@@ -151,8 +146,8 @@ class NoCollisionScenario {
         Thread robot_production([&]{
             auto* publisher = access.make_body_state_publisher();
             while (not robot_packets.empty()) {
-                auto const& p = robot_packets.front();
-                ARIADNE_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
+                BodyStatePacket p = robot_packets.front();
+                OPERA_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
                 publisher->put(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
@@ -160,10 +155,12 @@ class NoCollisionScenario {
             delete publisher;
         },"rb_p");
 
-        auto* subscriber = access.make_body_state_subscriber([](auto p){ ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp()) });
+        auto* subscriber = access.make_body_state_subscriber([](auto p){ OPERA_LOG_PRINTLN("State packet received at " << p.timestamp()) });
 
         while(not robot_packets.empty())
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        std::cout << "done" << std::endl;
 
         delete subscriber;
     }
@@ -173,5 +170,6 @@ class NoCollisionScenario {
 int main(int argc, const char* argv[])
 {
     if (not Ariadne::CommandLineInterface::instance().acquire(argc,argv)) return -1;
+    Ariadne::Logger::instance().use_blocking_scheduler();
     NoCollisionScenario().run();
 }

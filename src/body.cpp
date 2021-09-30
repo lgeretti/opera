@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/macros.hpp>
+#include "macros.hpp"
 #include "body.hpp"
 
 using Ariadne::StringStream;
@@ -32,7 +32,7 @@ namespace Opera {
 
 Body::Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses) :
     _id(id) {
-    ARIADNE_ASSERT_MSG(points_ids.size() == thicknesses.size(), "The number of point pairs must equal the number of thicknesses")
+    OPERA_ASSERT_MSG(points_ids.size() == thicknesses.size(), "The number of point pairs must equal the number of thicknesses")
 
     _num_points = 0;
     for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i) {
@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& os, Body const& b) {
 
 Robot::Robot(BodyIdType const& id, SizeType const& packet_frequency, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses) :
     Body(id,points_ids,thicknesses), _packet_frequency(packet_frequency) {
-    ARIADNE_ASSERT_MSG(packet_frequency > 0, "The packet frequency must be strictly positive")
+    OPERA_ASSERT_MSG(packet_frequency > 0, "The packet frequency must be strictly positive")
 }
 
 SizeType const& Robot::packet_frequency() const {

@@ -32,11 +32,11 @@ class TestBarrier {
   public:
     void test() {
 
-        ARIADNE_TEST_CALL(test_barrier_trace_create())
-        ARIADNE_TEST_CALL(test_barrier_trace_add_remove())
-        ARIADNE_TEST_CALL(test_barrier_trace_populate())
-        ARIADNE_TEST_CALL(test_barrier_trace_resume_element())
-        ARIADNE_TEST_CALL(test_barrier_trace_reset())
+        OPERA_TEST_CALL(test_barrier_trace_create())
+        OPERA_TEST_CALL(test_barrier_trace_add_remove())
+        OPERA_TEST_CALL(test_barrier_trace_populate())
+        OPERA_TEST_CALL(test_barrier_trace_resume_element())
+        OPERA_TEST_CALL(test_barrier_trace_reset())
     }
 
     void test_barrier_trace_create() {
@@ -44,13 +44,13 @@ class TestBarrier {
         auto hs = h.segment(1).create_sample(Point(0,0,0),Point(2,2,2));
         PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace(hs,3);
-        ARIADNE_TEST_PRINT(trace)
-        ARIADNE_TEST_EQUALS(trace.human_segment_id(),1)
-        ARIADNE_TEST_EQUALS(trace.robot_segment_id(),3)
-        ARIADNE_TEST_EQUALS(trace.size(),0)
-        ARIADNE_TEST_ASSERT(trace.is_empty())
-        ARIADNE_TEST_EQUALS(trace.next_index(),0)
-        ARIADNE_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
+        OPERA_TEST_PRINT(trace)
+        OPERA_TEST_EQUALS(trace.human_segment_id(),1)
+        OPERA_TEST_EQUALS(trace.robot_segment_id(),3)
+        OPERA_TEST_EQUALS(trace.size(),0)
+        OPERA_TEST_ASSERT(trace.is_empty())
+        OPERA_TEST_EQUALS(trace.next_index(),0)
+        OPERA_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
     }
 
     void test_barrier_trace_add_remove() {
@@ -60,15 +60,15 @@ class TestBarrier {
         DiscreteLocation loc(StringVariable(h.id())|"first");
         MinimumDistanceBarrierTrace trace(hs,0);
         trace.add_barrier(loc,distance);
-        ARIADNE_TEST_ASSERT(not trace.is_empty())
+        OPERA_TEST_ASSERT(not trace.is_empty())
         auto barrier = trace.barrier(0);
-        ARIADNE_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
-        ARIADNE_TEST_EQUALS(barrier.farthest_location(),loc)
-        ARIADNE_TEST_EQUALS(barrier.maximum_index(),0)
-        ARIADNE_TEST_PRINT(barrier)
+        OPERA_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
+        OPERA_TEST_EQUALS(barrier.farthest_location(),loc)
+        OPERA_TEST_EQUALS(barrier.maximum_index(),0)
+        OPERA_TEST_PRINT(barrier)
         trace.remove_barrier();
-        ARIADNE_TEST_ASSERT(trace.is_empty())
-        ARIADNE_TEST_FAIL(trace.remove_barrier())
+        OPERA_TEST_ASSERT(trace.is_empty())
+        OPERA_TEST_FAIL(trace.remove_barrier())
     }
 
     void test_barrier_trace_populate() {
@@ -87,10 +87,10 @@ class TestBarrier {
         robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
         for (auto s : robot_samples) if (not trace1.try_update_with(loc,s)) break;
-        ARIADNE_TEST_ASSERT(not trace1.try_update_with(loc,robot_samples.at(4)))
-        ARIADNE_TEST_EQUALS(trace1.size(),4)
-        ARIADNE_TEST_EQUALS(trace1.next_index(),4)
-        ARIADNE_TEST_PRINT(trace1)
+        OPERA_TEST_ASSERT(not trace1.try_update_with(loc,robot_samples.at(4)))
+        OPERA_TEST_EQUALS(trace1.size(),4)
+        OPERA_TEST_EQUALS(trace1.next_index(),4)
+        OPERA_TEST_PRINT(trace1)
 
         MinimumDistanceBarrierTrace trace2(hs,0);
         robot_samples.clear();
@@ -101,9 +101,9 @@ class TestBarrier {
         robot_samples.append(r.segment(0).create_sample(Point(-1,4,0),Point(0,4,0)));
         robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
         for (auto s : robot_samples) if (not trace2.try_update_with(loc,s)) break;
-        ARIADNE_TEST_EQUALS(trace2.size(),4)
-        ARIADNE_TEST_EQUALS(trace2.next_index(),5)
-        ARIADNE_TEST_PRINT(trace2)
+        OPERA_TEST_EQUALS(trace2.size(),4)
+        OPERA_TEST_EQUALS(trace2.next_index(),5)
+        OPERA_TEST_PRINT(trace2)
 
         MinimumDistanceBarrierTrace trace3(hs,0);
         robot_samples.clear();
@@ -115,10 +115,10 @@ class TestBarrier {
         robot_samples.append(r.segment(0).create_sample(Point(2,5,0),Point(3,5,0)));
         robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
         for (auto s : robot_samples) if (not trace3.try_update_with(loc,s)) break;
-        ARIADNE_TEST_EQUALS(trace3.size(),4)
-        ARIADNE_TEST_EQUALS(trace3.next_index(),7)
-        ARIADNE_TEST_ASSERT(decide(trace3.current_minimum_distance()>0))
-        ARIADNE_TEST_PRINT(trace3)
+        OPERA_TEST_EQUALS(trace3.size(),4)
+        OPERA_TEST_EQUALS(trace3.next_index(),7)
+        OPERA_TEST_ASSERT(decide(trace3.current_minimum_distance()>0))
+        OPERA_TEST_PRINT(trace3)
     }
 
     void test_barrier_trace_resume_element() {
@@ -145,19 +145,19 @@ class TestBarrier {
         history.acquire(third,{{Point(2,3,0)},{Point(3,3,0)}},10e8);
         for (auto s : history.samples(first).at(trace.robot_segment_id())) if (not trace.try_update_with(first,s)) break;
         for (auto s : history.samples(second).at(trace.robot_segment_id())) if (not trace.try_update_with(second,s)) break;
-        ARIADNE_TEST_PRINT(trace)
+        OPERA_TEST_PRINT(trace)
 
         auto hs2 = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0)).spherical_approximation();
         auto element = trace.resume_element(hs2);
-        ARIADNE_TEST_EQUALS(element,trace.size()-1)
+        OPERA_TEST_EQUALS(element,trace.size()-1)
 
         auto hs3 = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0)).spherical_approximation();
         element = trace.resume_element(hs3);
-        ARIADNE_TEST_ASSERT(element < trace.size()-1)
+        OPERA_TEST_ASSERT(element < trace.size()-1)
 
         auto hs4 = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0)).spherical_approximation();
         element = trace.resume_element(hs4);
-        ARIADNE_TEST_EQUALS(element,-1)
+        OPERA_TEST_EQUALS(element,-1)
     }
 
     void test_barrier_trace_reset() {
@@ -189,24 +189,24 @@ class TestBarrier {
         MinimumDistanceBarrierTrace trace3 = trace1;
 
         auto hs1_new = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0));
-        ARIADNE_TEST_PRINT(trace1)
+        OPERA_TEST_PRINT(trace1)
         trace1.reset(hs1_new,history);
-        ARIADNE_TEST_PRINT(trace1)
-        ARIADNE_TEST_EQUALS(trace1.barrier(trace1.size()-1).farthest_location(),second)
-        ARIADNE_TEST_EQUALS(trace1.barrier(trace1.size()-1).maximum_index(),0)
+        OPERA_TEST_PRINT(trace1)
+        OPERA_TEST_EQUALS(trace1.barrier(trace1.size()-1).farthest_location(),second)
+        OPERA_TEST_EQUALS(trace1.barrier(trace1.size()-1).maximum_index(),0)
 
         auto hs2_new = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0));
         trace2.reset(hs2_new,history);
-        ARIADNE_TEST_PRINT(trace2)
-        ARIADNE_TEST_EQUALS(trace2.barrier(trace2.size()-1).farthest_location(),first)
+        OPERA_TEST_PRINT(trace2)
+        OPERA_TEST_EQUALS(trace2.barrier(trace2.size()-1).farthest_location(),first)
 
         auto hs3_new = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0));
         trace3.reset(hs3_new,history);
-        ARIADNE_TEST_ASSERT(trace3.is_empty())
+        OPERA_TEST_ASSERT(trace3.is_empty())
     }
 };
 
 int main() {
     TestBarrier().test();
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

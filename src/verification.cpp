@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/macros.hpp>
+#include "macros.hpp"
 #include "verification.hpp"
 
 using Ariadne::StringStream;

@@ -57,7 +57,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
          * obj = NULL -> we aren't passing any of our private data for callbacks
          */
         _mosquitto_publisher = mosquitto_new(nullptr, true, nullptr);
-        ARIADNE_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
+        OPERA_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
 
         /* Connect to test.mosquitto.org on port 1883, with a keepalive of 60 seconds.
          * This call makes the socket connection only, it does not complete the MQTT
@@ -66,21 +66,21 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
         rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            ARIADNE_ERROR("Error: " << mosquitto_strerror(rc))
+            OPERA_ERROR("Error: " << mosquitto_strerror(rc))
         }
 
         /* Run the network loop in a background thread, this call returns quickly. */
         rc = mosquitto_loop_start(_mosquitto_publisher);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            ARIADNE_ERROR("Error: " << mosquitto_strerror(rc))
+            OPERA_ERROR("Error: " << mosquitto_strerror(rc))
         }
     }
 
     void put(T const& obj) override {
         const char* payload = Serialiser<T>(obj).to_string().c_str();
         int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), strlen(payload), payload, 2, false);
-        ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
+        OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
     }
 
     ~MqttPublisher() {
@@ -93,8 +93,10 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
 };
 
 template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+    static bool registered = false;
+    if (not registered) { std::cout << "registering" << std::endl; Ariadne::Logger::instance().register_thread(std::this_thread::get_id(),"subc"); registered = true; std::cout << "registered" << std::endl; }
     auto callback = static_cast<CallbackFunction<T>*>(obj);
-    ARIADNE_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
+    OPERA_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
     Deserialiser<T> deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
     (*callback)(deserialiser.make());
 }
@@ -107,20 +109,20 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
         : _topic(topic), _hostname(hostname), _port(port), _callback(callback)
     {
         _subscriber = mosquitto_new(nullptr, true, (void*)&_callback);
-        ARIADNE_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
+        OPERA_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
 
         mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
 
         int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
-            ARIADNE_ERROR("Error connecting: " << mosquitto_strerror(rc))
+            OPERA_ERROR("Error connecting: " << mosquitto_strerror(rc))
         }
 
         rc = mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
-            ARIADNE_ERROR("Error subscribing: " << mosquitto_strerror(rc))
+            OPERA_ERROR("Error subscribing: " << mosquitto_strerror(rc))
         }
 
         mosquitto_loop_start(_subscriber);

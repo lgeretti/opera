@@ -31,5 +31,5 @@ using namespace Opera;
 int main() {
     BrokerAccess access = MqttBrokerAccess("localhost",1883);
     TestBrokerAccess(access).test();
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

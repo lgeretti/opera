@@ -25,8 +25,6 @@
 #ifndef OPERA_RUNTIME_HPP
 #define OPERA_RUNTIME_HPP
 
-#include <ariadne.hpp>
-
 using namespace Ariadne;
 
 namespace Opera {

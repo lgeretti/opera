@@ -32,6 +32,7 @@
 #include <fstream>
 #include "body.hpp"
 #include "packet.hpp"
+#include "macros.hpp"
 
 namespace Opera {
 
@@ -42,15 +43,15 @@ template<class T> class DeserialiserBase {
   public:
     DeserialiserBase(FilePath const& file) {
         std::ifstream ifs(file);
-        ARIADNE_ASSERT_MSG(ifs.is_open(), "Could not open '" << file << "' file for reading.")
+        OPERA_ASSERT_MSG(ifs.is_open(), "Could not open '" << file << "' file for reading.")
         rapidjson::IStreamWrapper isw(ifs);
         _document.ParseStream(isw);
-        ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
+        OPERA_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
 
     DeserialiserBase(const char* text) {
         _document.Parse(text);
-        ARIADNE_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
+        OPERA_ASSERT_MSG(not _document.HasParseError(),"Parse error '" << _document.GetParseError() << "' at offset " << _document.GetErrorOffset())
     }
 
     //! \brief Convert to string

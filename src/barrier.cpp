@@ -22,6 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "macros.hpp"
 #include "barrier.hpp"
 
 namespace Opera {
@@ -83,7 +84,7 @@ void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_l
 }
 
 void MinimumDistanceBarrierTrace::remove_barrier() {
-    ARIADNE_PRECONDITION(not is_empty())
+    OPERA_PRECONDITION(not is_empty())
     _barriers.pop_front();
 }
 
@@ -124,7 +125,7 @@ int MinimumDistanceBarrierTrace::resume_element(SphericalApproximationSample con
 }
 
 void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, RobotStateHistory const& history) {
-    ARIADNE_ASSERT(human_sample.segment_id() == _human_segment_id)
+    OPERA_ASSERT(human_sample.segment_id() == _human_segment_id)
     auto sas = human_sample.spherical_approximation();
     int resume = resume_element(sas);
     _next_index = (resume >= 0 ? _barriers.at(resume).maximum_index()+1 : 0);

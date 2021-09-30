@@ -31,7 +31,7 @@ using namespace Opera;
 class TestVerification {
   public:
     void test() {
-        ARIADNE_TEST_CALL(test_verification_trace_creation())
+        OPERA_TEST_CALL(test_verification_trace_creation())
     }
 
     void test_verification_trace_creation() {
@@ -39,17 +39,17 @@ class TestVerification {
         StringVariable robot("robot");
         DiscreteLocation const initial_location(robot|"first");
         VerificationTrace trace = SimpleVerificationTrace("h0",2u,"r0",3u,initial_time,initial_location);
-        ARIADNE_TEST_EQUALS(trace.human_id(),"h0")
-        ARIADNE_TEST_EQUALS(trace.human_segment_id(),2u)
-        ARIADNE_TEST_EQUALS(trace.robot_id(),"r0")
-        ARIADNE_TEST_EQUALS(trace.robot_segment_id(),3u)
-        ARIADNE_TEST_EQUALS(trace.initial_time(),initial_time)
-        ARIADNE_TEST_EQUALS(trace.initial_robot_discrete_state(),initial_location)
-        ARIADNE_TEST_EQUALS(trace.robot_discrete_trace().size(),0u)
+        OPERA_TEST_EQUALS(trace.human_id(),"h0")
+        OPERA_TEST_EQUALS(trace.human_segment_id(),2u)
+        OPERA_TEST_EQUALS(trace.robot_id(),"r0")
+        OPERA_TEST_EQUALS(trace.robot_segment_id(),3u)
+        OPERA_TEST_EQUALS(trace.initial_time(),initial_time)
+        OPERA_TEST_EQUALS(trace.initial_robot_discrete_state(),initial_location)
+        OPERA_TEST_EQUALS(trace.robot_discrete_trace().size(),0u)
     }
 };
 
 int main() {
     TestVerification().test();
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

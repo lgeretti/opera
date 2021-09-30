@@ -32,6 +32,7 @@
 #include <fstream>
 #include "body.hpp"
 #include "packet.hpp"
+#include "macros.hpp"
 
 namespace Opera {
 
@@ -59,7 +60,7 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
     void to_file(FilePath const& file) const override {
         auto document = to_document();
         std::ofstream ofs(file);
-        ARIADNE_ASSERT_MSG(ofs.is_open(), "Could not open file '" << file << "' for writing.")
+        OPERA_ASSERT_MSG(ofs.is_open(), "Could not open file '" << file << "' for writing.")
         rapidjson::OStreamWrapper osw(ofs);
         rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
         document.Accept(writer);

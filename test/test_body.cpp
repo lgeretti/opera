@@ -31,27 +31,27 @@ using namespace Opera;
 class TestBody {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_body_creation())
-        ARIADNE_TEST_CALL(test_bodysegment_creation())
-        ARIADNE_TEST_CALL(test_bodysegment_update())
-        ARIADNE_TEST_CALL(test_bodysegment_intersection())
-        ARIADNE_TEST_CALL(test_spherical_approximation())
+        OPERA_TEST_CALL(test_body_creation())
+        OPERA_TEST_CALL(test_bodysegment_creation())
+        OPERA_TEST_CALL(test_bodysegment_update())
+        OPERA_TEST_CALL(test_bodysegment_intersection())
+        OPERA_TEST_CALL(test_spherical_approximation())
     }
 
     void test_body_creation() {
         Human h("h0", {{3,2},{1,0}}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
 
-        ARIADNE_TEST_PRINT(h)
-        ARIADNE_TEST_EQUALS(h.id(),"h0")
-        ARIADNE_TEST_EQUALS(h.num_segments(),2)
-        ARIADNE_TEST_EQUALS(h.num_points(),4)
+        OPERA_TEST_PRINT(h)
+        OPERA_TEST_EQUALS(h.id(),"h0")
+        OPERA_TEST_EQUALS(h.num_segments(),2)
+        OPERA_TEST_EQUALS(h.num_points(),4)
 
         Robot r("r0", 10, {{0,1}}, {FloatType(0.5,Ariadne::dp)});
-        ARIADNE_TEST_PRINT(r)
-        ARIADNE_TEST_EQUALS(r.id(),"r0")
-        ARIADNE_TEST_EQUALS(r.num_segments(),1)
-        ARIADNE_TEST_EQUALS(r.num_points(),2)
-        ARIADNE_TEST_EQUALS(r.packet_frequency(), 10)
+        OPERA_TEST_PRINT(r)
+        OPERA_TEST_EQUALS(r.id(),"r0")
+        OPERA_TEST_EQUALS(r.num_segments(),1)
+        OPERA_TEST_EQUALS(r.num_points(),2)
+        OPERA_TEST_EQUALS(r.packet_frequency(), 10)
     }
 
     void test_bodysegment_creation() {
@@ -59,13 +59,13 @@ public:
         Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
         auto segment = r.segment(1);
 
-        ARIADNE_TEST_EQUALS(segment.id(),1)
-        ARIADNE_TEST_EQUALS(segment.head_id(),1)
-        ARIADNE_TEST_EQUALS(segment.tail_id(),0)
-        ARIADNE_TEST_EQUALS(segment.thickness(),0.5)
+        OPERA_TEST_EQUALS(segment.id(),1)
+        OPERA_TEST_EQUALS(segment.head_id(),1)
+        OPERA_TEST_EQUALS(segment.tail_id(),0)
+        OPERA_TEST_EQUALS(segment.thickness(),0.5)
 
         auto s1 = segment.create_sample();
-        ARIADNE_TEST_ASSERT(s1.is_empty())
+        OPERA_TEST_ASSERT(s1.is_empty())
     }
 
     void test_bodysegment_update() {
@@ -77,38 +77,38 @@ public:
 
         auto s1 = segment.create_sample();
         s1.update({Point(-0.5, 1.0, 1.25)},{});
-        ARIADNE_TEST_ASSERT(s1.is_empty())
+        OPERA_TEST_ASSERT(s1.is_empty())
         s1.update({},{Point(1.0, 2.5, 0.0)});
-        ARIADNE_TEST_ASSERT(not s1.is_empty())
+        OPERA_TEST_ASSERT(not s1.is_empty())
 
         auto s2 = segment.create_sample();
         s2.update({},{Point(1.0, 2.5, 0.0)});
-        ARIADNE_TEST_ASSERT(s2.is_empty())
+        OPERA_TEST_ASSERT(s2.is_empty())
         s2.update({Point(-0.5, 1.0, 1.25)},{});
-        ARIADNE_TEST_ASSERT(not s2.is_empty())
+        OPERA_TEST_ASSERT(not s2.is_empty())
 
         auto s3 = segment.create_sample();
         s3.update({Point(-0.5, 1.0, 1.25)}, {Point(1.0, 2.5, 0.0)});
-        ARIADNE_TEST_ASSERT(not s3.is_empty())
+        OPERA_TEST_ASSERT(not s3.is_empty())
 
         auto s4 = segment.create_sample();
         s4.update({Point(0,0.5,1.0),Point(-0.5, 1.0, 1.25)},{Point(1.0,2.0,-1.0),Point(1.0, 2.5, 0.0)});
         auto err = s4.error();
 
-        ARIADNE_TEST_EQUALS(s4.head_centre().x, -0.25)
-        ARIADNE_TEST_EQUALS(s4.head_centre().y, 0.75)
-        ARIADNE_TEST_EQUALS(s4.head_centre().z, 1.125)
-        ARIADNE_TEST_EQUALS(s4.tail_centre().x, 1.0)
-        ARIADNE_TEST_EQUALS(s4.tail_centre().y, 2.25)
-        ARIADNE_TEST_EQUALS(s4.tail_centre().z, -0.5)
+        OPERA_TEST_EQUALS(s4.head_centre().x, -0.25)
+        OPERA_TEST_EQUALS(s4.head_centre().y, 0.75)
+        OPERA_TEST_EQUALS(s4.head_centre().z, 1.125)
+        OPERA_TEST_EQUALS(s4.tail_centre().x, 1.0)
+        OPERA_TEST_EQUALS(s4.tail_centre().y, 2.25)
+        OPERA_TEST_EQUALS(s4.tail_centre().z, -0.5)
 
         auto bb = s4.bounding_box();
-        ARIADNE_TEST_EQUALS(bb[0].lower_bound(),s4.head_centre().x-err-thickness)
-        ARIADNE_TEST_EQUALS(bb[0].upper_bound(),s4.tail_centre().x+err+thickness)
-        ARIADNE_TEST_EQUALS(bb[1].lower_bound(),s4.head_centre().y-err-thickness)
-        ARIADNE_TEST_EQUALS(bb[1].upper_bound(),s4.tail_centre().y+err+thickness)
-        ARIADNE_TEST_EQUALS(bb[2].lower_bound(),s4.tail_centre().z-err-thickness)
-        ARIADNE_TEST_EQUALS(bb[2].upper_bound(),s4.head_centre().z+err+thickness)
+        OPERA_TEST_EQUALS(bb[0].lower_bound(),s4.head_centre().x-err-thickness)
+        OPERA_TEST_EQUALS(bb[0].upper_bound(),s4.tail_centre().x+err+thickness)
+        OPERA_TEST_EQUALS(bb[1].lower_bound(),s4.head_centre().y-err-thickness)
+        OPERA_TEST_EQUALS(bb[1].upper_bound(),s4.tail_centre().y+err+thickness)
+        OPERA_TEST_EQUALS(bb[2].lower_bound(),s4.tail_centre().z-err-thickness)
+        OPERA_TEST_EQUALS(bb[2].upper_bound(),s4.head_centre().z+err+thickness)
     }
 
     void test_bodysegment_intersection() {
@@ -124,26 +124,26 @@ public:
         auto s6 = segment.create_sample({Point(2, 3, 3)}, {Point(2, 5, 5)});
         auto s7 = segment.create_sample({Point(0, 8, 0)}, {Point(0, 10, 0)});
 
-        ARIADNE_TEST_PRINT(s1.bounding_box())
-        ARIADNE_TEST_PRINT(s2.bounding_box())
-        ARIADNE_TEST_PRINT(s3.bounding_box())
-        ARIADNE_TEST_PRINT(s4.bounding_box())
-        ARIADNE_TEST_PRINT(s5.bounding_box())
-        ARIADNE_TEST_PRINT(s6.bounding_box())
-        ARIADNE_TEST_PRINT(s7.bounding_box())
+        OPERA_TEST_PRINT(s1.bounding_box())
+        OPERA_TEST_PRINT(s2.bounding_box())
+        OPERA_TEST_PRINT(s3.bounding_box())
+        OPERA_TEST_PRINT(s4.bounding_box())
+        OPERA_TEST_PRINT(s5.bounding_box())
+        OPERA_TEST_PRINT(s6.bounding_box())
+        OPERA_TEST_PRINT(s7.bounding_box())
 
-        ARIADNE_TEST_PRINT(distance(s1,s2))
-        ARIADNE_TEST_PRINT(distance(s1,s3))
-        ARIADNE_TEST_PRINT(distance(s1,s4))
-        ARIADNE_TEST_PRINT(distance(s4,s5))
-        ARIADNE_TEST_PRINT(distance(s4,s6))
+        OPERA_TEST_PRINT(distance(s1,s2))
+        OPERA_TEST_PRINT(distance(s1,s3))
+        OPERA_TEST_PRINT(distance(s1,s4))
+        OPERA_TEST_PRINT(distance(s4,s5))
+        OPERA_TEST_PRINT(distance(s4,s6))
 
-        ARIADNE_TEST_ASSERT(s1.intersects(s2))
-        ARIADNE_TEST_ASSERT(s1.intersects(s3))
-        ARIADNE_TEST_ASSERT(not s1.intersects(s4))
-        ARIADNE_TEST_ASSERT(not s4.intersects(s5))
-        ARIADNE_TEST_ASSERT(s4.intersects(s6))
-        ARIADNE_TEST_ASSERT(not s1.intersects(s7))
+        OPERA_TEST_ASSERT(s1.intersects(s2))
+        OPERA_TEST_ASSERT(s1.intersects(s3))
+        OPERA_TEST_ASSERT(not s1.intersects(s4))
+        OPERA_TEST_ASSERT(not s4.intersects(s5))
+        OPERA_TEST_ASSERT(s4.intersects(s6))
+        OPERA_TEST_ASSERT(not s1.intersects(s7))
     }
 
     void test_spherical_approximation() {
@@ -154,10 +154,10 @@ public:
         human_sample.update({Point(1,5,0)},{Point(2,5,0)});
 
         auto human_sas = human_sample.spherical_approximation();
-        ARIADNE_TEST_PRINT(human_sas)
-        ARIADNE_TEST_EQUAL(human_sas.centre(),Point(1.5,5,0))
-        ARIADNE_TEST_ASSERT(decide(human_sas.radius()-FloatType(2.062,dp) <= 1e-3))
-        ARIADNE_TEST_ASSERT(decide(distance(human_sas,robot_sample)-FloatType(1.938,dp) <= 1e-3))
+        OPERA_TEST_PRINT(human_sas)
+        OPERA_TEST_EQUAL(human_sas.centre(),Point(1.5,5,0))
+        OPERA_TEST_ASSERT(decide(human_sas.radius()-FloatType(2.062,dp) <= 1e-3))
+        OPERA_TEST_ASSERT(decide(distance(human_sas,robot_sample)-FloatType(1.938,dp) <= 1e-3))
     }
 };
 
@@ -165,5 +165,5 @@ public:
 int main() {
     TestBody().test();
 
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

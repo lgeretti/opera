@@ -31,16 +31,16 @@ using namespace Opera;
 class TestDeserialisation {
 public:
     void test() {
-        ARIADNE_TEST_CALL(test_bodypresentationpacket_make_human())
-        ARIADNE_TEST_CALL(test_bodypresentationpacket_make_robot())
-        ARIADNE_TEST_CALL(test_bodystatepacket_make())
-        ARIADNE_TEST_CALL(test_collisiondetectionpacket_make())
+        OPERA_TEST_CALL(test_bodypresentationpacket_make_human())
+        OPERA_TEST_CALL(test_bodypresentationpacket_make_robot())
+        OPERA_TEST_CALL(test_bodystatepacket_make())
+        OPERA_TEST_CALL(test_collisiondetectionpacket_make())
     }
 
     void test_bodypresentationpacket_make_human() {
         Deserialiser<BodyPresentationPacket> d1(Resources::path("json/examples/presentation/human0.json"));
         auto p1 = d1.make();
-        ARIADNE_TEST_ASSERT(p1.is_human())
+        OPERA_TEST_ASSERT(p1.is_human())
         Deserialiser<BodyPresentationPacket> d2("{\n"
                                    "  \"id\": \"h0\",\n"
                                    "  \"isHuman\": true,\n"
@@ -48,7 +48,7 @@ public:
                                    "  \"thicknesses\": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]\n"
                                    "}");
         auto p2 = d2.make();
-        ARIADNE_TEST_EQUALS(p1.id(),p2.id())
+        OPERA_TEST_EQUALS(p1.id(),p2.id())
     }
     void test_bodypresentationpacket_make_robot() {
         Deserialiser<BodyPresentationPacket> d1(Resources::path("json/examples/presentation/robot0.json"));
@@ -61,44 +61,44 @@ public:
                             "  \"thicknesses\": [1,1,1,1,1,1,1]\n"
                             "}");
         auto p2 = d2.make();
-        ARIADNE_TEST_EQUALS(p1.id(),p2.id())
+        OPERA_TEST_EQUALS(p1.id(),p2.id())
     }
 
     void test_bodystatepacket_make() {
         DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
         Deserialiser<BodyStatePacket> d(Resources::path("json/examples/state/robot0.json"));
         auto p = d.make();
-        ARIADNE_TEST_EQUALS(p.id(),"r0")
-        ARIADNE_TEST_EQUALS(p.location(),loc)
-        ARIADNE_TEST_PRINT(p.points())
-        ARIADNE_TEST_EQUALS(p.points().size(),8)
-        ARIADNE_TEST_EQUALS(p.points().at(0).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(1).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(2).size(),2)
-        ARIADNE_TEST_EQUALS(p.points().at(3).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(4).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(5).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(6).size(),1)
-        ARIADNE_TEST_EQUALS(p.points().at(7).size(),1)
-        ARIADNE_TEST_EQUALS(p.timestamp(),328903284232)
+        OPERA_TEST_EQUALS(p.id(),"r0")
+        OPERA_TEST_EQUALS(p.location(),loc)
+        OPERA_TEST_PRINT(p.points())
+        OPERA_TEST_EQUALS(p.points().size(),8)
+        OPERA_TEST_EQUALS(p.points().at(0).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(1).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(2).size(),2)
+        OPERA_TEST_EQUALS(p.points().at(3).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(4).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(5).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(6).size(),1)
+        OPERA_TEST_EQUALS(p.points().at(7).size(),1)
+        OPERA_TEST_EQUALS(p.timestamp(),328903284232)
     }
 
     void test_collisiondetectionpacket_make() {
         DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
         Deserialiser<CollisionNotificationPacket> d(Resources::path("json/examples/notification/notification0.json"));
         auto p = d.make();
-        ARIADNE_TEST_EQUALS(p.human_id(),"h0")
-        ARIADNE_TEST_EQUALS(p.human_segment_id(),0)
-        ARIADNE_TEST_EQUALS(p.robot_id(),"r0")
-        ARIADNE_TEST_EQUALS(p.robot_segment_id(),3)
-        ARIADNE_TEST_EQUALS(p.discrete_state(),loc)
-        ARIADNE_TEST_EQUALS(p.lower_collision_time(),328903284232)
-        ARIADNE_TEST_EQUALS(p.upper_collision_time(),328905923301)
-        ARIADNE_TEST_EQUALS(p.likelihood().get_d(),0.5)
+        OPERA_TEST_EQUALS(p.human_id(),"h0")
+        OPERA_TEST_EQUALS(p.human_segment_id(),0)
+        OPERA_TEST_EQUALS(p.robot_id(),"r0")
+        OPERA_TEST_EQUALS(p.robot_segment_id(),3)
+        OPERA_TEST_EQUALS(p.discrete_state(),loc)
+        OPERA_TEST_EQUALS(p.lower_collision_time(),328903284232)
+        OPERA_TEST_EQUALS(p.upper_collision_time(),328905923301)
+        OPERA_TEST_EQUALS(p.likelihood().get_d(),0.5)
     }
 };
 
 int main() {
     TestDeserialisation().test();
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

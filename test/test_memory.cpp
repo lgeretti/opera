@@ -31,5 +31,5 @@ using namespace Opera;
 int main() {
     BrokerAccess access = MemoryBrokerAccess();
     TestBrokerAccess(access).test();
-    return ARIADNE_TEST_FAILURES;
+    return OPERA_TEST_FAILURES;
 }

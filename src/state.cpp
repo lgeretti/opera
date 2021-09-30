@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/macros.hpp>
+#include "macros.hpp"
 #include "state.hpp"
 
 using Ariadne::StringStream;
@@ -31,7 +31,7 @@ using Ariadne::Map;
 namespace Opera {
 
 HumanStateInstance::HumanStateInstance(Human const& human, List<List<Point>> const& points, TimestampType const& timestamp) : _timestamp(timestamp) {
-    ARIADNE_PRECONDITION(human.num_points() == points.size())
+    OPERA_PRECONDITION(human.num_points() == points.size())
     for (SizeType i=0; i<human.num_segments(); ++i) {
         auto const& segment = human.segment(i);
         auto head_pts = points.at(segment.head_id());
@@ -96,7 +96,7 @@ SizeType RobotDiscreteTrace::size() const {
 }
 
 DiscreteLocation RobotDiscreteTrace::at(SizeType const& idx) const {
-    ARIADNE_PRECONDITION(idx < _locations.size())
+    OPERA_PRECONDITION(idx < _locations.size())
     return _locations.at(idx);
 }
 
@@ -262,7 +262,7 @@ void RobotStateHistory::acquire(DiscreteLocation const& location, List<List<Poin
      *   a) If not, adding each segment sample to the buffer
      *   b) If it has, identify the index from the timestamp and update the sample on the corresponding entry, adding it to the buffer
      */
-    ARIADNE_ASSERT(points.size() == _robot->num_points())
+    OPERA_ASSERT(points.size() == _robot->num_points())
 
     if (_current_location.values().empty() or _current_location != location) {
         _location_states[_current_location] = std::move(_current_location_states_buffer);

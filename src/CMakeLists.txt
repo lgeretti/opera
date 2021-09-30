@@ -1,5 +1,6 @@
 add_library(OPERA_SRC OBJECT
    thread.cpp
+   logging.cpp
    geometry.cpp
    body.cpp
    packet.cpp

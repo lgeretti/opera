@@ -22,9 +22,9 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/io/logging.hpp>
 #include "utility.hpp"
 #include "thread.hpp"
+#include "logging.hpp"
 
 namespace Opera {
 
@@ -39,7 +39,7 @@ Thread::Thread(std::function<void()> task, std::string name)
     });
     _got_id_future.get();
     if (_name == std::string()) _name = to_string(_id);
-    Ariadne::Logger::instance().register_thread(this->id(),this->name());
+    Logger::instance().register_thread(this->id(),this->name());
     _registered_thread_promise.set_value();
 }
 
@@ -53,7 +53,7 @@ std::string Thread::name() const {
 
 Thread::~Thread() {
     _thread.join();
-    Ariadne::Logger::instance().unregister_thread(this->id());
+    Logger::instance().unregister_thread(this->id());
 }
 
 } // namespace Opera

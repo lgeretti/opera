@@ -28,12 +28,12 @@ namespace Opera {
 
 MqttBrokerAccess::MqttBrokerAccess(std::string const& hostname, int port) : _hostname(hostname), _port(port) {
     int rc = mosquitto_lib_init();
-    ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error initialising Mosquito library: " << mosquitto_strerror(rc))
+    OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error initialising Mosquito library: " << mosquitto_strerror(rc))
 }
 
 MqttBrokerAccess::~MqttBrokerAccess() {
     int rc = mosquitto_lib_cleanup();
-    ARIADNE_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error cleaning up Mosquito library: " << mosquitto_strerror(rc))
+    OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error cleaning up Mosquito library: " << mosquitto_strerror(rc))
 }
 
 PublisherInterface<BodyPresentationPacket>* MqttBrokerAccess::make_body_presentation_publisher() const {

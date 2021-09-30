@@ -35,26 +35,26 @@ class TestBrokerAccess {
     TestBrokerAccess(BrokerAccess const& access) : _access(access) { }
 
     void test() {
-        ARIADNE_TEST_CALL(test_create_destroy())
-        ARIADNE_TEST_CALL(test_single_transfer())
-        ARIADNE_TEST_CALL(test_multiple_transfer())
+        OPERA_TEST_CALL(test_create_destroy())
+        OPERA_TEST_CALL(test_single_transfer())
+        OPERA_TEST_CALL(test_multiple_transfer())
     }
 
     void test_create_destroy() {
         BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
-        ARIADNE_PRINT_TEST_COMMENT("Creating subscriber and removing it")
+        OPERA_PRINT_TEST_COMMENT("Creating subscriber and removing it")
         auto* subscriber = _access.make_body_state_subscriber([](auto){});
-        ARIADNE_TEST_EXECUTE(delete subscriber)
+        OPERA_TEST_EXECUTE(delete subscriber)
 
-        ARIADNE_PRINT_TEST_COMMENT("Creating publisher and removing it immediately")
+        OPERA_PRINT_TEST_COMMENT("Creating publisher and removing it immediately")
         auto* publisher1 = _access.make_body_state_publisher();
-        ARIADNE_TEST_EXECUTE(delete publisher1)
+        OPERA_TEST_EXECUTE(delete publisher1)
 
-        ARIADNE_PRINT_TEST_COMMENT("Creating publisher and removing it after publishing")
+        OPERA_PRINT_TEST_COMMENT("Creating publisher and removing it after publishing")
         auto* publisher2 = _access.make_body_state_publisher();
         publisher2->put(p);
-        ARIADNE_TEST_EXECUTE(delete publisher2)
+        OPERA_TEST_EXECUTE(delete publisher2)
     }
 
     void test_single_transfer() {
@@ -70,7 +70,7 @@ class TestBrokerAccess {
             ++i;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
+        OPERA_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -106,7 +106,7 @@ class TestBrokerAccess {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
-        ARIADNE_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
+        OPERA_PRINT_TEST_COMMENT("Took " << i << " ms to acknowledge the reception")
 
         delete bp_subscriber;
         delete bs_subscriber;
