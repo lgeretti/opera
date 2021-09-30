@@ -62,15 +62,25 @@ class MemoryBroker {
     BodyStatePacket const& get_body_state(SizeType const& idx) const;
     CollisionNotificationPacket const& get_collision_notification(SizeType const& at) const;
 
-    SizeType body_presentations_size() const;
-    SizeType body_states_size() const;
-    SizeType collision_notifications_size() const;
+    template<class T> SizeType size() const;
   private:
     List<BodyPresentationPacket> _body_presentations;
     List<BodyStatePacket> _body_states;
     List<CollisionNotificationPacket> _collision_notifications;
     mutable std::mutex _mux;
 };
+
+template<> SizeType MemoryBroker::size<BodyPresentationPacket>() const {
+    return _body_presentations.size();
+}
+
+template<> SizeType MemoryBroker::size<BodyStatePacket>() const {
+    return _body_states.size();
+}
+
+template<> SizeType MemoryBroker::size<CollisionNotificationPacket>() const {
+    return _collision_notifications.size();
+}
 
 //! \brief The publisher of objects to memory
 template<class T> class MemoryPublisher : public PublisherInterface<T> {
@@ -84,12 +94,11 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
   protected:
     //! \brief Constructor
-    MemorySubscriberBase(CallbackFunction<T> const& callback) : _next_index(0), _exit_future(_exit_promise.get_future()), _callback(callback),
+    MemorySubscriberBase(CallbackFunction<T> const& callback) : _next_index(MemoryBroker::instance().size<T>()), _exit_future(_exit_promise.get_future()), _callback(callback),
         _thr(Thread([&] {
             while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
                 if (has_new_objects()) {
-                    auto p = get_new_object();
-                    _callback(p);
+                    _callback(get_new_object());
                     _next_index++;
                 }
             }

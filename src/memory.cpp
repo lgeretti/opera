@@ -56,21 +56,6 @@ CollisionNotificationPacket const& MemoryBroker::get_collision_notification(Size
     return _collision_notifications.at(idx);
 }
 
-SizeType MemoryBroker::body_presentations_size() const {
-    std::lock_guard<std::mutex> lock(_mux);
-    return _body_presentations.size();
-}
-
-SizeType MemoryBroker::body_states_size() const {
-    std::lock_guard<std::mutex> lock(_mux);
-    return _body_states.size();
-}
-
-SizeType MemoryBroker::collision_notifications_size() const {
-    std::lock_guard<std::mutex> lock(_mux);
-    return _collision_notifications.size();
-}
-
 PublisherInterface<BodyPresentationPacket>* MemoryBrokerAccess::make_body_presentation_publisher() const {
     return new MemoryPublisher<BodyPresentationPacket>();
 }
@@ -99,7 +84,7 @@ BodyPresentationPacketMemorySubscriber::BodyPresentationPacketMemorySubscriber(C
     : MemorySubscriberBase<BodyPresentationPacket>(callback) { }
 
 bool BodyPresentationPacketMemorySubscriber::has_new_objects() const {
-    return MemoryBroker::instance().body_presentations_size() > _next_index;
+    return MemoryBroker::instance().size<BodyPresentationPacket>() > _next_index;
 }
 
 BodyPresentationPacket const& BodyPresentationPacketMemorySubscriber::get_new_object() const {
@@ -110,7 +95,7 @@ BodyStatePacketMemorySubscriber::BodyStatePacketMemorySubscriber(CallbackFunctio
     : MemorySubscriberBase<BodyStatePacket>(callback) { }
 
 bool BodyStatePacketMemorySubscriber::has_new_objects() const {
-    return MemoryBroker::instance().body_states_size() > _next_index;
+    return MemoryBroker::instance().size<BodyStatePacket>() > _next_index;
 }
 
 BodyStatePacket const& BodyStatePacketMemorySubscriber::get_new_object() const {
@@ -121,7 +106,7 @@ CollisionNotificationPacketMemorySubscriber::CollisionNotificationPacketMemorySu
     : MemorySubscriberBase<CollisionNotificationPacket>(callback) { }
 
 bool CollisionNotificationPacketMemorySubscriber::has_new_objects() const {
-    return MemoryBroker::instance().collision_notifications_size() > _next_index;
+    return MemoryBroker::instance().size<CollisionNotificationPacket>() > _next_index;
 }
 
 CollisionNotificationPacket const& CollisionNotificationPacketMemorySubscriber::get_new_object() const {
