@@ -130,8 +130,7 @@ class NoCollisionScenario {
         }
 
         BrokerAccess access = MqttBrokerAccess("localhost",1883);
-        //BrokerAccess access = MemoryBrokerAccess();
-/*
+
         Thread human_production([&]{
             auto* publisher = access.make_body_state_publisher();
             while (not human_packets.empty()) {
@@ -143,7 +142,7 @@ class NoCollisionScenario {
             }
             delete publisher;
         },"hu_p");
-*/
+
         Thread robot_production([&]{
             auto* publisher = access.make_body_state_publisher();
             while (not robot_packets.empty()) {
@@ -161,7 +160,7 @@ class NoCollisionScenario {
         while(not robot_packets.empty())
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-        std::cout << "done" << std::endl;
+        ARIADNE_LOG_PRINTLN("All done")
 
         delete subscriber;
     }
@@ -171,6 +170,5 @@ class NoCollisionScenario {
 int main(int argc, const char* argv[])
 {
     if (not CommandLineInterface::instance().acquire(argc,argv)) return -1;
-    Logger::instance().use_blocking_scheduler();
     NoCollisionScenario().run();
 }

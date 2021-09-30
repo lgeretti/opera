@@ -1,7 +1,5 @@
 set(SCENARIOS
         scenario_nocollision
-        scenario_nocollision_sender
-        scenario_nocollision_receiver
     )
 
 foreach(SCENARIO ${SCENARIOS})
