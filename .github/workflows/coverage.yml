@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - mqtt
   pull_request:
 
 jobs:
