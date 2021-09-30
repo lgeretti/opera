@@ -2,6 +2,7 @@ include(CTest)
 
 set(UNIT_TESTS
     test_logging
+    test_command_line_interface
     test_thread
     test_geometry
     test_body

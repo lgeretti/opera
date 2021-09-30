@@ -30,6 +30,7 @@
 #include "memory.hpp"
 #include "barrier.hpp"
 #include "logging.hpp"
+#include "command_line_interface.hpp"
 
 using namespace Opera;
 
@@ -169,7 +170,7 @@ class NoCollisionScenario {
 
 int main(int argc, const char* argv[])
 {
-    if (not Ariadne::CommandLineInterface::instance().acquire(argc,argv)) return -1;
-    Ariadne::Logger::instance().use_blocking_scheduler();
+    if (not CommandLineInterface::instance().acquire(argc,argv)) return -1;
+    Logger::instance().use_blocking_scheduler();
     NoCollisionScenario().run();
 }
