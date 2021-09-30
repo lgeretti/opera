@@ -58,11 +58,12 @@ class MemoryBroker {
     void put(BodyStatePacket const& p);
     void put(CollisionNotificationPacket const& p);
 
-    BodyPresentationPacket const& get_body_presentation(SizeType const& idx) const;
-    BodyStatePacket const& get_body_state(SizeType const& idx) const;
-    CollisionNotificationPacket const& get_collision_notification(SizeType const& at) const;
+    //! \brief The \a idx element in the template argument list
+    template<class T> T const& get(SizeType const& idx) const;
 
+    //! \brief Size of template argument list
     template<class T> SizeType size() const;
+
   private:
     List<BodyPresentationPacket> _body_presentations;
     List<BodyStatePacket> _body_states;
@@ -70,17 +71,13 @@ class MemoryBroker {
     mutable std::mutex _mux;
 };
 
-template<> SizeType MemoryBroker::size<BodyPresentationPacket>() const {
-    return _body_presentations.size();
-}
+template<> BodyPresentationPacket const& MemoryBroker::get<BodyPresentationPacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _body_presentations.at(idx); }
+template<> BodyStatePacket const& MemoryBroker::get<BodyStatePacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _body_states.at(idx); }
+template<> CollisionNotificationPacket const& MemoryBroker::get<CollisionNotificationPacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _collision_notifications.at(idx); }
 
-template<> SizeType MemoryBroker::size<BodyStatePacket>() const {
-    return _body_states.size();
-}
-
-template<> SizeType MemoryBroker::size<CollisionNotificationPacket>() const {
-    return _collision_notifications.size();
-}
+template<> SizeType MemoryBroker::size<BodyPresentationPacket>() const { std::lock_guard<std::mutex> lock(_mux); return _body_presentations.size(); }
+template<> SizeType MemoryBroker::size<BodyStatePacket>() const { std::lock_guard<std::mutex> lock(_mux); return _body_states.size(); }
+template<> SizeType MemoryBroker::size<CollisionNotificationPacket>() const { std::lock_guard<std::mutex> lock(_mux); return _collision_notifications.size(); }
 
 //! \brief The publisher of objects to memory
 template<class T> class MemoryPublisher : public PublisherInterface<T> {
@@ -91,28 +88,20 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 //! \brief The subscriber to objects published to memory
 //! \details The advancement of acquisition is local to the subscriber, but for simplicity
 //! a new subscriber starts from the beginning of memory content
-template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
-  protected:
+template<class T> class MemorySubscriber : public SubscriberInterface<T> {
+  public:
     //! \brief Constructor
-    MemorySubscriberBase(CallbackFunction<T> const& callback) : _next_index(MemoryBroker::instance().size<T>()), _exit_future(_exit_promise.get_future()), _callback(callback),
-        _thr(Thread([&] {
+    MemorySubscriber(CallbackFunction<T> const& callback) : _next_index(MemoryBroker::instance().size<T>()), _exit_future(_exit_promise.get_future()), _callback(callback),
+                                                            _thr(Thread([&] {
             while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-                if (has_new_objects()) {
-                    _callback(get_new_object());
+                if (MemoryBroker::instance().size<T>() > _next_index) {
+                    _callback(MemoryBroker::instance().get<T>(_next_index));
                     _next_index++;
                 }
             }
         },"subc")) { }
 
-    //! \brief Whether there are new objects that have not been got yet
-    virtual bool has_new_objects() const = 0;
-
-    //! \brief Get the new object with respect to the current index
-    virtual T const& get_new_object() const = 0;
-
-  public:
-
-    virtual ~MemorySubscriberBase() {
+    ~MemorySubscriber() {
         _exit_promise.set_value();
     }
 
@@ -122,30 +111,6 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     std::future<void> _exit_future;
     CallbackFunction<T> const _callback;
     Thread const _thr;
-};
-
-class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {
-  public:
-    BodyPresentationPacketMemorySubscriber(CallbackFunction<BodyPresentationPacket> const& callback);
-  protected:
-    bool has_new_objects() const override;
-    BodyPresentationPacket const& get_new_object() const override;
-};
-
-class BodyStatePacketMemorySubscriber : public MemorySubscriberBase<BodyStatePacket> {
-  public:
-    BodyStatePacketMemorySubscriber(CallbackFunction<BodyStatePacket> const& callback);
-  protected:
-    bool has_new_objects() const override;
-    BodyStatePacket const& get_new_object() const override;
-};
-
-class CollisionNotificationPacketMemorySubscriber : public MemorySubscriberBase<CollisionNotificationPacket> {
-  public:
-    CollisionNotificationPacketMemorySubscriber(CallbackFunction<CollisionNotificationPacket> const& callback);
-  protected:
-    bool has_new_objects() const override;
-    CollisionNotificationPacket const& get_new_object() const override;
 };
 
 //! \brief A broker to handle packets using memory
