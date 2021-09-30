@@ -55,11 +55,11 @@ class Thread {
   private:
     std::string _name;
     std::thread::id _id;
-    std::thread _thread;
     std::promise<void> _got_id_promise;
     std::future<void> _got_id_future;
     std::promise<void> _registered_thread_promise;
     std::future<void> _registered_thread_future;
+    std::thread _thread;
 };
 
 } // namespace Opera
