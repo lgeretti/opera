@@ -42,10 +42,6 @@
 
 namespace Opera {
 
-static const std::string OPERA_PRESENTATION_TOPIC = "opera/presentation";
-static const std::string OPERA_STATE_TOPIC = "opera/state";
-static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera/collision-notification";
-
 //! \brief The publisher of objects to the MQTT broker
 template<class T> class MqttPublisher : public PublisherInterface<T> {
   public:
@@ -152,8 +148,12 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
     struct mosquitto* _subscriber;
 };
 
-//! \brief A broker to handle packets using MQTT
+//! \brief Access to a broker to handle Opera-specific packets using MQTT
 class MqttBrokerAccess : public BrokerAccessInterface {
+  public:
+    static const std::string BODY_PRESENTATION_TOPIC;
+    static const std::string BODY_STATE_TOPIC;
+    static const std::string COLLISION_NOTIFICATION_TOPIC;
   public:
     MqttBrokerAccess(std::string const& hostname, int port);
     PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const override;

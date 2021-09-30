@@ -26,6 +26,10 @@
 
 namespace Opera {
 
+const std::string MqttBrokerAccess::BODY_PRESENTATION_TOPIC = "opera/body-presentation";
+const std::string MqttBrokerAccess::BODY_STATE_TOPIC = "opera/body-state";
+const std::string MqttBrokerAccess::COLLISION_NOTIFICATION_TOPIC = "opera/collision-notification";
+
 MqttBrokerAccess::MqttBrokerAccess(std::string const& hostname, int port) : _hostname(hostname), _port(port) {
     int rc = mosquitto_lib_init();
     OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error initialising Mosquito library: " << mosquitto_strerror(rc))
@@ -37,27 +41,27 @@ MqttBrokerAccess::~MqttBrokerAccess() {
 }
 
 PublisherInterface<BodyPresentationPacket>* MqttBrokerAccess::make_body_presentation_publisher() const {
-    return new MqttPublisher<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,_hostname,_port);
+    return new MqttPublisher<BodyPresentationPacket>(BODY_PRESENTATION_TOPIC, _hostname, _port);
 }
 
 PublisherInterface<BodyStatePacket>* MqttBrokerAccess::make_body_state_publisher() const {
-    return new MqttPublisher<BodyStatePacket>(OPERA_STATE_TOPIC,_hostname,_port);
+    return new MqttPublisher<BodyStatePacket>(BODY_STATE_TOPIC, _hostname, _port);
 }
 
 PublisherInterface<CollisionNotificationPacket>* MqttBrokerAccess::make_collision_notification_publisher() const {
-    return new MqttPublisher<CollisionNotificationPacket>(OPERA_COLLISION_NOTIFICATION_TOPIC,_hostname,_port);
+    return new MqttPublisher<CollisionNotificationPacket>(COLLISION_NOTIFICATION_TOPIC, _hostname, _port);
 }
 
 SubscriberInterface<BodyPresentationPacket>* MqttBrokerAccess::make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const {
-    return new MqttSubscriber<BodyPresentationPacket>(OPERA_PRESENTATION_TOPIC,_hostname,_port,callback);
+    return new MqttSubscriber<BodyPresentationPacket>(BODY_PRESENTATION_TOPIC, _hostname, _port, callback);
 }
 
 SubscriberInterface<BodyStatePacket>* MqttBrokerAccess::make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const {
-    return new MqttSubscriber<BodyStatePacket>(OPERA_STATE_TOPIC,_hostname,_port,callback);
+    return new MqttSubscriber<BodyStatePacket>(BODY_STATE_TOPIC, _hostname, _port, callback);
 }
 
 SubscriberInterface<CollisionNotificationPacket>* MqttBrokerAccess::make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const {
-    return new MqttSubscriber<CollisionNotificationPacket>(OPERA_COLLISION_NOTIFICATION_TOPIC,_hostname,_port,callback);
+    return new MqttSubscriber<CollisionNotificationPacket>(COLLISION_NOTIFICATION_TOPIC, _hostname, _port, callback);
 }
 
 }
