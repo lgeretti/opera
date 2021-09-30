@@ -55,15 +55,15 @@ template<class T> class CallbackQueue {
     //! \brief Add an element
     void add(T const& e) { _add_callback(e); LockGuard lock(_mux); _deque.push_back(e); }
     //! \brief The least recent element added
-    T const& front() const { ARIADNE_PRECONDITION(not empty()) LockGuard lock(_mux); return _deque.front(); }
+    T const& front() const { LockGuard lock(_mux); ARIADNE_PRECONDITION(not _deque.size() == 0); return _deque.front(); }
     //! \brief The most recent element added
-    T const& back() const { ARIADNE_PRECONDITION(not empty()) LockGuard lock(_mux); return _deque.back(); }
+    T const& back() const { LockGuard lock(_mux); ARIADNE_PRECONDITION(not _deque.size() == 0) return _deque.back(); }
     //! \brief Remove an element
-    void remove() { ARIADNE_PRECONDITION(not empty()) LockGuard lock(_mux); _remove_callback(_deque.front()); _deque.pop_front(); }
+    void remove() { LockGuard lock(_mux); ARIADNE_PRECONDITION(not _deque.size() == 0) _remove_callback(_deque.front()); _deque.pop_front(); }
     //! \brief The size of the queue
     SizeType size() const { LockGuard lock(_mux); return _deque.size(); }
     //! \brief If the queue is empty
-    bool empty() const { return this->size() == 0; }
+    bool empty() const { LockGuard lock(_mux); return _deque.size() == 0; }
 
   private:
     mutable Mux _mux;
