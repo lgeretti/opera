@@ -57,14 +57,17 @@ CollisionNotificationPacket const& MemoryBroker::get_collision_notification(Size
 }
 
 SizeType MemoryBroker::body_presentations_size() const {
+    std::lock_guard<std::mutex> lock(_mux);
     return _body_presentations.size();
 }
 
 SizeType MemoryBroker::body_states_size() const {
+    std::lock_guard<std::mutex> lock(_mux);
     return _body_states.size();
 }
 
 SizeType MemoryBroker::collision_notifications_size() const {
+    std::lock_guard<std::mutex> lock(_mux);
     return _collision_notifications.size();
 }
 
