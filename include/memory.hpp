@@ -33,6 +33,7 @@
 #include <cstring>
 #include <tuple>
 #include <thread>
+#include "thread.hpp"
 
 #include "broker.hpp"
 
@@ -96,10 +97,11 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     void loop_get(CallbackQueue<T>& queue) override {
         ARIADNE_ASSERT_MSG(not _started,"The loop can't be restarted on the same object.")
         _started = true;
-        _thr = new Ariadne::Thread([&] {
+        _thr = new Thread([&] {
             while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
                 if (has_new_objects()) {
-                    queue.add(get_new_object());
+                    auto p = get_new_object();
+                    queue.add(p);
                     _next_index++;
                 }
             }
@@ -116,7 +118,7 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     bool _started;
     std::promise<void> _exit_promise;
     std::future<void> _exit_future;
-    Ariadne::Thread* _thr;
+    Thread* _thr;
 };
 
 class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {
