@@ -89,8 +89,6 @@ class TestCommandLineInterface {
         OPERA_TEST_ASSERT(success5)
         bool success6 = CommandLineInterface::instance().acquire({"", "-s"});
         OPERA_TEST_ASSERT(not success6)
-        bool success7 = CommandLineInterface::instance().acquire({"", "-c", "max", "-s", "immediate"});
-        OPERA_TEST_ASSERT(success7)
     }
 
     void test_theme_parsing() {
@@ -124,7 +122,7 @@ class TestCommandLineInterface {
     }
 
     void test_multiple_argument_parsing() {
-        bool success = CommandLineInterface::instance().acquire({"", "-c", "2", "--verbosity", "4"});
+        bool success = CommandLineInterface::instance().acquire({"", "-t", "dark", "--verbosity", "4"});
         OPERA_TEST_ASSERT(success)
         OPERA_TEST_EQUALS(Logger::instance().configuration().verbosity(),4)
     }
