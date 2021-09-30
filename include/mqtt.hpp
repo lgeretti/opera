@@ -93,27 +93,21 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
 };
 
 template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-    auto queue = static_cast<CallbackQueue<T>*>(obj);
+    auto callback = static_cast<CallbackFunction<T>*>(obj);
     ARIADNE_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
     Deserialiser<T> deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
-    queue->add(deserialiser.make());
+    (*callback)(deserialiser.make());
 }
 
 //! \brief The subscriber to objects published to MQTT
 template<class T> class MqttSubscriber : public SubscriberInterface<T> {
   public:
-    //! \brief Set the next index and make sure that _stop is false
-    MqttSubscriber(std::string const& topic, std::string const& hostname, int port) : _subscriber(nullptr), _topic(topic), _hostname(hostname), _port(port), _started(false) { }
-
-    //! \brief The main asynchronous loop for getting objects from memory
-    //! \details Allows multiple calls, waiting to finish the previous callback if necessary
-    void loop_get(CallbackQueue<T>& queue) override {
-        if (_started) {
-            mosquitto_disconnect(_subscriber);
-        } else {
-            _subscriber = mosquitto_new(nullptr, true, (void*)&queue);
-            ARIADNE_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
-        }
+    //! \brief Connects and starts the main asynchronous loop for getting messages
+    MqttSubscriber(std::string const& topic, std::string const& hostname, int port, CallbackFunction<T> const& callback)
+        : _topic(topic), _hostname(hostname), _port(port), _callback(callback)
+    {
+        _subscriber = mosquitto_new(nullptr, true, (void*)&_callback);
+        ARIADNE_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
 
         mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
 
@@ -130,7 +124,6 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
         }
 
         mosquitto_loop_start(_subscriber);
-        _started = true;
     }
 
     virtual ~MqttSubscriber() {
@@ -140,23 +133,23 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
     }
 
   protected:
-    struct mosquitto* _subscriber;
     std::string const _topic;
     std::string const _hostname;
     int const _port;
-    bool _started;
+    CallbackFunction<T> const _callback;
+    struct mosquitto* _subscriber;
 };
 
 //! \brief A broker to handle packets using MQTT
 class MqttBrokerAccess : public BrokerAccessInterface {
   public:
     MqttBrokerAccess(std::string const& hostname, int port);
-    PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const override;
-    PublisherInterface<BodyStatePacket>* body_state_publisher() const override;
-    PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const override;
-    SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const override;
-    SubscriberInterface<BodyStatePacket>* body_state_subscriber() const override;
-    SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const override;
+    PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const override;
+    PublisherInterface<BodyStatePacket>* make_body_state_publisher() const override;
+    PublisherInterface<CollisionNotificationPacket>* make_collision_notification_publisher() const override;
+    SubscriberInterface<BodyPresentationPacket>* make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const override;
+    SubscriberInterface<BodyStatePacket>* make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const override;
+    SubscriberInterface<CollisionNotificationPacket>* make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const override;
     ~MqttBrokerAccess();
 
   private:

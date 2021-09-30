@@ -71,29 +71,32 @@ SizeType MemoryBroker::collision_notifications_size() const {
     return _collision_notifications.size();
 }
 
-PublisherInterface<BodyPresentationPacket>* MemoryBrokerAccess::body_presentation_publisher() const {
+PublisherInterface<BodyPresentationPacket>* MemoryBrokerAccess::make_body_presentation_publisher() const {
     return new MemoryPublisher<BodyPresentationPacket>();
 }
 
-PublisherInterface<BodyStatePacket>* MemoryBrokerAccess::body_state_publisher() const {
+PublisherInterface<BodyStatePacket>* MemoryBrokerAccess::make_body_state_publisher() const {
     return new MemoryPublisher<BodyStatePacket>();
 }
 
-PublisherInterface<CollisionNotificationPacket>* MemoryBrokerAccess::collision_notification_publisher() const {
+PublisherInterface<CollisionNotificationPacket>* MemoryBrokerAccess::make_collision_notification_publisher() const {
     return new MemoryPublisher<CollisionNotificationPacket>();
 }
 
-SubscriberInterface<BodyPresentationPacket>* MemoryBrokerAccess::body_presentation_subscriber() const {
-    return new BodyPresentationPacketMemorySubscriber();
+SubscriberInterface<BodyPresentationPacket>* MemoryBrokerAccess::make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const {
+    return new BodyPresentationPacketMemorySubscriber(callback);
 }
 
-SubscriberInterface<BodyStatePacket>* MemoryBrokerAccess::body_state_subscriber() const {
-    return new BodyStatePacketMemorySubscriber();
+SubscriberInterface<BodyStatePacket>* MemoryBrokerAccess::make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const {
+    return new BodyStatePacketMemorySubscriber(callback);
 }
 
-SubscriberInterface<CollisionNotificationPacket>* MemoryBrokerAccess::collision_notification_subscriber() const {
-    return new CollisionNotificationPacketMemorySubscriber();
+SubscriberInterface<CollisionNotificationPacket>* MemoryBrokerAccess::make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const {
+    return new CollisionNotificationPacketMemorySubscriber(callback);
 }
+
+BodyPresentationPacketMemorySubscriber::BodyPresentationPacketMemorySubscriber(CallbackFunction<BodyPresentationPacket> const& callback)
+    : MemorySubscriberBase<BodyPresentationPacket>(callback) { }
 
 bool BodyPresentationPacketMemorySubscriber::has_new_objects() const {
     return MemoryBroker::instance().body_presentations_size() > _next_index;
@@ -103,6 +106,9 @@ BodyPresentationPacket const& BodyPresentationPacketMemorySubscriber::get_new_ob
     return MemoryBroker::instance().get_body_presentation(_next_index);
 }
 
+BodyStatePacketMemorySubscriber::BodyStatePacketMemorySubscriber(CallbackFunction<BodyStatePacket> const& callback)
+    : MemorySubscriberBase<BodyStatePacket>(callback) { }
+
 bool BodyStatePacketMemorySubscriber::has_new_objects() const {
     return MemoryBroker::instance().body_states_size() > _next_index;
 }
@@ -110,6 +116,9 @@ bool BodyStatePacketMemorySubscriber::has_new_objects() const {
 BodyStatePacket const& BodyStatePacketMemorySubscriber::get_new_object() const {
     return MemoryBroker::instance().get_body_state(_next_index);
 }
+
+CollisionNotificationPacketMemorySubscriber::CollisionNotificationPacketMemorySubscriber(CallbackFunction<CollisionNotificationPacket> const& callback)
+    : MemorySubscriberBase<CollisionNotificationPacket>(callback) { }
 
 bool CollisionNotificationPacketMemorySubscriber::has_new_objects() const {
     return MemoryBroker::instance().collision_notifications_size() > _next_index;

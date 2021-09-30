@@ -36,9 +36,10 @@
 #include <ariadne/utility/handle.hpp>
 #include <ariadne/utility/container.hpp>
 #include "packet.hpp"
-#include "callback_queue.hpp"
 
 namespace Opera {
+
+template<class T> using CallbackFunction = std::function<void(T const&)>;
 
 //! \brief An interface for publishing objects
 template<class T> class PublisherInterface {
@@ -52,8 +53,6 @@ template<class T> class PublisherInterface {
 //! \brief An interface for subscribing to objects published
 template<class T> class SubscriberInterface {
   public:
-    //! \brief Start the get loop which adds to the \a queue
-    virtual void loop_get(CallbackQueue<T>& queue) = 0;
     //! \brief Default destructor to avoid destructor not being called on objects of this type
     virtual ~SubscriberInterface() = default;
 };
@@ -61,13 +60,13 @@ template<class T> class SubscriberInterface {
 //! \brief Interface for access to a communication broker
 class BrokerAccessInterface {
   public:
-    virtual PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const = 0;
-    virtual PublisherInterface<BodyStatePacket>* body_state_publisher() const = 0;
-    virtual PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const = 0;
+    virtual PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const = 0;
+    virtual PublisherInterface<BodyStatePacket>* make_body_state_publisher() const = 0;
+    virtual PublisherInterface<CollisionNotificationPacket>* make_collision_notification_publisher() const = 0;
 
-    virtual SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const = 0;
-    virtual SubscriberInterface<BodyStatePacket>* body_state_subscriber() const = 0;
-    virtual SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const = 0;
+    virtual SubscriberInterface<BodyPresentationPacket>* make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const = 0;
+    virtual SubscriberInterface<BodyStatePacket>* make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const = 0;
+    virtual SubscriberInterface<CollisionNotificationPacket>* make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const = 0;
 
     //! \brief Default destructor to avoid destructor not being called on objects of this type
     virtual ~BrokerAccessInterface() = default;
@@ -77,12 +76,12 @@ class BrokerAccessInterface {
 class BrokerAccess : public Ariadne::Handle<BrokerAccessInterface> {
   public:
     using Ariadne::Handle<BrokerAccessInterface>::Handle;
-    PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const { return _ptr->body_presentation_publisher(); }
-    PublisherInterface<BodyStatePacket>* body_state_publisher() const { return _ptr->body_state_publisher(); }
-    PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const { return _ptr->collision_notification_publisher(); }
-    SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const { return _ptr->body_presentation_subscriber(); }
-    SubscriberInterface<BodyStatePacket>* body_state_subscriber() const { return _ptr->body_state_subscriber(); }
-    SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const { return _ptr->collision_notification_subscriber(); }
+    PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const { return _ptr->make_body_presentation_publisher(); }
+    PublisherInterface<BodyStatePacket>* make_body_state_publisher() const { return _ptr->make_body_state_publisher(); }
+    PublisherInterface<CollisionNotificationPacket>* make_collision_notification_publisher() const { return _ptr->make_collision_notification_publisher(); }
+    SubscriberInterface<BodyPresentationPacket>* make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const { return _ptr->make_body_presentation_subscriber(callback); }
+    SubscriberInterface<BodyStatePacket>* make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const { return _ptr->make_body_state_subscriber(callback); }
+    SubscriberInterface<CollisionNotificationPacket>* make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const { return _ptr->make_collision_notification_subscriber(callback); }
 };
 
 }

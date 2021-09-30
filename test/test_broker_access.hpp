@@ -43,33 +43,26 @@ class TestBrokerAccess {
     void test_create_destroy() {
         BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
-        ARIADNE_PRINT_TEST_COMMENT("Creating subscriber and removing it immediately")
-        auto* subscriber1 = _access.body_state_subscriber();
-        ARIADNE_TEST_EXECUTE(delete subscriber1)
+        ARIADNE_PRINT_TEST_COMMENT("Creating subscriber and removing it")
+        auto* subscriber = _access.make_body_state_subscriber([](auto){});
+        ARIADNE_TEST_EXECUTE(delete subscriber)
 
         ARIADNE_PRINT_TEST_COMMENT("Creating publisher and removing it immediately")
-        auto* publisher1 = _access.body_state_publisher();
+        auto* publisher1 = _access.make_body_state_publisher();
         ARIADNE_TEST_EXECUTE(delete publisher1)
 
-        ARIADNE_PRINT_TEST_COMMENT("Creating subscriber and removing it after subscribing")
-        auto* subscriber2 = _access.body_state_subscriber();
-        CallbackQueue<BodyStatePacket> queue;
-        subscriber2->loop_get(queue);
-        ARIADNE_TEST_EXECUTE(delete subscriber2)
-
         ARIADNE_PRINT_TEST_COMMENT("Creating publisher and removing it after publishing")
-        auto* publisher2 = _access.body_state_publisher();
+        auto* publisher2 = _access.make_body_state_publisher();
         publisher2->put(p);
         ARIADNE_TEST_EXECUTE(delete publisher2)
     }
 
     void test_single_transfer() {
         BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
-        CallbackQueue<BodyPresentationPacket> bp_received;
+        List<BodyPresentationPacket> bp_received;
 
-        auto bp_subscriber = _access.body_presentation_subscriber();
-        bp_subscriber->loop_get(bp_received);
-        auto bp_publisher = _access.body_presentation_publisher();
+        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.append(p); });
+        auto bp_publisher = _access.make_body_presentation_publisher();
         bp_publisher->put(hp);
 
         SizeType i=0;
@@ -92,19 +85,16 @@ class TestBrokerAccess {
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
 
-        CallbackQueue<BodyPresentationPacket> bp_received;
-        CallbackQueue<BodyStatePacket> bs_received;
-        CallbackQueue<CollisionNotificationPacket> cn_received;
+        List<BodyPresentationPacket> bp_received;
+        List<BodyStatePacket> bs_received;
+        List<CollisionNotificationPacket> cn_received;
 
-        auto bp_subscriber = _access.body_presentation_subscriber();
-        auto bs_subscriber = _access.body_state_subscriber();
-        auto cn_subscriber = _access.collision_notification_subscriber();
-        bp_subscriber->loop_get(bp_received);
-        bs_subscriber->loop_get(bs_received);
-        cn_subscriber->loop_get(cn_received);
-        auto bp_publisher = _access.body_presentation_publisher();
-        auto bs_publisher = _access.body_state_publisher();
-        auto cn_publisher = _access.collision_notification_publisher();
+        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.append(p); });
+        auto bs_subscriber = _access.make_body_state_subscriber([&](auto p){ bs_received.append(p); });
+        auto cn_subscriber = _access.make_collision_notification_subscriber([&](auto p){ cn_received.append(p); });
+        auto bp_publisher = _access.make_body_presentation_publisher();
+        auto bs_publisher = _access.make_body_state_publisher();
+        auto cn_publisher = _access.make_collision_notification_publisher();
         bp_publisher->put(hp);
         bp_publisher->put(rp);
         bs_publisher->put(hs);

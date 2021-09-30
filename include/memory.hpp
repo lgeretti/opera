@@ -83,8 +83,17 @@ template<class T> class MemoryPublisher : public PublisherInterface<T> {
 //! a new subscriber starts from the beginning of memory content
 template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
   protected:
-    //! \brief Set the next index and make sure that _stop is false
-    MemorySubscriberBase() : _next_index(0), _started(false), _exit_future(_exit_promise.get_future()) { }
+    //! \brief Constructor
+    MemorySubscriberBase(CallbackFunction<T> const& callback) : _next_index(0), _exit_future(_exit_promise.get_future()), _callback(callback),
+        _thr(Thread([&] {
+            while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
+                if (has_new_objects()) {
+                    auto p = get_new_object();
+                    _callback(p);
+                    _next_index++;
+                }
+            }
+        },"subc")) { }
 
     //! \brief Whether there are new objects that have not been got yet
     virtual bool has_new_objects() const = 0;
@@ -93,47 +102,38 @@ template<class T> class MemorySubscriberBase : public SubscriberInterface<T> {
     virtual T const& get_new_object() const = 0;
 
   public:
-    //! \brief The main asynchronous loop for getting objects from memory
-    void loop_get(CallbackQueue<T>& queue) override {
-        ARIADNE_ASSERT_MSG(not _started,"The loop can't be restarted on the same object.")
-        _started = true;
-        _thr = new Thread([&] {
-            while (_exit_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-                if (has_new_objects()) {
-                    auto p = get_new_object();
-                    queue.add(p);
-                    _next_index++;
-                }
-            }
-        },"subc");
-    }
 
     virtual ~MemorySubscriberBase() {
         _exit_promise.set_value();
-        delete _thr;
     }
 
   protected:
     SizeType _next_index;
-    bool _started;
     std::promise<void> _exit_promise;
     std::future<void> _exit_future;
-    Thread* _thr;
+    CallbackFunction<T> const _callback;
+    Thread const _thr;
 };
 
 class BodyPresentationPacketMemorySubscriber : public MemorySubscriberBase<BodyPresentationPacket> {
+  public:
+    BodyPresentationPacketMemorySubscriber(CallbackFunction<BodyPresentationPacket> const& callback);
   protected:
     bool has_new_objects() const override;
     BodyPresentationPacket const& get_new_object() const override;
 };
 
 class BodyStatePacketMemorySubscriber : public MemorySubscriberBase<BodyStatePacket> {
+  public:
+    BodyStatePacketMemorySubscriber(CallbackFunction<BodyStatePacket> const& callback);
   protected:
     bool has_new_objects() const override;
     BodyStatePacket const& get_new_object() const override;
 };
 
 class CollisionNotificationPacketMemorySubscriber : public MemorySubscriberBase<CollisionNotificationPacket> {
+  public:
+    CollisionNotificationPacketMemorySubscriber(CallbackFunction<CollisionNotificationPacket> const& callback);
   protected:
     bool has_new_objects() const override;
     CollisionNotificationPacket const& get_new_object() const override;
@@ -142,12 +142,12 @@ class CollisionNotificationPacketMemorySubscriber : public MemorySubscriberBase<
 //! \brief A broker to handle packets using memory
 class MemoryBrokerAccess : public BrokerAccessInterface {
   public:
-    PublisherInterface<BodyPresentationPacket>* body_presentation_publisher() const override;
-    PublisherInterface<BodyStatePacket>* body_state_publisher() const override;
-    PublisherInterface<CollisionNotificationPacket>* collision_notification_publisher() const override;
-    SubscriberInterface<BodyPresentationPacket>* body_presentation_subscriber() const override;
-    SubscriberInterface<BodyStatePacket>* body_state_subscriber() const override;
-    SubscriberInterface<CollisionNotificationPacket>* collision_notification_subscriber() const override;
+    PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const override;
+    PublisherInterface<BodyStatePacket>* make_body_state_publisher() const override;
+    PublisherInterface<CollisionNotificationPacket>* make_collision_notification_publisher() const override;
+    SubscriberInterface<BodyPresentationPacket>* make_body_presentation_subscriber(CallbackFunction<BodyPresentationPacket> const& callback) const override;
+    SubscriberInterface<BodyStatePacket>* make_body_state_subscriber(CallbackFunction<BodyStatePacket> const& callback) const override;
+    SubscriberInterface<CollisionNotificationPacket>* make_collision_notification_subscriber(CallbackFunction<CollisionNotificationPacket> const& callback) const override;
 };
 
 }

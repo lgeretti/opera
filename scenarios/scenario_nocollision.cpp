@@ -26,9 +26,11 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "thread.hpp"
 #include "utility.hpp"
 #include "packet.hpp"
 #include "deserialisation.hpp"
+#include "mqtt.hpp"
 #include "memory.hpp"
 #include "barrier.hpp"
 
@@ -122,6 +124,7 @@ class NoCollisionScenario {
             if (not exists(filepath)) break;
             human_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
+
         std::deque<BodyStatePacket> robot_packets;
         idx = 1;
         while (true) {
@@ -130,11 +133,11 @@ class NoCollisionScenario {
             robot_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
 
+        //BrokerAccess access = MqttBrokerAccess("localhost",1883);
         BrokerAccess access = MemoryBrokerAccess();
-
-        Ariadne::Thread human_production([&]{
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            auto* publisher = access.body_state_publisher();
+/*
+        Thread human_production([&]{
+            auto* publisher = access.make_body_state_publisher();
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
                 ARIADNE_LOG_PRINTLN("Human packet sent at " << p.timestamp());
@@ -143,34 +146,25 @@ class NoCollisionScenario {
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
             }
             delete publisher;
-        },"h_pr");
-
-        Ariadne::Thread robot_production([&]{
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            auto* publisher = access.body_state_publisher();
+        },"hu_p");
+*/
+        Thread robot_production([&]{
+            auto* publisher = access.make_body_state_publisher();
             while (not robot_packets.empty()) {
-                auto& p = robot_packets.front();
+                auto const& p = robot_packets.front();
                 ARIADNE_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
                 publisher->put(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
             }
             delete publisher;
-        },"r_pr");
+        },"rb_p");
 
-        auto* subscriber = access.body_state_subscriber();
-        CallbackQueue<BodyStatePacket> queue;
+        auto* subscriber = access.make_body_state_subscriber([](auto p){ ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp()) });
 
-        {
-            Ariadne::Thread state_consumption([&]{
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                queue.set_add_callback([](auto p){ ARIADNE_LOG_PRINTLN("State packet received at " << p.timestamp()) });
-                subscriber->loop_get(queue);
-            },"s_co");
+        while(not robot_packets.empty())
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-            while(not robot_packets.empty())
-                std::this_thread::sleep_for(std::chrono::microseconds(10000/speedup));
-        }
         delete subscriber;
     }
 
@@ -179,6 +173,5 @@ class NoCollisionScenario {
 int main(int argc, const char* argv[])
 {
     if (not Ariadne::CommandLineInterface::instance().acquire(argc,argv)) return -1;
-    Logger::instance().configuration().set_thread_name_printing_policy(Ariadne::ThreadNamePrintingPolicy::BEFORE);
     NoCollisionScenario().run();
 }
