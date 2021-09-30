@@ -47,7 +47,7 @@ class NoCollisionScenario {
         BrokerAccess access = MqttBrokerAccess("localhost",1883);
         //BrokerAccess access = MemoryBrokerAccess();
 
-        auto* subscriber = access.make_body_state_subscriber([](auto p){ std::cout << "received" << std::endl; });
+        auto* subscriber = access.make_body_state_subscriber([](auto p){ OPERA_LOG_PRINTLN("Packet received") });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 

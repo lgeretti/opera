@@ -64,6 +64,5 @@ class NoCollisionScenario {
 int main(int argc, const char* argv[])
 {
     if (not CommandLineInterface::instance().acquire(argc,argv)) return -1;
-    Logger::instance().use_blocking_scheduler();
     NoCollisionScenario().run();
 }
