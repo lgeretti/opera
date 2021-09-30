@@ -294,6 +294,7 @@ class BlockingLoggerScheduler : public LoggerSchedulerInterface {
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
+    void create_data_instance(std::thread::id id, std::string name, int level);
     void kill_data_instance(std::thread::id id);
     void terminate() override;
   private:
@@ -316,6 +317,7 @@ class NonblockingLoggerScheduler : public LoggerSchedulerInterface {
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
+    void create_data_instance(std::thread::id id, std::string name, int level);
     void kill_data_instance(std::thread::id id);
     void terminate() override;
     ~NonblockingLoggerScheduler() override;
@@ -385,9 +387,13 @@ BlockingLoggerScheduler::BlockingLoggerScheduler() {
 }
 
 void BlockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name) {
+    create_data_instance(id,name,current_level());
+}
+
+void BlockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, int level) {
     std::lock_guard<std::mutex> lock(_data_mutex);
     // Won't replace if it already exists
-    _data.insert({id,make_pair(current_level(),name)});
+    _data.insert({id,make_pair(level,name)});
 }
 
 void BlockingLoggerScheduler::kill_data_instance(std::thread::id id) {
@@ -462,9 +468,13 @@ void NonblockingLoggerScheduler::terminate() {
 NonblockingLoggerScheduler::~NonblockingLoggerScheduler() { }
 
 void NonblockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name) {
+    create_data_instance(id,name,current_level());
+}
+
+void NonblockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, int level) {
     std::lock_guard<std::mutex> lock(_data_mutex);
     // Won't replace if it already exists
-    _data.insert({id,SharedPointer<LoggerData>(new LoggerData(current_level(),name))});
+    _data.insert({id,SharedPointer<LoggerData>(new LoggerData(level,name))});
     if (name != Logger::_MAIN_THREAD_NAME) {
         _no_alive_thread_registered = false;
         _message_availability_condition.notify_one();
@@ -741,6 +751,13 @@ void Logger::register_thread(std::thread::id id, std::string name) {
     auto bls = dynamic_cast<BlockingLoggerScheduler*>(_scheduler.get());
     if (nbls != nullptr) nbls->create_data_instance(id,name);
     else if (bls != nullptr) bls->create_data_instance(id,name);
+}
+
+void Logger::register_self_thread(std::string name, int level) {
+    auto nbls = dynamic_cast<NonblockingLoggerScheduler*>(_scheduler.get());
+    auto bls = dynamic_cast<BlockingLoggerScheduler*>(_scheduler.get());
+    if (nbls != nullptr) nbls->create_data_instance(std::this_thread::get_id(),name,level);
+    else if (bls != nullptr) bls->create_data_instance(std::this_thread::get_id(),name,level);
 }
 
 void Logger::unregister_thread(std::thread::id id) {

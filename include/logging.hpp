@@ -285,6 +285,10 @@ class Logger {
 
     void register_thread(std::thread::id id, std::string name);
     void unregister_thread(std::thread::id id);
+    //! \brief Registers this same thread with a specific \a name and \a level
+    //! \details Required when the registering thread is the same as the one to register,
+    //! since the level cannot be obtained
+    void register_self_thread(std::string name, int level);
 
     void println(unsigned int level_increase, std::string text);
     void hold(std::string scope, std::string text);

@@ -38,6 +38,7 @@
 #include "broker.hpp"
 #include "serialisation.hpp"
 #include "deserialisation.hpp"
+#include "logging.hpp"
 
 namespace Opera {
 
@@ -92,13 +93,27 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
     struct mosquitto* _mosquitto_publisher;
 };
 
+template<class T> struct CallbackContext {
+    CallbackContext(CallbackFunction<T> f, int pll, std::string ptn) :
+            function(f), parent_logger_level(pll), parent_thread_name(ptn), thread_id(std::this_thread::get_id()), registered(false) { }
+    CallbackFunction<T> function;
+    int parent_logger_level;
+    std::string parent_thread_name;
+    std::thread::id thread_id;
+    bool registered;
+};
+
 template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-    static bool registered = false;
-    if (not registered) { std::cout << "registering" << std::endl; Ariadne::Logger::instance().register_thread(std::this_thread::get_id(),"subc"); registered = true; std::cout << "registered" << std::endl; }
-    auto callback = static_cast<CallbackFunction<T>*>(obj);
+    auto callback_context = static_cast<CallbackContext<T>*>(obj);
+    if (not callback_context->registered) {
+        callback_context->thread_id = std::this_thread::get_id();
+        Logger::instance().register_self_thread(callback_context->parent_thread_name, callback_context->parent_logger_level);
+        callback_context->registered = true;
+    }
+
     OPERA_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
     Deserialiser<T> deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
-    (*callback)(deserialiser.make());
+    callback_context->function(deserialiser.make());
 }
 
 //! \brief The subscriber to objects published to MQTT
@@ -106,9 +121,10 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
   public:
     //! \brief Connects and starts the main asynchronous loop for getting messages
     MqttSubscriber(std::string const& topic, std::string const& hostname, int port, CallbackFunction<T> const& callback)
-        : _topic(topic), _hostname(hostname), _port(port), _callback(callback)
+        : _topic(topic), _hostname(hostname), _port(port),
+          _callback_context(callback, Logger::instance().current_level(), Logger::instance().current_thread_name())
     {
-        _subscriber = mosquitto_new(nullptr, true, (void*)&_callback);
+        _subscriber = mosquitto_new(nullptr, true, (void*)&_callback_context);
         OPERA_ASSERT_MSG(_subscriber != nullptr,"Error: out of memory.")
 
         mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
@@ -129,16 +145,17 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
     }
 
     virtual ~MqttSubscriber() {
-        if (_subscriber != nullptr) {
+        if (_subscriber != nullptr)
             mosquitto_destroy(_subscriber);
-        }
+        if (_callback_context.registered)
+            Logger::instance().unregister_thread(_callback_context.thread_id);
     }
 
   protected:
     std::string const _topic;
     std::string const _hostname;
     int const _port;
-    CallbackFunction<T> const _callback;
+    CallbackContext<T> const _callback_context;
     struct mosquitto* _subscriber;
 };
 
