@@ -50,31 +50,19 @@ static const std::string OPERA_COLLISION_NOTIFICATION_TOPIC = "opera/collision-n
 template<class T> class MqttPublisher : public PublisherInterface<T> {
   public:
     MqttPublisher(std::string const& topic, std::string const& hostname, int port) : _topic(topic) {
-        int rc;
-
-        /* Create a new client instance.
-         * id = NULL -> ask the broker to generate a client id for us
-         * clean session = true -> the broker should remove old sessions when we connect
-         * obj = NULL -> we aren't passing any of our private data for callbacks
-         */
         _mosquitto_publisher = mosquitto_new(nullptr, true, nullptr);
         OPERA_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
 
-        /* Connect to test.mosquitto.org on port 1883, with a keepalive of 60 seconds.
-         * This call makes the socket connection only, it does not complete the MQTT
-         * CONNECT/CONNACK flow, you should use mosquitto_loop_start() or
-         * mosquitto_loop_forever() for processing net traffic. */
-        rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
+        int rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
             OPERA_ERROR("Error: " << mosquitto_strerror(rc))
         }
 
-        /* Run the network loop in a background thread, this call returns quickly. */
         rc = mosquitto_loop_start(_mosquitto_publisher);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            OPERA_ERROR("Error: " << mosquitto_strerror(rc))
+            OPERA_ERROR("Error starting loop: " << mosquitto_strerror(rc))
         }
     }
 
@@ -141,12 +129,17 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
             OPERA_ERROR("Error subscribing: " << mosquitto_strerror(rc))
         }
 
-        mosquitto_loop_start(_subscriber);
+        rc = mosquitto_loop_start(_subscriber);
+        if (rc != MOSQ_ERR_SUCCESS){
+            mosquitto_destroy(_subscriber);
+            OPERA_ERROR("Error starting loop: " << mosquitto_strerror(rc))
+        }
     }
 
     virtual ~MqttSubscriber() {
-        if (_subscriber != nullptr)
+        if (_subscriber != nullptr) {
             mosquitto_destroy(_subscriber);
+        }
         if (_callback_context.registered)
             Logger::instance().unregister_thread(_callback_context.thread_id);
     }
