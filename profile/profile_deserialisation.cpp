@@ -57,12 +57,12 @@ class ProfileDeserialisation : public Profiler {
 
     void profile_bodypresentationpacket() {
         SizeType num_samples = 1000;
-        profile("Deserialisation of a robot presentation JSON file into BodyPresentationPacket",[&](SizeType i){
+        profile("Deserialisation of a robot presentation JSON file into BodyPresentationPacket",[&](auto){
             Deserialiser<BodyPresentationPacket>(Resources::path("json/examples/presentation/robot0.json")).make();
             },num_samples);
 
         List<String> json_texts;
-        profile("Deserialisation of a robot presentation JSON file into String",[&](SizeType i){
+        profile("Deserialisation of a robot presentation JSON file into String",[&](auto){
             json_texts.append(Deserialiser<BodyPresentationPacket>(Resources::path("json/examples/presentation/robot0.json")).to_string());
             },num_samples);
 
@@ -73,12 +73,12 @@ class ProfileDeserialisation : public Profiler {
 
     void profile_collisionnotificationpacket() {
         SizeType num_samples = 1000;
-        profile("Deserialisation of a collision notification JSON file into CollisionNotificationPacket",[&](SizeType i){
+        profile("Deserialisation of a collision notification JSON file into CollisionNotificationPacket",[&](auto){
             Deserialiser<CollisionNotificationPacket>(Resources::path("json/examples/notification/notification0.json")).make();
             },num_samples);
 
         List<String> json_texts;
-        profile("Deserialisation of a collision notification JSON file into String",[&](SizeType i){
+        profile("Deserialisation of a collision notification JSON file into String",[&](auto){
             json_texts.append(Deserialiser<CollisionNotificationPacket>(Resources::path("json/examples/notification/notification0.json")).to_string());
             },num_samples);
 

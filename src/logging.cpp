@@ -294,7 +294,7 @@ class BlockingLoggerScheduler : public LoggerSchedulerInterface {
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
-    void create_data_instance(std::thread::id id, std::string name, int level);
+    void create_data_instance(std::thread::id id, std::string name, unsigned int level);
     void kill_data_instance(std::thread::id id);
     void terminate() override;
   private:
@@ -317,7 +317,7 @@ class NonblockingLoggerScheduler : public LoggerSchedulerInterface {
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
-    void create_data_instance(std::thread::id id, std::string name, int level);
+    void create_data_instance(std::thread::id id, std::string name, unsigned int level);
     void kill_data_instance(std::thread::id id);
     void terminate() override;
     ~NonblockingLoggerScheduler() override;
@@ -390,7 +390,7 @@ void BlockingLoggerScheduler::create_data_instance(std::thread::id id, std::stri
     create_data_instance(id,name,current_level());
 }
 
-void BlockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, int level) {
+void BlockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, unsigned int level) {
     std::lock_guard<std::mutex> lock(_data_mutex);
     // Won't replace if it already exists
     _data.insert({id,make_pair(level,name)});
@@ -471,7 +471,7 @@ void NonblockingLoggerScheduler::create_data_instance(std::thread::id id, std::s
     create_data_instance(id,name,current_level());
 }
 
-void NonblockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, int level) {
+void NonblockingLoggerScheduler::create_data_instance(std::thread::id id, std::string name, unsigned int level) {
     std::lock_guard<std::mutex> lock(_data_mutex);
     // Won't replace if it already exists
     _data.insert({id,SharedPointer<LoggerData>(new LoggerData(level,name))});
@@ -753,7 +753,7 @@ void Logger::register_thread(std::thread::id id, std::string name) {
     else if (bls != nullptr) bls->create_data_instance(id,name);
 }
 
-void Logger::register_self_thread(std::string name, int level) {
+void Logger::register_self_thread(std::string name, unsigned int level) {
     auto nbls = dynamic_cast<NonblockingLoggerScheduler*>(_scheduler.get());
     auto bls = dynamic_cast<BlockingLoggerScheduler*>(_scheduler.get());
     if (nbls != nullptr) nbls->create_data_instance(std::this_thread::get_id(),name,level);
@@ -1016,7 +1016,7 @@ void Logger::_print_preamble_for_firstline(unsigned int level, std::string threa
     if (_configuration.indents_based_on_level()) std::clog << std::string(level, ' ');
 }
 
-void Logger::_print_preamble_for_extralines(unsigned int level, std::string thread_name) {
+void Logger::_print_preamble_for_extralines(unsigned int level) {
     auto theme = _configuration.theme();
     std::clog << (level>9 ? "  " : " ");
     if (_can_print_thread_name()) std::clog << std::string(_scheduler->largest_thread_name_size() + 1, ' ');
@@ -1114,7 +1114,7 @@ void Logger::_println(LogRawMessage const& msg) {
                 if (_is_holding()) _print_held_line();
                 if (_is_holding()) std::clog << '\r';
 
-                _print_preamble_for_extralines(msg.level,msg.identifier);
+                _print_preamble_for_extralines(msg.level);
             } else { // (remaining) Text shorter than the terminal line
                 std::string to_print = text.substr(text_ptr,text_size-text_ptr);
                 std::size_t newline_pos = to_print.find('\n');
@@ -1128,7 +1128,7 @@ void Logger::_println(LogRawMessage const& msg) {
                     }
 
                     text_ptr += newline_pos+1;
-                    _print_preamble_for_extralines(msg.level,msg.identifier);
+                    _print_preamble_for_extralines(msg.level);
                 } else { // Text reaches the end of the terminal line
                     std::clog << _apply_theme(to_print);
                     _cover_held_columns_with_whitespaces(preamble_columns+to_print.size());

@@ -144,7 +144,7 @@ class TestCommandLineInterface {
 
 };
 
-int main(int argc, const char* argv[]) {
+int main() {
     TestCommandLineInterface().test();
     return OPERA_TEST_FAILURES;
 }

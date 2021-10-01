@@ -9,6 +9,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(ANY_TARGET_WARN all extra pedantic sign-conversion cast-qual disabled-optimization
+        init-self missing-include-dirs sign-promo switch-default undef redundant-decls
+        strict-aliasing unused-parameter shadow)
+set(ANY_TARGET_DONT_WARN strict-aliasing unused-parameter)
+set(LIBRARY_EXCLUSIVE_WARN shadow)
+
+foreach(WARN ${ANY_TARGET_WARN})
+    add_compile_options(-W${WARN})
+endforeach()
+
 find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(Threads REQUIRED)

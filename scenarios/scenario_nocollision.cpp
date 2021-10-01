@@ -56,7 +56,6 @@ class NoCollisionScenario {
         }
 
         List<HumanStateInstance> instances;
-        SizeType i=0;
         for (auto pkt : human_packets) {
             instances.append(HumanStateInstance(human,pkt.points(),pkt.timestamp()));
         }

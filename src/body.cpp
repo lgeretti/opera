@@ -81,7 +81,7 @@ SizeType const& Robot::packet_frequency() const {
 }
 
 BodySegment::BodySegment(Body const* body, IdType const& id, IdType const& head_id, IdType const& tail_id, FloatType const& thickness) :
-    _body(body), _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness) { }
+    _id(id), _head_id(head_id), _tail_id(tail_id), _thickness(thickness), _body(body) { }
 
 IdType const& BodySegment::id() const {
     return _id;

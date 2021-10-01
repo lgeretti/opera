@@ -122,24 +122,24 @@ struct ProfileBarrier : public Profiler {
 
         auto const& samples = history.samples(first).at(trace.robot_segment_id());
 
-        profile("Using resuming for segments intersection detection",[&](SizeType i){
+        profile("Using resuming for segments intersection detection",[&](auto){
             SizeType resume_idx = 0;
-            MinimumDistanceBarrierTrace trace(hss.at(0),0);
+            MinimumDistanceBarrierTrace tr(hss.at(0), 0);
             for (SizeType i=0; i<ns; ++i) {
                 bool update_trace = true;
                 for (SizeType j=resume_idx; j<ns; ++j) {
-                    if (update_trace and not trace.try_update_with(first,samples.at(j)))
+                    if (update_trace and not tr.try_update_with(first, samples.at(j)))
                         update_trace = false;
                     if (hss.at(i).intersects(samples.at(j))) break;
                 }
                 if (i<ns-1) {
-                    trace.reset(hss.at(i+1),history);
-                    resume_idx = trace.next_index();
+                    tr.reset(hss.at(i + 1), history);
+                    resume_idx = tr.next_index();
                 }
             }
         },override_num_tries);
 
-        profile("Not using resuming for segments intersection detection",[&](SizeType i){
+        profile("Not using resuming for segments intersection detection",[&](auto){
             for (SizeType i=0; i<ns; ++i) {
                 for (SizeType j=i; j<ns; ++j) {
                     if (hss.at(i).intersects(samples.at(j))) break;

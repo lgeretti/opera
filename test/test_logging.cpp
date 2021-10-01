@@ -299,7 +299,7 @@ class TestLogging {
     }
 };
 
-int main(int argc, const char* argv[]) {
+int main() {
 
     TestLogging().test();
 

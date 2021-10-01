@@ -158,6 +158,7 @@ class HelpArgumentParser : public UnvaluedArgumentParserBase {
             "h","help","Show this list of supported arguments") { }
 
     VoidFunction create_processor(ArgumentStream& stream) const override {
+        stream.peek(); // To avoid a warning
         return []{};
     }
 };

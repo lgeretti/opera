@@ -149,11 +149,11 @@ class TestBarrier {
 
         auto hs2 = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0)).spherical_approximation();
         auto element = trace.resume_element(hs2);
-        OPERA_TEST_EQUALS(element,trace.size()-1)
+        OPERA_TEST_EQUALS(element,(int)trace.size()-1)
 
         auto hs3 = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0)).spherical_approximation();
         element = trace.resume_element(hs3);
-        OPERA_TEST_ASSERT(element < trace.size()-1)
+        OPERA_TEST_ASSERT(element < (int)trace.size()-1)
 
         auto hs4 = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0)).spherical_approximation();
         element = trace.resume_element(hs4);

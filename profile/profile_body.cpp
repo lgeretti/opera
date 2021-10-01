@@ -48,8 +48,8 @@ struct ProfileBody : public Profiler {
         auto s3 = segment.create_sample();
         s3.update({Point(0, 8, 0)},{Point(0, 10, 0)});
 
-        profile("Box intersection",[&](SizeType i){ s1.intersects(s3); });
-        profile("Pill intersection",[&](SizeType i){ s1.intersects(s2); });
+        profile("Box intersection",[&](auto){ s1.intersects(s3); });
+        profile("Pill intersection",[&](auto){ s1.intersects(s2); });
     }
 
     void profile_bodysegment_sample_update() {

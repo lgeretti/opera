@@ -30,5 +30,5 @@ using namespace Opera;
 int main(int argc, const char* argv[]) {
     if (not CommandLineInterface::instance().acquire(argc, argv)) return -1;
 
-    Runtime runtime;
+    //Runtime runtime;
 }

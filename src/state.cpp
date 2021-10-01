@@ -134,7 +134,7 @@ struct RobotDiscreteTraceBacktracking {
 Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_locations() const {
     if (_next_locations.empty()) {
         List<RobotDiscreteTraceBacktracking> tracking;
-        for (int i=0; i<_locations.size()-1; ++i)
+        for (SizeType i=0; i<_locations.size()-1; ++i)
             if (_locations.at(i) == _locations.back())
                 tracking.push_back(RobotDiscreteTraceBacktracking(i,RobotDiscreteTrace().push_back(_locations.at(i)),_locations.at(i+1),true));
         SizeType maximum_trace_size = 0;
@@ -177,7 +177,7 @@ Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_location
 }
 
 RobotStateHistory::RobotStateHistory(Robot const* robot) :
-    _robot(robot), _current_location_states_buffer(List<List<BodySegmentSample>>()) {
+    _current_location_states_buffer(List<List<BodySegmentSample>>()), _robot(robot) {
     for (SizeType i=0; i < _robot->num_segments(); ++i)
         _current_location_states_buffer.push_back(List<BodySegmentSample>());
 }
@@ -188,7 +188,7 @@ DiscreteLocation const& RobotStateHistory::current_location() const {
 
 RobotDiscreteTrace RobotStateHistory::discrete_trace() const {
     RobotDiscreteTrace trace;
-    for (auto p : _location_presences)
+    for (auto const& p : _location_presences)
         trace.push_back(p.exit_destination());
     return trace;
 }
@@ -203,23 +203,23 @@ auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodyS
 
 List<RobotLocationPresence> RobotStateHistory::presences_in(DiscreteLocation const& location) const {
     List<RobotLocationPresence> result;
-    for (auto p : _location_presences)
+    for (auto const& p : _location_presences)
         if ((not p.location().values().empty()) and p.location() == location)
             result.append(p);
-        return result;
+    return result;
 }
 
 List<RobotLocationPresence> RobotStateHistory::presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const {
     List<RobotLocationPresence> result;
-    for (auto p : _location_presences)
+    for (auto const& p : _location_presences)
         if ((not p.location().values().empty()) and p.location() == source and p.exit_destination() == destination)
             result.append(p);
-        return result;
+    return result;
 }
 
 List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLocation const& location) const {
     List<RobotLocationPresence> result;
-    for (auto p : _location_presences)
+    for (auto const& p : _location_presences)
         if (p.exit_destination() == location)
             result.append(p);
     return result;

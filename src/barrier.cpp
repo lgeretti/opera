@@ -128,12 +128,12 @@ void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, R
     OPERA_ASSERT(human_sample.segment_id() == _human_segment_id)
     auto sas = human_sample.spherical_approximation();
     int resume = resume_element(sas);
-    _next_index = (resume >= 0 ? _barriers.at(resume).maximum_index()+1 : 0);
+    _next_index = (resume >= 0 ? _barriers.at(static_cast<SizeType>(resume)).maximum_index()+1 : 0);
     _spherical_approximation = sas;
     if (_next_index > 0) {
-        auto location = _barriers.at(resume).farthest_location();
+        auto location = _barriers.at(static_cast<SizeType>(resume)).farthest_location();
         _barriers.clear();
-        _barriers.push_back(MinimumDistanceBarrier(
+        _barriers.emplace_back(MinimumDistanceBarrier(
                 distance(_spherical_approximation,history.samples(location).at(_robot_segment_id).at(_next_index-1)),
                 location,_next_index-1));
     } else {

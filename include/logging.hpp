@@ -288,7 +288,7 @@ class Logger {
     //! \brief Registers this same thread with a specific \a name and \a level
     //! \details Required when the registering thread is the same as the one to register,
     //! since the level cannot be obtained
-    void register_self_thread(std::string name, int level);
+    void register_self_thread(std::string name, unsigned int level);
 
     void println(unsigned int level_increase, std::string text);
     void hold(std::string scope, std::string text);
@@ -313,7 +313,7 @@ class Logger {
     std::string _apply_theme(std::string const& text) const;
     std::string _apply_theme_for_keywords(std::string const& text) const;
     void _print_preamble_for_firstline(unsigned int level, std::string thread_name);
-    void _print_preamble_for_extralines(unsigned int level, std::string thread_name);
+    void _print_preamble_for_extralines(unsigned int level);
     std::string _discard_newlines_and_indentation(std::string const& text);
     void _cover_held_columns_with_whitespaces(unsigned int printed_columns);
     void _print_held_line();
