@@ -98,7 +98,9 @@ OutputStream& operator<<(OutputStream& os, TerminalTextTheme const& theme) {
     // This should not be used by OPERA_LOG_PRINTLN, otherwise it will be parsed further, breaking level separator styling
     os << "TerminalTextTheme(";
     os <<
-            "\n  level_number= " << theme.level_number() << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
+            "\n  level_number= " <<
+            theme.level_number()
+            << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
             << ",\n  level_shown_separator= " << theme.level_shown_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  level_hidden_separator= " << theme.level_hidden_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  multiline_separator= " << theme.multiline_separator() << "·" << TerminalTextStyle::RESET
@@ -127,7 +129,6 @@ protected:
 
     LogThinRawMessage dequeue();
 
-    void set_level(unsigned int i);
     void increase_level(unsigned int i);
     void decrease_level(unsigned int i);
 
@@ -221,10 +222,6 @@ bool LoggerData::is_dead() const {
     return _is_dead;
 }
 
-void LoggerData::set_level(unsigned int i) {
-    _current_level = i;
-}
-
 void LoggerData::increase_level(unsigned int i) {
     _current_level += i;
 }
@@ -245,7 +242,6 @@ class LoggerSchedulerInterface {
     virtual unsigned int current_level() const = 0;
     virtual std::string current_thread_name() const = 0;
     virtual SizeType largest_thread_name_size() const = 0;
-    virtual void set_level(unsigned int i) = 0;
     virtual void increase_level(unsigned int i) = 0;
     virtual void decrease_level(unsigned int i) = 0;
     virtual void terminate() = 0;
@@ -263,7 +259,6 @@ class ImmediateLoggerScheduler : public LoggerSchedulerInterface {
     unsigned int current_level() const override;
     std::string current_thread_name() const override;
     SizeType largest_thread_name_size() const override;
-    void set_level(unsigned int i) override;
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void terminate() override;
@@ -284,7 +279,6 @@ class BlockingLoggerScheduler : public LoggerSchedulerInterface {
     unsigned int current_level() const override;
     std::string current_thread_name() const override;
     SizeType largest_thread_name_size() const override;
-    void set_level(unsigned int i) override;
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
@@ -307,7 +301,6 @@ class NonblockingLoggerScheduler : public LoggerSchedulerInterface {
     unsigned int current_level() const override;
     std::string current_thread_name() const override;
     SizeType largest_thread_name_size() const override;
-    void set_level(unsigned int i) override;
     void increase_level(unsigned int i) override;
     void decrease_level(unsigned int i) override;
     void create_data_instance(std::thread::id id, std::string name);
@@ -348,10 +341,6 @@ std::string ImmediateLoggerScheduler::current_thread_name() const {
 
 SizeType ImmediateLoggerScheduler::largest_thread_name_size() const {
     return current_thread_name().size();
-}
-
-void ImmediateLoggerScheduler::set_level(unsigned int i) {
-    _current_level=i;
 }
 
 void ImmediateLoggerScheduler::increase_level(unsigned int i) {
@@ -408,11 +397,6 @@ SizeType BlockingLoggerScheduler::largest_thread_name_size() const {
     SizeType result = 0;
     for (auto entry : _data) result = std::max(result,entry.second.second.size());
     return result;
-}
-
-void BlockingLoggerScheduler::set_level(unsigned int i) {
-    std::lock_guard<std::mutex> lock(_data_mutex);
-    _data.find(std::this_thread::get_id())->second.first = i;
 }
 
 void BlockingLoggerScheduler::increase_level(unsigned int i) {
@@ -504,11 +488,6 @@ SizeType NonblockingLoggerScheduler::largest_thread_name_size() const {
     SizeType result = 0;
     for (auto entry : _data) result = std::max(result,entry.second->thread_name().size());
     return result;
-}
-
-void NonblockingLoggerScheduler::set_level(unsigned int i) {
-    std::lock_guard<std::mutex> lock(_data_mutex);
-    _data.find(std::this_thread::get_id())->second->set_level(i);
 }
 
 void NonblockingLoggerScheduler::increase_level(unsigned int i) {
@@ -759,10 +738,6 @@ void Logger::unregister_thread(std::thread::id id) {
     auto bls = dynamic_cast<BlockingLoggerScheduler*>(_scheduler.get());
     if (nbls != nullptr) nbls->kill_data_instance(id);
     else if (bls != nullptr) bls->kill_data_instance(id);
-}
-
-void Logger::set_level(unsigned int i) {
-    _scheduler->set_level(i);
 }
 
 void Logger::increase_level(unsigned int i) {
