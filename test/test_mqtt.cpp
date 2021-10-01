@@ -28,7 +28,22 @@
 
 using namespace Opera;
 
+class TestBrokerFailure {
+  public:
+    void test() {
+        OPERA_TEST_CALL(test_failed_connection())
+    }
+
+    void test_failed_connection() {
+        BrokerAccess access = MqttBrokerAccess("localhost",1900);
+        OPERA_TEST_FAIL(access.make_body_presentation_publisher())
+        OPERA_TEST_FAIL(access.make_body_presentation_subscriber([](auto){}))
+    }
+};
+
 int main() {
+    TestBrokerFailure().test();
+
     BrokerAccess access = MqttBrokerAccess("localhost",1883);
     TestBrokerAccess(access).test();
     return OPERA_TEST_FAILURES;

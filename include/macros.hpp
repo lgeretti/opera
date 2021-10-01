@@ -44,6 +44,11 @@ using StringStream = std::stringstream;
         throw except(ss.str()); \
     } \
 
+#define OPERA_THROW_RTE(error) \
+    { \
+        OPERA_THROW(std::runtime_error,__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__,error); \
+    } \
+
 #define OPERA_ASSERT(expression) \
     { \
         bool assertion_result = static_cast<bool>(expression); \

@@ -52,13 +52,13 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
         int rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            OPERA_ERROR("Error: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error: " << mosquitto_strerror(rc))
         }
 
         rc = mosquitto_loop_start(_mosquitto_publisher);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            OPERA_ERROR("Error starting loop: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error starting loop: " << mosquitto_strerror(rc))
         }
     }
 
@@ -116,19 +116,19 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
         int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
-            OPERA_ERROR("Error connecting: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
         }
 
         rc = mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
-            OPERA_ERROR("Error subscribing: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error subscribing: " << mosquitto_strerror(rc))
         }
 
         rc = mosquitto_loop_start(_subscriber);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_subscriber);
-            OPERA_ERROR("Error starting loop: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error starting loop: " << mosquitto_strerror(rc))
         }
     }
 
