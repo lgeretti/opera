@@ -81,6 +81,7 @@ class TestLogging {
         OPERA_TEST_CALL(test_hide_call_function_with_entrance_and_exit())
         OPERA_TEST_CALL(test_indents_based_on_level())
         OPERA_TEST_CALL(test_hold_line())
+        OPERA_TEST_CALL(test_hold_line_with_newline_println())
         OPERA_TEST_CALL(test_hold_long_line())
         OPERA_TEST_CALL(test_hold_multiple())
         OPERA_TEST_CALL(test_light_theme())
@@ -203,6 +204,7 @@ class TestLogging {
     }
 
     void test_hold_line() {
+        Logger::instance().configuration().set_verbosity(2);
         Logger::instance().use_immediate_scheduler();
         _hold_short_line();
         Logger::instance().use_blocking_scheduler();
@@ -211,10 +213,23 @@ class TestLogging {
         _hold_short_line();
     }
 
-    void test_hold_long_line() {
+    void test_hold_line_with_newline_println() {
         Logger::instance().use_immediate_scheduler();
         OPERA_LOG_SCOPE_CREATE;
+        Logger::instance().configuration().set_verbosity(2);
+        ProgressIndicator indicator(10.0);
+        for (unsigned int i=0; i<10; ++i) {
+            indicator.update_current(i);
+            OPERA_LOG_PRINTLN("first line\nsecond line")
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            OPERA_LOG_SCOPE_PRINTHOLD("[" << indicator.symbol() << "] " << indicator.percentage() << "%");
+        }
+    }
 
+    void test_hold_long_line() {
+        Logger::instance().use_immediate_scheduler();
+        Logger::instance().configuration().set_verbosity(2);
+        OPERA_LOG_SCOPE_CREATE;
         const unsigned int DEFAULT_COLUMNS = 80;
         struct winsize ws;
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);

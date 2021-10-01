@@ -1062,6 +1062,7 @@ void Logger::_println(LogRawMessage const& msg) {
             if (text_size-text_ptr + preamble_columns > max_columns) { // (remaining) Text too long for a single terminal line
                 std::string to_print = text.substr(text_ptr,max_columns-preamble_columns);
                 std::size_t newline_pos = to_print.find('\n');
+                std::cout << to_print << std::endl;
                 if (newline_pos != std::string::npos) { // A newline is found before reaching the end of the terminal line
                     std::clog << _apply_theme(to_print.substr(0,newline_pos));
                     _cover_held_columns_with_whitespaces(preamble_columns+to_print.substr(0,newline_pos).size());
@@ -1133,11 +1134,6 @@ void Logger::_release(LogRawMessage const& msg) {
             std::vector<LogRawMessage> new_held_stack;
             if (i>0) {
                 for (unsigned int j=0; j<i; ++j) {
-                    new_held_stack.push_back(_current_held_stack[j]);
-                }
-            }
-            if (i<_current_held_stack.size()-1) {
-                for (unsigned int j=i+1; j<_current_held_stack.size(); ++j) {
                     new_held_stack.push_back(_current_held_stack[j]);
                 }
             }
