@@ -96,11 +96,9 @@ bool TerminalTextTheme::has_style() const {
 
 OutputStream& operator<<(OutputStream& os, TerminalTextTheme const& theme) {
     // This should not be used by OPERA_LOG_PRINTLN, otherwise it will be parsed further, breaking level separator styling
-    os << "TerminalTextTheme(";
-    os <<
-            "\n  level_number= " <<
-            theme.level_number()
-            << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
+    os << "TerminalTextTheme(\n  level_number= ";
+    os << theme.level_number();
+    os      << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
             << ",\n  level_shown_separator= " << theme.level_shown_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  level_hidden_separator= " << theme.level_hidden_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  multiline_separator= " << theme.multiline_separator() << "·" << TerminalTextStyle::RESET

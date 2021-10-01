@@ -32,17 +32,17 @@
 using namespace Opera;
 
 void sample_function() {
-    OPERA_LOG_SCOPE_CREATE;
-    OPERA_LOG_PRINTLN("val=inf, x0=2.0^3*1.32424242432423[2,3], y>[0.1:0.2] (z={0:1}), 1, x0, x11, true@1.");
+    OPERA_LOG_SCOPE_CREATE
+    OPERA_LOG_PRINTLN("val=inf, x0=2.0^3*1.32424242432423[2,3], y>[0.1:0.2] (z={0:1}), 1, x0, x11, true@1.")
 }
 
 void print_something1() {
-    OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'");
+    OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'")
 }
 
 void print_something2() {
-    OPERA_LOG_SCOPE_CREATE;
-    OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'");
+    OPERA_LOG_SCOPE_CREATE
+    OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'")
 }
 
 class TestLogging {
@@ -57,6 +57,7 @@ class TestLogging {
         OPERA_TEST_CALL(test_print_configuration())
         OPERA_TEST_CALL(test_shown_single_print())
         OPERA_TEST_CALL(test_hidden_single_print())
+        OPERA_TEST_CALL(test_muted_print())
         OPERA_TEST_CALL(test_use_blocking_scheduler())
         OPERA_TEST_CALL(test_use_nonblocking_scheduler())
         OPERA_TEST_CALL(test_shown_call_function_with_entrance_and_exit())
@@ -73,6 +74,9 @@ class TestLogging {
         OPERA_TEST_CALL(test_redirect())
         OPERA_TEST_CALL(test_multiple_threads_with_blocking_scheduler())
         OPERA_TEST_CALL(test_multiple_threads_with_nonblocking_scheduler())
+        OPERA_TEST_CALL(test_register_self_thread())
+        OPERA_TEST_CALL(test_thread_name_printing_policy())
+        OPERA_TEST_CALL(test_set_prints_level_on_change_only())
     }
 
     void test_very_pretty_function() {
@@ -84,33 +88,41 @@ class TestLogging {
     void test_print_configuration() {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(1);
-        OPERA_LOG_PRINTLN(Logger::instance().configuration());
+        OPERA_LOG_PRINTLN(Logger::instance().configuration())
     }
 
     void test_shown_single_print() {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(1);
-        OPERA_LOG_PRINTLN("This is a call on level 1");
+        OPERA_LOG_PRINTLN("This is a call on level 1")
     }
 
     void test_hidden_single_print() {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(0);
-        OPERA_LOG_PRINTLN("This is a hidden call on level 1");
+        OPERA_LOG_PRINTLN("This is a hidden call on level 1")
+    }
+
+    void test_muted_print() {
+        Logger::instance().use_immediate_scheduler();
+        Logger::instance().configuration().set_verbosity(1);
+        OPERA_LOG_PRINTLN("This is the first line shown.")
+        OPERA_LOG_RUN_MUTED(print_something1())
+        OPERA_LOG_PRINTLN("This is the second and last line shown.")
     }
 
     void test_use_blocking_scheduler() {
         Logger::instance().use_blocking_scheduler();
         Logger::instance().configuration().set_verbosity(1);
-        OPERA_LOG_PRINTLN("This is a call");
-        OPERA_LOG_PRINTLN("This is another call");
+        OPERA_LOG_PRINTLN("This is a call")
+        OPERA_LOG_PRINTLN("This is another call")
     }
 
     void test_use_nonblocking_scheduler() {
         Logger::instance().use_nonblocking_scheduler();
         Logger::instance().configuration().set_verbosity(1);
-        OPERA_LOG_PRINTLN("This is a call");
-        OPERA_LOG_PRINTLN("This is another call");
+        OPERA_LOG_PRINTLN("This is a call")
+        OPERA_LOG_PRINTLN("This is another call")
     }
 
     void test_shown_call_function_with_entrance_and_exit() {
@@ -303,6 +315,55 @@ class TestLogging {
         Thread thread5([] { print_something1(); });
         Thread thread6([] { print_something1(); });
         OPERA_LOG_PRINTLN("Printing again on the main thread, but with other threads");
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    void test_register_self_thread() {
+        Logger::instance().use_blocking_scheduler();
+        Logger::instance().configuration().set_verbosity(3);
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
+        OPERA_LOG_PRINTLN("Printing on the " << Logger::instance().current_thread_name() << " thread without other threads");
+        OPERA_TEST_EQUALS(Logger::instance().cached_last_printed_thread_name().compare("main"),0);
+        std::thread::id thread_id;
+        std::thread thread1([&thread_id] { thread_id = std::this_thread::get_id(); Logger::instance().register_self_thread("thr1",1); print_something1(); });
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        thread1.join();
+        Logger::instance().unregister_thread(thread_id);
+    }
+
+    void test_thread_name_printing_policy() {
+        Logger::instance().use_blocking_scheduler();
+        Logger::instance().configuration().set_verbosity(3);
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
+        Thread thread1([] { print_something1(); },"thr1");
+        OPERA_LOG_PRINTLN("Printing thread name before");
+        OPERA_LOG_PRINTLN("Printing thread name before again");
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::AFTER);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        Thread thread2([] { print_something1(); },"thr2");
+        OPERA_LOG_PRINTLN("Printing thread name after");
+        OPERA_LOG_PRINTLN("Printing thread name after again");
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::NEVER);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        OPERA_LOG_PRINTLN("Printing thread name never");
+    }
+
+    void test_set_prints_level_on_change_only() {
+        Logger::instance().use_blocking_scheduler();
+        Logger::instance().configuration().set_verbosity(3);
+        Logger::instance().configuration().set_prints_level_on_change_only(true);
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
+        Thread thread1([] { print_something1(); },"thr1");
+        OPERA_LOG_PRINTLN("Printing thread name before");
+        OPERA_LOG_PRINTLN("Printing thread name before again");
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::AFTER);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        Thread thread2([] { print_something1(); },"thr2");
+        OPERA_LOG_PRINTLN("Printing thread name after");
+        OPERA_LOG_PRINTLN("Printing thread name after again");
+        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::NEVER);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        OPERA_LOG_PRINTLN("Printing thread name never");
     }
 };
 
