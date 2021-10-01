@@ -36,8 +36,7 @@ MqttBrokerAccess::MqttBrokerAccess(std::string const& hostname, int port) : _hos
 }
 
 MqttBrokerAccess::~MqttBrokerAccess() {
-    int rc = mosquitto_lib_cleanup();
-    OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS, "Error cleaning up Mosquito library: " << mosquitto_strerror(rc))
+    mosquitto_lib_cleanup();
 }
 
 PublisherInterface<BodyPresentationPacket>* MqttBrokerAccess::make_body_presentation_publisher() const {
