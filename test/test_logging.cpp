@@ -36,6 +36,23 @@ void sample_function() {
     OPERA_LOG_PRINTLN("val=inf, x0=2.0^3*1.32424242432423[2,3], y>[0.1:0.2] (z={0:1}), 1, x0, x11, true@1.")
 }
 
+void sample_printhold_simple_loop(std::string txt, unsigned int u) {
+    OPERA_LOG_SCOPE_CREATE
+    for (unsigned int i=0; i<3; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(u));
+        OPERA_LOG_SCOPE_PRINTHOLD(txt<<"@"<<i);
+    }
+}
+
+void sample_printhold_nested_loop(std::string txt, unsigned int u) {
+    OPERA_LOG_SCOPE_CREATE
+    for (unsigned int i=0; i<3; ++i) {
+        sample_printhold_simple_loop("internal",u);
+        std::this_thread::sleep_for(std::chrono::milliseconds(u));
+        OPERA_LOG_SCOPE_PRINTHOLD(txt<<"@"<<i)
+    }
+}
+
 void print_something1() {
     OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'")
 }
@@ -65,6 +82,7 @@ class TestLogging {
         OPERA_TEST_CALL(test_indents_based_on_level())
         OPERA_TEST_CALL(test_hold_line())
         OPERA_TEST_CALL(test_hold_long_line())
+        OPERA_TEST_CALL(test_hold_multiple())
         OPERA_TEST_CALL(test_light_theme())
         OPERA_TEST_CALL(test_dark_theme())
         OPERA_TEST_CALL(test_theme_custom_keyword())
@@ -213,6 +231,18 @@ class TestLogging {
         for (unsigned int i=0; i<10; ++i) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             OPERA_LOG_SCOPE_PRINTHOLD(larger_str);
+        }
+    }
+
+    void test_hold_multiple() {
+        Logger::instance().use_immediate_scheduler();
+        Logger::instance().configuration().set_verbosity(4);
+        OPERA_LOG_SCOPE_CREATE;
+        SizeType u=30;
+        for (unsigned int i=0; i<3; ++i) {
+            sample_printhold_nested_loop("intermediate",u);
+            std::this_thread::sleep_for(std::chrono::milliseconds(u));
+            OPERA_LOG_SCOPE_PRINTHOLD("external@"<<i);
         }
     }
 
