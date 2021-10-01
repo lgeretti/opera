@@ -96,7 +96,9 @@ bool TerminalTextTheme::has_style() const {
 
 OutputStream& operator<<(OutputStream& os, TerminalTextTheme const& theme) {
     // This should not be used by OPERA_LOG_PRINTLN, otherwise it will be parsed further, breaking level separator styling
-    os << "TerminalTextTheme(" << "\n  level_number= " << theme.level_number() << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
+    os << "TerminalTextTheme(";
+    os <<
+            "\n  level_number= " << theme.level_number() << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
             << ",\n  level_shown_separator= " << theme.level_shown_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  level_hidden_separator= " << theme.level_hidden_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  multiline_separator= " << theme.multiline_separator() << "·" << TerminalTextStyle::RESET
@@ -568,20 +570,20 @@ void NonblockingLoggerScheduler::_consume_msgs() {
         if (_terminate and _no_alive_thread_registered and _is_queue_empty()) { _termination_promise.set_value(); return; }
         auto msg = _dequeue();
         switch (msg.kind()) {
+            default : [[fallthrough]];
             case RawMessageKind::PRINTLN : Logger::instance()._println(msg); break;
             case RawMessageKind::HOLD : Logger::instance()._hold(msg); break;
             case RawMessageKind::RELEASE : Logger::instance()._release(msg); break;
-            default: OPERA_FAIL_MSG("Unhandled RawMessageKind for printing.");
         }
     }
 }
 
 OutputStream& operator<<(OutputStream& os, const ThreadNamePrintingPolicy& p) {
     switch(p) {
+        default : [[fallthrough]];
         case ThreadNamePrintingPolicy::NEVER : os << "NEVER"; break;
         case ThreadNamePrintingPolicy::BEFORE : os << "BEFORE"; break;
         case ThreadNamePrintingPolicy::AFTER : os << "AFTER"; break;
-        default: OPERA_FAIL_MSG("Unhandled ThreadNamePrintingPolicy for printing");
     }
     return os;
 }
