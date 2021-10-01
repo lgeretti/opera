@@ -52,14 +52,10 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
         int rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
-            OPERA_THROW_RTE("Error: " << mosquitto_strerror(rc))
+            OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
         }
 
-        rc = mosquitto_loop_start(_mosquitto_publisher);
-        if (rc != MOSQ_ERR_SUCCESS){
-            mosquitto_destroy(_mosquitto_publisher);
-            OPERA_THROW_RTE("Error starting loop: " << mosquitto_strerror(rc))
-        }
+        mosquitto_loop_start(_mosquitto_publisher);
     }
 
     void put(T const& obj) override {
@@ -77,6 +73,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
     struct mosquitto* _mosquitto_publisher;
 };
 
+//! \brief Struct for holding context for a callback, including data for proper registration of the callback thread (otherwise inaccessible)
 template<class T> struct CallbackContext {
     CallbackContext(CallbackFunction<T> f, int pll, std::string ptn) :
             function(f), parent_logger_level(pll), parent_thread_name(ptn), thread_id(std::this_thread::get_id()), registered(false) { }
@@ -87,6 +84,7 @@ template<class T> struct CallbackContext {
     bool registered;
 };
 
+//! \brief Callback for an MQTT message, used for running the actual callback on the deserialised message
 template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
     auto callback_context = static_cast<CallbackContext<T>*>(obj);
     if (not callback_context->registered) {
@@ -119,17 +117,8 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
             OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
         }
 
-        rc = mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
-        if (rc != MOSQ_ERR_SUCCESS) {
-            mosquitto_destroy(_subscriber);
-            OPERA_THROW_RTE("Error subscribing: " << mosquitto_strerror(rc))
-        }
-
-        rc = mosquitto_loop_start(_subscriber);
-        if (rc != MOSQ_ERR_SUCCESS){
-            mosquitto_destroy(_subscriber);
-            OPERA_THROW_RTE("Error starting loop: " << mosquitto_strerror(rc))
-        }
+        mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
+        mosquitto_loop_start(_subscriber);
     }
 
     virtual ~MqttSubscriber() {
