@@ -332,6 +332,7 @@ class TestLogging {
     }
 
     void test_thread_name_printing_policy() {
+        OPERA_PRINT_TEST_COMMENT("Policies: " << ThreadNamePrintingPolicy::BEFORE << " " << ThreadNamePrintingPolicy::AFTER << " " << ThreadNamePrintingPolicy::NEVER)
         Logger::instance().use_blocking_scheduler();
         Logger::instance().configuration().set_verbosity(3);
         Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);

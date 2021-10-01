@@ -306,7 +306,6 @@ class Logger {
 
     unsigned int current_level() const;
     std::string current_thread_name() const;
-    unsigned int cached_last_printed_level() const;
     std::string cached_last_printed_thread_name() const;
 
     LoggerConfiguration& configuration();
