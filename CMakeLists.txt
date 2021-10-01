@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ANY_TARGET_WARN all extra pedantic sign-conversion cast-qual disabled-optimization
         init-self missing-include-dirs sign-promo switch-default undef redundant-decls
-        strict-aliasing unused-parameter shadow)
+        strict-aliasing unused-parameter shadow error)
 set(ANY_TARGET_DONT_WARN strict-aliasing unused-parameter)
 set(LIBRARY_EXCLUSIVE_WARN shadow)
 
