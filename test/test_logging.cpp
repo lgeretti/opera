@@ -31,6 +31,8 @@
 
 using namespace Opera;
 
+static const unsigned int NUM_COLUMNS_GITHUB_ACTIONS = 50397;
+
 void sample_function() {
     OPERA_LOG_SCOPE_CREATE
     OPERA_LOG_PRINTLN("val=inf, x0=2.0^3*1.32424242432423[2,3], y>[0.1:0.2] (z={0:1}), 1, x0, x11, true@1.")
@@ -51,6 +53,13 @@ void sample_printhold_nested_loop(std::string txt, unsigned int u) {
         std::this_thread::sleep_for(std::chrono::milliseconds(u));
         OPERA_LOG_SCOPE_PRINTHOLD(txt<<"@"<<i)
     }
+}
+
+unsigned int num_columns() {
+    const unsigned int DEFAULT_COLUMNS = 80;
+    struct winsize ws;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+    return (ws.ws_col > 0 ? ws.ws_col : DEFAULT_COLUMNS);
 }
 
 void print_something1() {
@@ -176,12 +185,14 @@ class TestLogging {
     }
 
     void test_handles_multiline_output() {
+        SizeType num_cols = num_columns();
+
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(2);
         Logger::instance().configuration().set_handles_multiline_output(true);
-        OPERA_LOG_PRINTLN("This is a very long string for this test that will most definitely be longer than just one line, at least if the number of columns in the terminal is not excessively large, but this should suffice I believe. Just to be sure, let's add some more characters to the line and the result should get into a second line.");
+        OPERA_LOG_PRINTLN("<begin>" << std::string(' ',num_cols) << "<end>")
         Logger::instance().configuration().set_handles_multiline_output(false);
-        OPERA_LOG_PRINTLN("This is a very long string for this test that will most definitely be longer than just one line, at least if the number of columns in the terminal is not excessively large, but this should suffice I believe. Just to be sure, let's add some more characters to the line and the result should get into a second line.");
+        OPERA_LOG_PRINTLN("<begin>" << std::string(' ',num_cols) << "<end>")
     }
 
     void test_discards_newlines_and_indentation() {
@@ -230,10 +241,7 @@ class TestLogging {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(2);
         OPERA_LOG_SCOPE_CREATE;
-        const unsigned int DEFAULT_COLUMNS = 80;
-        struct winsize ws;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-        SizeType num_cols = (ws.ws_col > 0 ? ws.ws_col : DEFAULT_COLUMNS);
+        SizeType num_cols = num_columns();
 
         std::string exactly_str(num_cols-4,'x'); // exactly the length required to fill the columns (given a prefix of 4 chars)
         std::string larger_str(num_cols,'x'); // larger enough
