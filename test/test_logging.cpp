@@ -53,6 +53,7 @@ class TestLogging {
     }
 
     void test() {
+        OPERA_TEST_CALL(test_very_pretty_function())
         OPERA_TEST_CALL(test_print_configuration())
         OPERA_TEST_CALL(test_shown_single_print())
         OPERA_TEST_CALL(test_hidden_single_print())
@@ -72,6 +73,12 @@ class TestLogging {
         OPERA_TEST_CALL(test_redirect())
         OPERA_TEST_CALL(test_multiple_threads_with_blocking_scheduler())
         OPERA_TEST_CALL(test_multiple_threads_with_nonblocking_scheduler())
+    }
+
+    void test_very_pretty_function() {
+        std::string fn = "Opera::ReturnClass Opera::Class::method(Opera::ArgumentClass const&) const";
+        auto prettified = very_pretty_function(fn);
+        OPERA_TEST_EQUAL(prettified,"ReturnClass Class::method(ArgumentClass const&) const")
     }
 
     void test_print_configuration() {

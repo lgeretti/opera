@@ -25,8 +25,6 @@
 #ifndef OPERA_RUNTIME_HPP
 #define OPERA_RUNTIME_HPP
 
-using namespace Ariadne;
-
 namespace Opera {
 
 class Runtime {

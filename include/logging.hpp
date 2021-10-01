@@ -65,6 +65,9 @@ using SizeType = size_t;
 //! \brief Exception for trying to change the scheduler while there are registered threads
 class LoggerSchedulerChangeWithRegisteredThreadsException : public std::exception { };
 
+//! \brief Make a function signature very pretty by removing Opera:: around
+std::string very_pretty_function(std::string msg);
+
 //! \brief A styling for a text character
 //! \details Refer to https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#256-colors
 //! for the detailed 256 map of colors for text and background

@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/io/command_line_interface.hpp>
+#include "command_line_interface.hpp"
 #include "runtime.hpp"
 
 using namespace Opera;

@@ -50,15 +50,8 @@ class MessageConsumptionThread {
 };
 
 std::string very_pretty_function(std::string msg) {
-    size_t ariadne_pos = std::string::npos;
-    while ((ariadne_pos  = msg.find("Opera::")) != std::string::npos) msg.erase(ariadne_pos,9);
-    size_t first_class_occ_end = msg.find("::");
-    size_t first_class_occ_beg = msg.rfind(" ",first_class_occ_end)+1;
-    size_t length = first_class_occ_end-first_class_occ_beg+2;
-    std::string class_name_scope = msg.substr(first_class_occ_beg,length);
-    size_t class_name_scope_pos = std::string::npos;
-    while ((class_name_scope_pos  = msg.find(class_name_scope,first_class_occ_end)) != std::string::npos)
-        msg.erase(class_name_scope_pos,length);
+    size_t opera_pos = std::string::npos;
+    while ((opera_pos  = msg.find("Opera::")) != std::string::npos) msg.erase(opera_pos, 7);
     return msg;
 }
 
@@ -103,8 +96,7 @@ bool TerminalTextTheme::has_style() const {
 
 OutputStream& operator<<(OutputStream& os, TerminalTextTheme const& theme) {
     // This should not be used by OPERA_LOG_PRINTLN, otherwise it will be parsed further, breaking level separator styling
-    os << "TerminalTextTheme("
-       << "\n  level_number= " << theme.level_number() << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
+    os << "TerminalTextTheme(" << "\n  level_number= " << theme.level_number() << "1 2 3 4 5 6 7 8 9" << TerminalTextStyle::RESET
             << ",\n  level_shown_separator= " << theme.level_shown_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  level_hidden_separator= " << theme.level_hidden_separator() << "|" << TerminalTextStyle::RESET
             << ",\n  multiline_separator= " << theme.multiline_separator() << "·" << TerminalTextStyle::RESET
