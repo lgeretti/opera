@@ -36,7 +36,7 @@ using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
-using Ariadne::Pair;
+template<class T1, class T2> using Pair = std::pair<T1,T2>;
 using Ariadne::DiscreteLocation;
 
 //! \brief A representation of an inbound packet for the presentation of a body
