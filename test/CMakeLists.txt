@@ -5,6 +5,7 @@ set(UNIT_TESTS
     test_command_line_interface
     test_thread
     test_geometry
+    test_interval
     test_body
     test_state
     test_packet
