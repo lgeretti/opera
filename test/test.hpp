@@ -32,15 +32,10 @@
 #include <cstring>
 #include <iostream>
 #include <exception>
-#include <ariadne/numeric/logical.hpp>
 
-int OPERA_TEST_FAILURES=0;
-int OPERA_TEST_SKIPPED=0;
+int OPERA_TEST_FAILURES = 0;
+int OPERA_TEST_SKIPPED = 0;
 std::string OPERA_CURRENT_TESTING_CLASS = "???";
-
-using Ariadne::decide;
-using Ariadne::definitely;
-using Ariadne::possibly;
 
 // This needs to be a function since we do not want to evaluate the result twice,
 // and can't store it in a variable since we don't know it's type.
@@ -185,11 +180,8 @@ int test_case_counter = 0;
     {                                                                   \
         std::cout << #expression << ": " << std::flush;                 \
         auto result = (expression);                                     \
-        if(definitely(result)) {                                                    \
+        if(result) {                                                    \
             std::cout << "true\n" << std::endl;                         \
-        } else if(possibly(result)) {                                   \
-            std::cout << "\nWARNING: indeterminate" << std::endl;       \
-            std::cerr << "WARNING: " << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": Assertion `" << #expression << "' is indeterminate." << std::endl; \
         } else {                                                        \
             ++OPERA_TEST_FAILURES;                                    \
             std::cout << "\nERROR: false" << std::endl;                 \
@@ -263,7 +255,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_EQUAL(expression1,expression2)                         \
     {                                                                   \
         std::cout << #expression1 << " == " << #expression2 << ": " << std::flush; \
-        bool ok = decide((expression1) == (expression2));                       \
+        bool ok = (expression1) == (expression2);                       \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -278,7 +270,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_NOT_EQUAL(expression1,expression2)                 \
     {                                                                   \
         std::cout << #expression1 << " != " << #expression2 << ": " << std::flush; \
-        bool ok = decide((expression1) == (expression2));               \
+        bool ok = (expression1) == (expression2);               \
         if(ok) {                                                        \
             ++OPERA_TEST_FAILURES;                                    \
             std::cout << "\nERROR: " << #expression1 << ":\n           " << (expression1) \
@@ -293,7 +285,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_EQUALS(expression,expected)                         \
     {                                                                   \
         std::cout << #expression << " == " << #expected << ": " << std::flush; \
-        bool ok = decide((expression) == (expected));                       \
+        bool ok = (expression) == (expected);                       \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -310,7 +302,7 @@ int test_case_counter = 0;
     {                                                                   \
         std::cout << #expression << " ~ " << #expected << ": " << std::flush; \
         auto error=mag(expression-expected); \
-        bool ok = decide(error <= tolerance);                       \
+        bool ok = (error <= tolerance);                       \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -329,7 +321,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_LESS(expression,expected)                         \
     {                                                                   \
         std::cout << #expression << " < " << #expected << ": " << std::flush; \
-        bool ok = decide((expression) < (expected));                       \
+        bool ok = (expression) < (expected);                       \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -344,7 +336,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_UNARY_PREDICATE(predicate,argument)    \
     {                                                                   \
         std::cout << #predicate << "(" << #argument << ") with " << #argument << "=" << (argument) << ": " << std::flush; \
-        bool ok = decide(predicate((argument)));                  \
+        bool ok = (predicate((argument)));                  \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -359,7 +351,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_BINARY_PREDICATE(predicate,argument1,argument2)    \
     {                                                                   \
         std::cout << #predicate << "(" << (#argument1) << "," << (#argument2) << ") with " << #argument1 << "=" << (argument1) << ", " << #argument2 << "=" << (argument2) << ": " << std::flush; \
-        bool ok = decide(predicate((argument1),(argument2)));                  \
+        bool ok = predicate((argument1),(argument2));                  \
         if(ok) {                                                        \
             std::cout << "true\n" << std::endl;                         \
         } else {                                                        \
@@ -374,7 +366,7 @@ int test_case_counter = 0;
 #define OPERA_TEST_COMPARE(expression,comparison,expected)           \
     {                                                                   \
         std::cout << #expression << ": " << (expression) << std::flush; \
-        bool ok = decide((expression) comparison (expected));               \
+        bool ok = ((expression) comparison (expected));               \
         if(ok) {                                                        \
             std::cout << " " << #comparison << " " << (expected) << ": true\n" << std::endl; \
         } else {                                                        \

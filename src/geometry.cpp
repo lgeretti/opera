@@ -30,15 +30,13 @@ Point centre(Point const& p1, Point const& p2) {
     return (p1+p2)/2;
 }
 
-BoundingType hull(Point const& p1, Point const& p2) {
-    return BoundingType({FloatIntervalType(min(p1.x, p2.x), max(p1.x, p2.x)),
-                         FloatIntervalType(min(p1.y, p2.y), max(p1.y, p2.y)),
-                         FloatIntervalType(min(p1.z, p2.z), max(p1.z, p2.z))});
+Box hull(Point const& p1, Point const& p2) {
+    return Box(std::min(p1.x, p2.x), std::max(p1.x, p2.x), std::min(p1.y, p2.y), std::max(p1.y, p2.y), std::min(p1.z, p2.z), std::max(p1.z, p2.z));
 }
 
 FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point const& s2t) {
 
-    const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
+    const FloatType SMALL_VALUE = 1e-6;
 
     auto u = s1t - s1h;
     auto v = s2t - s2h;
@@ -52,7 +50,7 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
     FloatType D = a * c - b * b;
     FloatType sc = D, sN = D, sD = D;
     FloatType tc = D, tN = D, tD = D;
-    if (decide(D < SMALL_VALUE)) {
+    if (D < SMALL_VALUE) {
         sN = 0;
         sD = 1;
         tN = e;
@@ -60,31 +58,31 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
     } else {
         sN = (b * e - c * d);
         tN = (a * e - b * d);
-        if (decide(sN < 0)) {
+        if (sN < 0) {
             sN = 0;
             tN = e;
             tD = c;
-        } else if (decide(sN > sD)) {
+        } else if (sN > sD) {
             sN = sD;
             tN = e + b;
             tD = c;
         }
     }
-    if (decide(tN < 0)) {
+    if (tN < 0) {
         tN = 0;
-        if (decide(-d < 0)) {
+        if (-d < 0) {
             sN = 0;
-        } else if (decide(-d > a)) {
+        } else if (-d > a) {
             sN = sD;
         } else {
             sN = -d;
             sD = a;
         }
-    } else if (decide(tN > tD)) {
+    } else if (tN > tD) {
         tN = tD;
-        if (decide((-d + b) < 0)) {
+        if ((-d + b) < 0) {
             sN = 0;
-        } else if (decide((-d + b) > a)) {
+        } else if ((-d + b) > a) {
             sN = sD;
         } else {
             sN = (-d + b);
@@ -92,10 +90,10 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
         }
     }
 
-    if (decide(abs(sN) < SMALL_VALUE)) sc = 0;
+    if (abs(sN) < SMALL_VALUE) sc = 0;
     else sc = sN / sD;
 
-    if (decide(abs(tN) < SMALL_VALUE)) tc = 0;
+    if (abs(tN) < SMALL_VALUE) tc = 0;
     else tc = tN / tD;
 
     auto dP = w + (sc * u) - (tc * v);
@@ -105,22 +103,21 @@ FloatType distance(Point const& s1h, Point const& s1t, Point const& s2h, Point c
 
 FloatType distance(Point const& p1, Point const& s2h, Point const& s2t) {
 
-    const FloatType SMALL_VALUE(0.000001,Ariadne::dp);
+    const FloatType SMALL_VALUE = 1e-6;
 
     auto v = s2t - s2h;
     auto w = p1 - s2h;
 
     FloatType c = dot(v, v);
     FloatType e = dot(v, w);
-    FloatType zero = FloatType(0,Ariadne::dp);
-    FloatType tc = zero, tN = e, tD = c;
+    FloatType tc = 0.0, tN = e, tD = c;
 
-    if (decide(tN < 0))
+    if (tN < 0)
         tN = 0;
-    else if (decide(tN > tD))
+    else if (tN > tD)
         tN = tD;
 
-    if (decide(abs(tN) >= SMALL_VALUE))
+    if (abs(tN) >= SMALL_VALUE)
         tc = tN / tD;
 
     auto dP = w - (tc * v);
@@ -132,13 +129,56 @@ FloatType distance(Point const& p1, Point const& p2) {
     return sqrt(dot(p1-p2,p1-p2));
 }
 
-FloatType circle_radius(BoundingType const& bb) {
-    auto widths = bb.widths();
-    auto result = widths[0]*widths[0];
-    for (SizeType i=1;i<bb.size();++i)
-        result += widths[i]*widths[i];
+Box::Box(FloatType const& xl, FloatType const& xu, FloatType const& yl, FloatType const& yu, FloatType const& zl, FloatType const& zu)
+    : _xl(xl), _xu(xu), _yl(yl), _yu(yu), _zl(zl), _zu(zu) { }
 
-    return sqrt(result)/2;
+Box Box::make_empty() {
+    return Box(infinity,-infinity,infinity,-infinity,infinity,-infinity);
+}
+
+bool Box::is_empty() const {
+    return (_xl > _xu or _yl > _yu or _zl > _zu);
+}
+
+FloatType const& Box::xl() const { return _xl; }
+
+FloatType const& Box::xu() const { return _xu; }
+
+FloatType const& Box::yl() const { return _yl; }
+
+FloatType const& Box::yu() const { return _yu; }
+
+FloatType const& Box::zl() const { return _zl; }
+
+FloatType const& Box::zu() const { return _zu; }
+
+void Box::set_xl(FloatType const& v) { _xl = v; }
+
+void Box::set_xu(FloatType const& v) { _xu = v; }
+
+void Box::set_yl(FloatType const& v) { _yl = v; }
+
+void Box::set_yu(FloatType const& v) { _yu = v; }
+
+void Box::set_zl(FloatType const& v) { _zl = v; }
+
+void Box::set_zu(FloatType const& v) { _zu = v; }
+
+Point Box::centre() const {
+    ARIADNE_PRECONDITION(not is_empty())
+    return Point((_xl+_xu)/2,(_yl+_yu)/2,(_zl+_zu)/2);
+}
+
+FloatType Box::circle_radius() const {
+    return sqrt(pow(_xu-_xl,2)+pow(_yu-_yl,2)+pow(_zu-_zl,2))/2;
+}
+
+bool Box::disjoint(Box const& other) const {
+    return _xu < other._xl or _xl > other._xu or _yu < other._yl or _yl > other._yu or _zu < other._zl or _zl > other._zu;
+}
+
+Box widen(Box const& bb, FloatType const& v) {
+    return Box(bb.xl()-v,bb.xu()+v,bb.yl()-v,bb.yu()+v,bb.zl()-v,bb.zu()+v);
 }
 
 }

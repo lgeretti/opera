@@ -24,14 +24,13 @@
 
 #include <functional>
 #include <ariadne/utility/stopwatch.hpp>
-#include <ariadne/numeric/float_approximation.hpp>
+#include "declarations.hpp"
 
-typedef Ariadne::FloatDPApproximation FloatType;
-using Ariadne::SizeType;
+using namespace Opera;
 
 struct Randomiser {
     static FloatType get(double min, double max) {
-        return FloatType((max-min)*rand()/RAND_MAX + min,Ariadne::dp);
+        return (max-min)*rand()/RAND_MAX + min;
     }
 };
 

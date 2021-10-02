@@ -94,7 +94,7 @@ public:
         OPERA_TEST_EQUALS(p.discrete_state(),loc)
         OPERA_TEST_EQUALS(p.lower_collision_time(),328903284232)
         OPERA_TEST_EQUALS(p.upper_collision_time(),328905923301)
-        OPERA_TEST_EQUALS(p.likelihood().get_d(),0.5)
+        OPERA_TEST_EQUALS(p.likelihood(),0.5)
     }
 };
 

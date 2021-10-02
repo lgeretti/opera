@@ -29,6 +29,7 @@
 #include <ariadne/utility/handle.hpp>
 #include <ariadne/utility/string.hpp>
 #include "body.hpp"
+#include "interval.hpp"
 
 namespace Opera {
 
@@ -100,7 +101,7 @@ class RobotDiscreteTrace {
     //! \brief Add to the head of the trace
     RobotDiscreteTrace& push_front(DiscreteLocation const& location);
     //! \brief Add to the tail of the trace
-    RobotDiscreteTrace& push_back(DiscreteLocation const& location, PositiveFloatType const& probability = pa_one);
+    RobotDiscreteTrace& push_back(DiscreteLocation const& location, PositiveFloatType const& probability = 1.0);
 
     //! \brief The number of locations
     SizeType size() const;
@@ -152,14 +153,14 @@ class RobotStateHistory {
     //! \brief The presences between a \a source and \a destination locations
     List<RobotLocationPresence> presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const;
     //! \brief The range of number of samples acquired in a given location
-    Interval<Natural> range_of_num_samples_in(DiscreteLocation const& location) const;
+    Interval<SizeType> range_of_num_samples_in(DiscreteLocation const& location) const;
     //! \brief The range of number of samples that are acquired when in \a source going into \a target
-    Interval<Natural> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
+    Interval<SizeType> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;
     //! \brief The range of number of samples within a list of \a presences_in
-    Interval<Natural> _range_of_num_samples_within(List<RobotLocationPresence> const& presences) const;
+    Interval<SizeType> _range_of_num_samples_within(List<RobotLocationPresence> const& presences) const;
 
   private:
     std::deque<RobotLocationPresence> _location_presences;

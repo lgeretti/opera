@@ -39,7 +39,7 @@ public:
     }
 
     void test_human_presentation_packet_create() {
-        BodyPresentationPacket p("h0",{{0,1},{1,2}},{FloatType(1.0,dp),FloatType(0.5,dp)});
+        BodyPresentationPacket p("h0",{{0,1},{1,2}},{1.0,0.5});
         OPERA_TEST_EQUALS(p.id(),"h0")
         OPERA_TEST_ASSERT(p.is_human())
         OPERA_TEST_EQUALS(p.point_ids().size(),2)
@@ -47,7 +47,7 @@ public:
     }
 
     void test_robot_presentation_packet_create() {
-        BodyPresentationPacket p("r0",10,{{0,1},{1,2}},{FloatType(1.0,dp),FloatType(0.5,dp)});
+        BodyPresentationPacket p("r0",10,{{0,1},{1,2}},{1.0,0.5});
         OPERA_TEST_EQUALS(p.id(),"r0")
         OPERA_TEST_ASSERT(not p.is_human())
         OPERA_TEST_EQUALS(p.packet_frequency(),10)
@@ -74,7 +74,7 @@ public:
 
     void test_notification_packet_create() {
         DiscreteLocation loc(StringVariable("r0")|"first");
-        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8,cast_positive(FloatType(1.0,dp)));
+        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8,1.0);
 
         OPERA_TEST_EQUALS(p.human_id(),"h0")
         OPERA_TEST_EQUALS(p.human_segment_id(),1)
@@ -83,7 +83,7 @@ public:
         OPERA_TEST_EQUALS(p.discrete_state(),loc)
         OPERA_TEST_EQUALS(p.lower_collision_time(),2e8)
         OPERA_TEST_EQUALS(p.upper_collision_time(),3e8)
-        OPERA_TEST_EQUALS(p.likelihood().get_d(),1.0)
+        OPERA_TEST_EQUALS(p.likelihood(),1.0)
     }
 };
 

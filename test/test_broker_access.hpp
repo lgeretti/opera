@@ -58,7 +58,7 @@ class TestBrokerAccess {
     }
 
     void test_single_transfer() {
-        BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {1.0,0.5});
         List<BodyPresentationPacket> bp_received;
 
         auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.append(p); });
@@ -79,11 +79,11 @@ class TestBrokerAccess {
     }
 
     void test_multiple_transfer() {
-        BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
-        BodyPresentationPacket rp("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {1.0,0.5});
+        BodyPresentationPacket rp("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {1.0,0.5, 0.5});
         BodyStatePacket hs("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290);
         BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
-        CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
+        CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
 
         List<BodyPresentationPacket> bp_received;
         List<BodyStatePacket> bs_received;

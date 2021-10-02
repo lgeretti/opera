@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p) {
     return os << "(in '" << p.location() << "' from " << p.from() << " to " << p.to() << ", exit to '" << p.exit_destination() << "')";
 }
 
-RobotDiscreteTrace::RobotDiscreteTrace() : _probability(pa_one) { }
+RobotDiscreteTrace::RobotDiscreteTrace() : _probability(1.0) { }
 
 RobotDiscreteTrace::RobotDiscreteTrace(RobotDiscreteTrace const& other) :
     _locations(other._locations), _probability(other._probability), _next_locations(other._next_locations) { }
@@ -160,17 +160,16 @@ Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_location
                 }
             }
         }
-        const FloatType pf_one = cast_positive(FloatType(1.0,dp));
         for (auto t : tracking) {
             if (t.trace.size() == maximum_trace_size) {
                 if (_next_locations.has_key(t.next_location))
-                    _next_locations.at(t.next_location) += pf_one;
+                    _next_locations.at(t.next_location) += 1.0;
                 else
-                    _next_locations.insert(std::make_pair(t.next_location,pf_one));
+                    _next_locations.insert(std::make_pair(t.next_location,1.0));
             }
         }
         for (auto& l : _next_locations) {
-            l.second = _probability*cast_positive(FloatType(l.second.get_d()/num_having_maximum_trace_size,dp));
+            l.second = _probability*l.second/num_having_maximum_trace_size;
         }
     }
     return _next_locations;
@@ -225,9 +224,9 @@ List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLo
     return result;
 }
 
-Interval<Natural> RobotStateHistory::_range_of_num_samples_within(List<RobotLocationPresence> const& presences) const {
+Interval<SizeType> RobotStateHistory::_range_of_num_samples_within(List<RobotLocationPresence> const& presences) const {
     if (presences.empty())
-        return Interval<Natural>(0u,0u);
+        return Interval<SizeType>(0u,0u);
 
     SizeType min_value = std::numeric_limits<SizeType>::max();
     SizeType max_value = 0;
@@ -236,14 +235,14 @@ Interval<Natural> RobotStateHistory::_range_of_num_samples_within(List<RobotLoca
         min_value = std::min(min_value,val);
         max_value = std::max(max_value,val);
     }
-    return Interval<Natural>(min_value,max_value);
+    return Interval<SizeType>(min_value,max_value);
 }
 
-Interval<Natural> RobotStateHistory::range_of_num_samples_in(DiscreteLocation const& location) const {
+Interval<SizeType> RobotStateHistory::range_of_num_samples_in(DiscreteLocation const& location) const {
     return _range_of_num_samples_within(presences_in(location));
 }
 
-Interval<Natural> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
+Interval<SizeType> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
     return _range_of_num_samples_within(presences_between(source,target));
 }
 

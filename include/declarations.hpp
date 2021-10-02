@@ -29,22 +29,15 @@
 
 namespace Opera {
 
-typedef Ariadne::FloatDPApproximation FloatType;
-typedef Ariadne::Positive<FloatType> PositiveFloatType;
-typedef Ariadne::Interval<FloatType> FloatIntervalType;
-typedef Ariadne::Box<FloatIntervalType> BoundingType;
+typedef double FloatType;
+typedef FloatType PositiveFloatType;
 
-using Ariadne::dp;
-using Ariadne::Interval;
-using Ariadne::Natural;
 using Ariadne::StringStream;
 using Ariadne::StringVariable;
 
 using SizeType = size_t;
 
-static const PositiveFloatType pa_infty = cast_positive(cast_approximate(Ariadne::infty));
-static const PositiveFloatType pa_one = cast_positive(FloatType(1.0,dp));
-static const FloatType a_zero = FloatType(0,dp);
+static const FloatType infinity = std::numeric_limits<FloatType>::infinity();
 
 }
 

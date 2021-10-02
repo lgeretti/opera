@@ -45,7 +45,7 @@ Document Serialiser<BodyPresentationPacket>::to_document() const {
     thicknesses.SetArray();
     point_ids.SetArray();
     for (SizeType i=0; i<obj.point_ids().size(); ++i) {
-        thicknesses.PushBack(Value().SetDouble(obj.thicknesses()[i].get_d()),allocator);
+        thicknesses.PushBack(Value().SetDouble(obj.thicknesses()[i]),allocator);
         Value points;
         points.SetArray();
         points.PushBack(Value().SetUint(obj.point_ids()[i].first),allocator);
@@ -85,9 +85,9 @@ Document Serialiser<BodyStatePacket>::to_document() const {
         for (auto point : samples) {
             Value coordinates;
             coordinates.SetArray();
-            coordinates.PushBack(Value().SetDouble(point.x.get_d()),allocator)
-            .PushBack(Value().SetDouble(point.y.get_d()),allocator)
-            .PushBack(Value().SetDouble(point.z.get_d()),allocator);
+            coordinates.PushBack(Value().SetDouble(point.x),allocator)
+            .PushBack(Value().SetDouble(point.y),allocator)
+            .PushBack(Value().SetDouble(point.z),allocator);
             samples_array.PushBack(coordinates,allocator);
         }
         continuous_state.PushBack(samples_array,allocator);
@@ -131,7 +131,7 @@ Document Serialiser<CollisionNotificationPacket>::to_document() const {
     collision_time.AddMember("upper",Value().SetUint64(obj.upper_collision_time()),allocator);
     document.AddMember("collisionTime",collision_time,allocator);
 
-    document.AddMember("likelihood",Value().SetDouble(obj.likelihood().get_d()),allocator);
+    document.AddMember("likelihood",Value().SetDouble(obj.likelihood()),allocator);
 
     return document;
 }

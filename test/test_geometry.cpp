@@ -60,11 +60,11 @@ public:
 
     void test_point_segment_distance() {
         auto d1 = distance(Point(1.308,-2.690,1.567),Point(1.308,-2.690,1.567),Point(-1.174,4.631,-0.1193),Point(-4.892,-2.183,-3.825));
-        OPERA_TEST_ASSERT(decide(distance(Point(1.308,-2.690,1.567),Point(-1.174,4.631,-0.1193),Point(-4.892,-2.183,-3.825))-d1 < 1e-8))
+        OPERA_TEST_ASSERT(distance(Point(1.308,-2.690,1.567),Point(-1.174,4.631,-0.1193),Point(-4.892,-2.183,-3.825))-d1 < 1e-8)
         auto d2 = distance(Point(-0.1053,-0.1488,-2.390),Point(-0.1053,-0.1488,-2.390),Point(2.964,-1.106,0.4021),Point(2.887,-3.345,2.290));
-        OPERA_TEST_ASSERT(decide(distance(Point(-0.1053,-0.1488,-2.390),Point(2.964,-1.106,0.4021),Point(2.887,-3.345,2.290))-d2 < 1e-8))
+        OPERA_TEST_ASSERT(distance(Point(-0.1053,-0.1488,-2.390),Point(2.964,-1.106,0.4021),Point(2.887,-3.345,2.290))-d2 < 1e-8)
         auto d3 = distance(Point(-1.560,3.773,-4.831),Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373));
-        OPERA_TEST_ASSERT(decide(distance(Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373))-d3 < 1e-8))
+        OPERA_TEST_ASSERT(distance(Point(-1.560,3.773,-4.831),Point(1.941,-1.352,3.894),Point(-4.736,0.9957,0.6373))-d3 < 1e-8)
     }
 
     void test_point_point_distance() {
@@ -90,19 +90,17 @@ public:
 
         auto h = hull(p1,p2);
 
-        OPERA_TEST_EQUALS(h[0].lower_bound(),4.0)
-        OPERA_TEST_EQUALS(h[0].upper_bound(),4.0)
-        OPERA_TEST_EQUALS(h[1].lower_bound(),1.2)
-        OPERA_TEST_EQUALS(h[1].upper_bound(),3.0)
-        OPERA_TEST_EQUALS(h[2].lower_bound(),-2.0)
-        OPERA_TEST_EQUALS(h[2].upper_bound(),0)
+        OPERA_TEST_EQUALS(h.xl(),4.0)
+        OPERA_TEST_EQUALS(h.xu(),4.0)
+        OPERA_TEST_EQUALS(h.yl(),1.2)
+        OPERA_TEST_EQUALS(h.yu(),3.0)
+        OPERA_TEST_EQUALS(h.zl(),-2.0)
+        OPERA_TEST_EQUALS(h.zu(),0)
     }
 
     void test_circle_radius() {
-        BoundingType bb({FloatIntervalType(FloatType(1, dp), FloatType(2, dp)),
-                         FloatIntervalType(FloatType(-1, dp), FloatType(2, dp)),
-                         FloatIntervalType(FloatType(4, dp), FloatType(6, dp))});
-        OPERA_TEST_ASSERT(decide(circle_radius(bb) - 1.8708 < 1e-3))
+        Box bb(1,2,-1,2,4,6);
+        OPERA_TEST_ASSERT(bb.circle_radius() - 1.8708 < 1e-3)
     }
 };
 

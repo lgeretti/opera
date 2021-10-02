@@ -24,6 +24,7 @@
 
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <list>
 #include "thread.hpp"
 #include "logging.hpp"
 #include "progress_indicator.hpp"

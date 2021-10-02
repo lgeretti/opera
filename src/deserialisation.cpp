@@ -36,7 +36,7 @@ BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
 
     List<FloatType> thicknesses;
     for (auto& thickness : _document["thicknesses"].GetArray())
-        thicknesses.append(FloatType(thickness.GetDouble(),dp));
+        thicknesses.append(thickness.GetDouble());
 
     if (_document["isHuman"].GetBool())
         return BodyPresentationPacket(_document["id"].GetString(), point_ids, thicknesses);
@@ -72,7 +72,7 @@ CollisionNotificationPacket Deserialiser<CollisionNotificationPacket>::make() co
                                        discrete_state_values,
                                        _document["collisionTime"]["lower"].GetUint64(),
                                        _document["collisionTime"]["upper"].GetUint64(),
-                                       cast_positive(FloatType(_document["likelihood"].GetDouble(),dp)));
+                                       _document["likelihood"].GetDouble());
 }
 
 }

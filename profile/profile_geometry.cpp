@@ -41,12 +41,11 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_centre() {
-        Ariadne::List<BoundingType> bbs;
+        Ariadne::List<Box> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
-            auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
-            auto bx1 = BoundingType({FloatIntervalType(pt1.x, pt1.x), FloatIntervalType(pt1.z, pt1.z), FloatIntervalType(pt1.z, pt1.z)});
-            bbs.push_back(hull(bx1,pt2));
+            auto pt2 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
+            bbs.push_back(hull(pt1,pt2));
         }
 
         profile("Bounding box centre",[&](SizeType i){ bbs.at(i).centre(); });
@@ -63,15 +62,14 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_circle_radius() {
-        Ariadne::List<BoundingType> bbs;
+        Ariadne::List<Box> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
-            auto pt2 = Ariadne::Point<FloatType>({rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)});
-            auto bx1 = BoundingType({FloatIntervalType(pt1.x, pt1.x), FloatIntervalType(pt1.z, pt1.z), FloatIntervalType(pt1.z, pt1.z)});
-            bbs.push_back(hull(bx1,pt2));
+            auto pt2 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
+            bbs.push_back(hull(pt1,pt2));
         }
 
-        profile("Bounding box circle error",[&](SizeType i){ circle_radius(bbs.at(i)); });
+        profile("Bounding box circle error",[&](SizeType i){ bbs.at(i).circle_radius(); });
     }
 
     void profile_point_point_distance() {

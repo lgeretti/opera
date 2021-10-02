@@ -37,7 +37,7 @@ struct ProfileBody : public Profiler {
     }
 
     void profile_bodysegment_intersection() {
-        FloatType thickness(1.0,Ariadne::dp);
+        FloatType thickness = 1.0;
         Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
@@ -53,7 +53,7 @@ struct ProfileBody : public Profiler {
     }
 
     void profile_bodysegment_sample_update() {
-        FloatType thickness(1.0,Ariadne::dp);
+        FloatType thickness = 1.0;
         Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
 

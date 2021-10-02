@@ -115,11 +115,11 @@ std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
 
 BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _segment(segment), _is_empty(true),
-        _head_bounds(BoundingType({FloatIntervalType::empty_interval(), FloatIntervalType::empty_interval(), FloatIntervalType::empty_interval()})),
+        _head_bounds(Box::make_empty()),
         _tail_bounds(_head_bounds),
-        _head_centre(Point(FloatType(0,dp),FloatType(0,dp),FloatType(0,dp))),
+        _head_centre(Point(0.0,0.0,0.0)),
         _tail_centre(_head_centre),
-        _radius(0.0, Ariadne::dp),
+        _radius(0.0),
         _bb(_head_bounds)
         { }
 
@@ -153,7 +153,7 @@ void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& 
         _update_head(heads.at(j));
     for (SizeType j=common_size; j<ts; ++j)
         _update_tail(tails.at(j));
-    if (_is_empty and decide(not _head_bounds.is_empty() and not _tail_bounds.is_empty()))
+    if (_is_empty and (not _head_bounds.is_empty() and not _tail_bounds.is_empty()))
         _is_empty = false;
     if (not _is_empty) _recalculate_centres_radius_bb();
 }
@@ -164,23 +164,27 @@ void BodySegmentSampleBase::_update(Point const& head, Point const& tail) {
 }
 
 void BodySegmentSampleBase::_update_head(Point const& head) {
-    _head_bounds = BoundingType({hull(_head_bounds[0],head.x),hull(_head_bounds[1],head.y),hull(_head_bounds[2],head.z)});
+    _head_bounds = Box(std::min(_head_bounds.xl(),head.x),std::max(_head_bounds.xu(),head.x),
+                       std::min(_head_bounds.yl(),head.y),std::max(_head_bounds.yu(),head.y),
+                       std::min(_head_bounds.zl(),head.z),std::max(_head_bounds.zu(),head.z));
 }
 
 void BodySegmentSampleBase::_update_tail(Point const& tail) {
-    _tail_bounds = BoundingType({hull(_tail_bounds[0],tail.x),hull(_tail_bounds[1],tail.y),hull(_tail_bounds[2],tail.z)});
+    _tail_bounds = Box(std::min(_tail_bounds.xl(),tail.x),std::max(_tail_bounds.xu(),tail.x),
+                       std::min(_tail_bounds.yl(),tail.y),std::max(_tail_bounds.yu(),tail.y),
+                       std::min(_tail_bounds.zl(),tail.z),std::max(_tail_bounds.zu(),tail.z));
 }
 
 void BodySegmentSampleBase::_recalculate_centres_radius_bb() {
     auto hc = _head_bounds.centre();
     auto tc = _tail_bounds.centre();
-    _head_centre = Point(hc.at(0), hc.at(1), hc.at(2));
-    _tail_centre = Point(tc.at(0), tc.at(1), tc.at(2));
-    _radius = max(circle_radius(_head_bounds),circle_radius(_tail_bounds));
+    _head_centre = Point(hc.x, hc.y, hc.z);
+    _tail_centre = Point(tc.x, tc.y, tc.z);
+    _radius = std::max(_head_bounds.circle_radius(),_tail_bounds.circle_radius());
     _bb = widen(hull(_head_centre,_tail_centre),_radius+_segment->thickness());
 }
 
-BoundingType const& BodySegmentSampleBase::bounding_box() const {
+Box const& BodySegmentSampleBase::bounding_box() const {
     return _bb;
 }
 
@@ -189,15 +193,15 @@ bool BodySegmentSampleBase::is_empty() const {
 }
 
 bool BodySegmentSampleBase::intersects(BodySegmentSampleInterface const& other) const {
-    if (decide(bounding_box().disjoint(other.bounding_box()))) return false;
+    if (bounding_box().disjoint(other.bounding_box())) return false;
     else {
-        return (decide(distance(*this,other) <= this->thickness() + this->error() + other.thickness() + other.error()));
+        return distance(*this,other) <= this->thickness() + this->error() + other.thickness() + other.error();
     }
 }
 
 SphericalApproximationSample BodySegmentSampleBase::spherical_approximation() const {
     auto centre = _bb.centre();
-    return SphericalApproximationSample(Point(centre.at(0), centre.at(1), centre.at(2)), circle_radius(_bb));
+    return SphericalApproximationSample(Point(centre.x, centre.y, centre.z), _bb.circle_radius());
 }
 
 std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s) {
@@ -220,8 +224,7 @@ FloatType const& SphericalApproximationSample::radius() const {
 }
 
 PositiveFloatType distance(SphericalApproximationSample const& sample, BodySegmentSample const& other) {
-    static const FloatType zero = FloatType(0,dp);
-    return cast_positive(max(zero,distance(sample._centre,other.head_centre(),other.tail_centre())-other.error()-other.thickness()-sample._radius));
+    return std::max(0.0,distance(sample._centre,other.head_centre(),other.tail_centre())-other.error()-other.thickness()-sample._radius);
 }
 
 std::ostream& operator<<(std::ostream& os, SphericalApproximationSample const& s) {

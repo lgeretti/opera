@@ -40,9 +40,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_create() {
-        Human h("h0", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(1.0, Ariadne::dp)});
+        Human h("h0", {{0, 1},{3, 2}}, {1.0,1.0});
         auto hs = h.segment(1).create_sample(Point(0,0,0),Point(2,2,2));
-        PositiveFloatType distance(FloatType(0.5,dp));
         MinimumDistanceBarrierTrace trace(hs,3);
         OPERA_TEST_PRINT(trace)
         OPERA_TEST_EQUALS(trace.human_segment_id(),1)
@@ -50,19 +49,19 @@ class TestBarrier {
         OPERA_TEST_EQUALS(trace.size(),0)
         OPERA_TEST_ASSERT(trace.is_empty())
         OPERA_TEST_EQUALS(trace.next_index(),0)
-        OPERA_TEST_EQUALS(trace.current_minimum_distance(),pa_infty)
+        OPERA_TEST_ASSERT(std::isinf(trace.current_minimum_distance()))
     }
 
     void test_barrier_trace_add_remove() {
-        Human h("r0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Human h("r0", {{0, 1}}, {1.0});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
-        PositiveFloatType distance(FloatType(0.5,dp));
+        PositiveFloatType distance = 0.5;
         DiscreteLocation loc(StringVariable(h.id())|"first");
         MinimumDistanceBarrierTrace trace(hs,0);
         trace.add_barrier(loc,distance);
         OPERA_TEST_ASSERT(not trace.is_empty())
         auto barrier = trace.barrier(0);
-        OPERA_TEST_ASSERT(decide(barrier.minimum_distance() == distance))
+        OPERA_TEST_ASSERT(barrier.minimum_distance() == distance)
         OPERA_TEST_EQUALS(barrier.farthest_location(),loc)
         OPERA_TEST_EQUALS(barrier.maximum_index(),0)
         OPERA_TEST_PRINT(barrier)
@@ -72,8 +71,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_populate() {
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {1.0});
 
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
@@ -117,13 +116,13 @@ class TestBarrier {
         for (auto s : robot_samples) if (not trace3.try_update_with(loc,s)) break;
         OPERA_TEST_EQUALS(trace3.size(),4)
         OPERA_TEST_EQUALS(trace3.next_index(),7)
-        OPERA_TEST_ASSERT(decide(trace3.current_minimum_distance()>0))
+        OPERA_TEST_ASSERT(trace3.current_minimum_distance()>0)
         OPERA_TEST_PRINT(trace3)
     }
 
     void test_barrier_trace_resume_element() {
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {1.0});
 
         auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 
@@ -161,8 +160,8 @@ class TestBarrier {
     }
 
     void test_barrier_trace_reset() {
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {1.0});
 
         auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
 

@@ -30,7 +30,6 @@
 namespace Opera {
 
 struct Vector {
-    Vector(double x_, double y_, double z_) : x(FloatType(x_,Ariadne::dp)), y(FloatType(y_,Ariadne::dp)), z(FloatType(z_,Ariadne::dp)) { }
     Vector(FloatType x_, FloatType y_, FloatType z_) : x(x_), y(y_), z(z_) { }
     FloatType x;
     FloatType y;
@@ -71,14 +70,60 @@ inline Vector operator*(Vector const& v1, Vector const& v2) {
 }
 
 inline bool operator==(Vector const& v1, Vector const& v2) {
-    return decide(v1.x == v2.x and v1.y == v2.y and v1.z == v2.z);
+    return v1.x == v2.x and v1.y == v2.y and v1.z == v2.z;
 }
+
+//! \brief A box in the coordinate 3D space
+class Box {
+  public:
+    Box(FloatType const& xl, FloatType const& xu, FloatType const& yl, FloatType const& yu, FloatType const& zl, FloatType const& zu);
+
+    //! \brief Make an empty box
+    static Box make_empty();
+
+    //! \brief Whether the box is empty
+    bool is_empty() const;
+
+    FloatType const& xl() const;
+    FloatType const& xu() const;
+    FloatType const& yl() const;
+    FloatType const& yu() const;
+    FloatType const& zl() const;
+    FloatType const& zu() const;
+
+    void set_xl(FloatType const& v);
+    void set_xu(FloatType const& v);
+    void set_yl(FloatType const& v);
+    void set_yu(FloatType const& v);
+    void set_zl(FloatType const& v);
+    void set_zu(FloatType const& v);
+
+    //! \brief The centre point
+    Point centre() const;
+    //! \brief The radius of the circle inscribing the box
+    FloatType circle_radius() const;
+
+    //! \brief Check whether the boxes have any common point
+    bool disjoint(Box const& other) const;
+
+    //! \brief Print to the standard output
+    friend std::ostream& operator<<(std::ostream& os, Box const& b) {
+        return os << "{[" << b.xl() << ":" << b.xu() <<"],[" << b.yl() << ":" << b.yu() << "],[" << b.zl() << ":" << b.zu() << "]}"; }
+
+  private:
+    FloatType _xl;
+    FloatType _xu;
+    FloatType _yl;
+    FloatType _yu;
+    FloatType _zl;
+    FloatType _zu;
+};
 
 //! \brief The centre of the segment joining two points
 Point centre(Point const& p1, Point const& p2);
 
 //! \brief The minimum bounding box enclosing the two points \a p1 and \a p2
-BoundingType hull(Point const& p1, Point const& p2);
+Box hull(Point const& p1, Point const& p2);
 
 //! \brief The minimum distance between a segment s1 (with head/tail points s1h and s1t) and segment s2
 //! (with head/tail points s2h and s2t)
@@ -91,8 +136,8 @@ FloatType distance(Point const& p1, Point const& s2h, Point const& s2t);
 //! \brief The distance between two points
 FloatType distance(Point const& p1, Point const& p2);
 
-//! \brief The error of the circle inscribing the bounding box \a bb
-FloatType circle_radius(BoundingType const& bb);
+//! \brief Return the widening of \a bb of \a v in all directions
+Box widen(Box const& bb, FloatType const& v);
 
 }
 

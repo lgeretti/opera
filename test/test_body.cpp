@@ -39,14 +39,14 @@ public:
     }
 
     void test_body_creation() {
-        Human h("h0", {{3,2},{1,0}}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h("h0", {{3,2},{1,0}}, {0.5,1.0});
 
         OPERA_TEST_PRINT(h)
         OPERA_TEST_EQUALS(h.id(),"h0")
         OPERA_TEST_EQUALS(h.num_segments(),2)
         OPERA_TEST_EQUALS(h.num_points(),4)
 
-        Robot r("r0", 10, {{0,1}}, {FloatType(0.5,Ariadne::dp)});
+        Robot r("r0", 10, {{0,1}}, {0.5});
         OPERA_TEST_PRINT(r)
         OPERA_TEST_EQUALS(r.id(),"r0")
         OPERA_TEST_EQUALS(r.num_segments(),1)
@@ -56,7 +56,7 @@ public:
 
     void test_bodysegment_creation() {
 
-        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {1.0, 0.5});
         auto segment = r.segment(1);
 
         OPERA_TEST_EQUALS(segment.id(),1)
@@ -70,7 +70,7 @@ public:
 
     void test_bodysegment_update() {
 
-        FloatType thickness(1.0,Ariadne::dp);
+        FloatType thickness = 1.0;
 
         Robot r("r0", 10, {{0, 1}}, {thickness});
         auto segment = r.segment(0);
@@ -103,16 +103,16 @@ public:
         OPERA_TEST_EQUALS(s4.tail_centre().z, -0.5)
 
         auto bb = s4.bounding_box();
-        OPERA_TEST_EQUALS(bb[0].lower_bound(),s4.head_centre().x-err-thickness)
-        OPERA_TEST_EQUALS(bb[0].upper_bound(),s4.tail_centre().x+err+thickness)
-        OPERA_TEST_EQUALS(bb[1].lower_bound(),s4.head_centre().y-err-thickness)
-        OPERA_TEST_EQUALS(bb[1].upper_bound(),s4.tail_centre().y+err+thickness)
-        OPERA_TEST_EQUALS(bb[2].lower_bound(),s4.tail_centre().z-err-thickness)
-        OPERA_TEST_EQUALS(bb[2].upper_bound(),s4.head_centre().z+err+thickness)
+        OPERA_TEST_EQUALS(bb.xl(),s4.head_centre().x-err-thickness)
+        OPERA_TEST_EQUALS(bb.xu(),s4.tail_centre().x+err+thickness)
+        OPERA_TEST_EQUALS(bb.yl(),s4.head_centre().y-err-thickness)
+        OPERA_TEST_EQUALS(bb.yu(),s4.tail_centre().y+err+thickness)
+        OPERA_TEST_EQUALS(bb.zl(),s4.tail_centre().z-err-thickness)
+        OPERA_TEST_EQUALS(bb.zu(),s4.head_centre().z+err+thickness)
     }
 
     void test_bodysegment_intersection() {
-        FloatType thickness(1.0,Ariadne::dp);
+        FloatType thickness = 1.0;
         Robot r("r0", 10,{{0, 1}}, {thickness});
         auto segment = r.segment(0);
 
@@ -147,7 +147,7 @@ public:
     }
 
     void test_spherical_approximation() {
-        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {1.0, 0.5});
         auto robot_sample = r.segment(0).create_sample();
         robot_sample.update({Point(0,0,0)},{Point(2,0,0)});
         auto human_sample = r.segment(0).create_sample();
@@ -156,8 +156,8 @@ public:
         auto human_sas = human_sample.spherical_approximation();
         OPERA_TEST_PRINT(human_sas)
         OPERA_TEST_EQUAL(human_sas.centre(),Point(1.5,5,0))
-        OPERA_TEST_ASSERT(decide(human_sas.radius()-FloatType(2.062,dp) <= 1e-3))
-        OPERA_TEST_ASSERT(decide(distance(human_sas,robot_sample)-FloatType(1.938,dp) <= 1e-3))
+        OPERA_TEST_ASSERT(human_sas.radius()-2.062 <= 1e-3)
+        OPERA_TEST_ASSERT(distance(human_sas,robot_sample)-1.938 <= 1e-3)
     }
 };
 

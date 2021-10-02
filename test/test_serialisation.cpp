@@ -39,14 +39,14 @@ public:
     }
 
     void test_bodypresentationpacket_human() {
-        BodyPresentationPacket p("human1", {{0, 1},{3, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacket p("human1", {{0, 1},{3, 2}}, {1.0,0.5});
         Serialiser<BodyPresentationPacket> serialiser(p);
         serialiser.to_file(Resources::path("json/examples/presentation/" + p.id() + ".tmp.json"));
         OPERA_TEST_EQUALS(serialiser.to_string(),"{\"id\":\"human1\",\"isHuman\":true,\"pointIds\":[[0,1],[3,2]],\"thicknesses\":[1.0,0.5]}")
     }
 
     void test_bodypresentationpacket_robot() {
-        BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {FloatType(1.0, Ariadne::dp),FloatType(0.5, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        BodyPresentationPacket p("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {1.0,0.5, 0.5});
         Serialiser<BodyPresentationPacket> serialiser(p);
         serialiser.to_file(Resources::path("json/examples/presentation/" + p.id() + ".tmp.json"));
         OPERA_TEST_EQUALS(serialiser.to_string(),"{\"id\":\"robot1\",\"isHuman\":false,\"packetFrequency\":30,\"pointIds\":[[0,1],[3,2],[4,2]],\"thicknesses\":[1.0,0.5,0.5]}")
@@ -67,7 +67,7 @@ public:
     }
 
     void test_collisionnotificationpacket() {
-        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, cast_positive(FloatType(0.5,dp)));
+        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
         Serialiser<CollisionNotificationPacket> serialiser(p);
         serialiser.to_file(Resources::path("json/examples/notification/notification0.tmp.json"));
         OPERA_TEST_EQUALS(serialiser.to_string(),"{\"human\":{\"bodyId\":\"h0\",\"segmentId\":0},\"robot\":{\"bodyId\":\"r0\",\"segmentId\":3},\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"collisionTime\":{\"lower\":328903284232,\"upper\":328905923301},\"likelihood\":0.5}")

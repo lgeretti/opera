@@ -90,8 +90,8 @@ void MinimumDistanceBarrierTrace::remove_barrier() {
 
 bool MinimumDistanceBarrierTrace::try_update_with(DiscreteLocation const& location, BodySegmentSample const& segment_sample) {
     auto current_distance = distance(_spherical_approximation,segment_sample);
-    if (decide(current_distance != 0)) {
-        if (decide(current_distance<current_minimum_distance())) {
+    if (current_distance > 0) {
+        if (current_distance<current_minimum_distance()) {
             add_barrier(location,current_distance);
         } else {
             if (location != _barriers.back().farthest_location()) {
@@ -110,14 +110,14 @@ int MinimumDistanceBarrierTrace::resume_element(SphericalApproximationSample con
     if (is_empty()) return -1;
     auto deviation = distance(_spherical_approximation.centre(),other.centre());
     auto radius_difference = other.radius() - _spherical_approximation.radius();
-    if (decide(radius_difference > 0)) deviation += radius_difference;
+    if (radius_difference > 0) deviation += radius_difference;
     SizeType lower=0;
     SizeType upper=_barriers.size()-1;
-    if (decide(deviation > _barriers.at(lower).minimum_distance())) return -1;
-    if (decide(deviation <= _barriers.at(upper).minimum_distance())) return upper;
+    if (deviation > _barriers.at(lower).minimum_distance()) return -1;
+    if (deviation <= _barriers.at(upper).minimum_distance()) return upper;
     SizeType result = (upper+lower)/2;
     while (upper>lower+1) {
-        if (decide(deviation > _barriers.at(result).minimum_distance())) upper = result;
+        if (deviation > _barriers.at(result).minimum_distance()) upper = result;
         else lower = result;
         result = (upper+lower)/2;
     }
@@ -146,7 +146,7 @@ bool MinimumDistanceBarrierTrace::is_empty() const {
 }
 
 PositiveFloatType const& MinimumDistanceBarrierTrace::current_minimum_distance() const {
-    if (is_empty()) return pa_infty;
+    if (is_empty()) return infinity;
     else return _barriers.back().minimum_distance();
 }
 

@@ -165,7 +165,7 @@ class BodySegmentSampleInterface {
     virtual FloatType const& thickness() const = 0;
 
     //! \brief Return the bounding box overapproximation
-    virtual BoundingType const& bounding_box() const = 0;
+    virtual Box const& bounding_box() const = 0;
 
     //! \brief Whether the segment is empty, i.e., whether either head and tail are is_empty
     virtual bool is_empty() const = 0;
@@ -201,7 +201,7 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
 
     FloatType const& error() const override;
     FloatType const& thickness() const override;
-    BoundingType const& bounding_box() const override;
+    Box const& bounding_box() const override;
 
     bool is_empty() const override;
 
@@ -225,13 +225,13 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     BodySegment const* _segment;
     bool _is_empty;
 
-    BoundingType _head_bounds;
-    BoundingType _tail_bounds;
+    Box _head_bounds;
+    Box _tail_bounds;
 
     Point _head_centre;
     Point _tail_centre;
     FloatType _radius;
-    BoundingType _bb;
+    Box _bb;
 };
 
 //! \brief Handle class for BodySegmentSampleInterface
@@ -244,7 +244,7 @@ class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
     Point const& tail_centre() const { return this->_ptr->tail_centre(); };
     FloatType error() const { return this->_ptr->error(); }
     FloatType thickness() const { return this->_ptr->thickness(); }
-    BoundingType const& bounding_box() const { return this->_ptr->bounding_box(); }
+    Box const& bounding_box() const { return this->_ptr->bounding_box(); }
     bool is_empty() const { return this->_ptr->is_empty(); }
     void update(List<Point> const& heads, List<Point> const& tails) { this->_ptr->update(heads,tails); }
     bool intersects(BodySegmentSample const& other) const { return this->_ptr->intersects(other); }

@@ -38,8 +38,8 @@ struct ProfileBarrier : public Profiler {
     }
 
     void profile_apply_to_trace() {
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {1.0});
         auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
 
         DiscreteLocation first(StringVariable(r.id())|"first");
@@ -63,8 +63,8 @@ struct ProfileBarrier : public Profiler {
     void profile_resume_index() {
         const SizeType ns = 1000;
         const SizeType override_num_tries = 100;
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {0.5});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
 
         DiscreteLocation first(StringVariable(r.id())|"first");
@@ -74,22 +74,22 @@ struct ProfileBarrier : public Profiler {
             MinimumDistanceBarrierTrace trace(hs,0);
             Point last_head(0,0,0);
             for (SizeType j=0; j<ns;++j) {
-                Point new_head(last_head.x+rnd().get(0.99,1.01),last_head.y+rnd().get(0.99,1.01),a_zero);
+                Point new_head(last_head.x+rnd().get(0.99,1.01),last_head.y+rnd().get(0.99,1.01),0.0);
                 Point new_tail(new_head.x+2,new_head.y,new_head.z);
                 trace.try_update_with(first,r.segment(0).create_sample(new_head,new_tail));
                 last_head = new_head;
             }
             ts.append(trace);
 
-            Point beginning_head_sa(rnd().get(0.9,1.1),rnd().get(0.9,1.1),a_zero);
+            Point beginning_head_sa(rnd().get(0.9,1.1),rnd().get(0.9,1.1),0.0);
             Point beginning_tail_sa(beginning_head_sa.x+2,beginning_head_sa.y,beginning_head_sa.z);
             beginning_sas.append(h.segment(0).create_sample(beginning_head_sa,beginning_tail_sa).spherical_approximation());
 
-            Point middle_head_sa(ns/2*rnd().get(0.9,1.1),ns/2*rnd().get(0.9,1.1),a_zero);
+            Point middle_head_sa(ns/2*rnd().get(0.9,1.1),ns/2*rnd().get(0.9,1.1),0.0);
             Point middle_tail_sa(middle_head_sa.x+2,middle_head_sa.y,middle_head_sa.z);
             middle_sas.append(h.segment(0).create_sample(middle_head_sa,middle_tail_sa).spherical_approximation());
 
-            Point end_head_sa(ns*rnd().get(0.9,1.1),ns*rnd().get(0.9,1.1),a_zero);
+            Point end_head_sa(ns*rnd().get(0.9,1.1),ns*rnd().get(0.9,1.1),0.0);
             Point end_tail_sa(end_head_sa.x+2,end_head_sa.y,end_head_sa.z);
             end_sas.append(h.segment(0).create_sample(end_head_sa,end_tail_sa).spherical_approximation());
         }
@@ -102,8 +102,8 @@ struct ProfileBarrier : public Profiler {
     void profile_resume_or_not() {
         const SizeType ns = 1000;
         const SizeType override_num_tries = 1;
-        Robot r("r0", 10, {{0, 1}}, {FloatType(1.0, Ariadne::dp)});
-        Human h("h0", {{0, 1}}, {FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{0, 1}}, {1.0});
+        Human h("h0", {{0, 1}}, {0.5});
         auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
 
         DiscreteLocation first(StringVariable(r.id())|"first");

@@ -39,7 +39,7 @@ public:
     }
 
     void test_human_state_instance() {
-        Human h("h0", {{3,2},{1,0}}, {FloatType(0.5,Ariadne::dp),FloatType(1.0,Ariadne::dp)});
+        Human h("h0", {{3,2},{1,0}}, {0.5,1.0});
         HumanStateInstance instance(h,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e8);
 
         OPERA_TEST_EQUALS(instance.samples().size(),2)
@@ -60,7 +60,7 @@ public:
         OPERA_TEST_EQUALS(trace.at(1),second)
         OPERA_TEST_EQUALS(trace.at(2),first)
         OPERA_TEST_EQUALS(trace.at(3),second)
-        OPERA_TEST_EQUALS(trace.probability(),pa_one)
+        OPERA_TEST_EQUALS(trace.probability(),1)
 
         RobotDiscreteTrace trace2;
         trace2 = trace;
@@ -82,7 +82,7 @@ public:
                 push_back(b).push_back(c).push_back(d).push_back(a).push_back(c).next_locations();
         OPERA_TEST_EQUALS(next2.size(),1)
         OPERA_TEST_ASSERT(next2.has_key(b))
-        OPERA_TEST_EQUALS(next2.at(b),cast_positive(FloatType(1.0,dp)))
+        OPERA_TEST_EQUALS(next2.at(b),1.0)
 
         // abcbacabcbacbacb -> **cb*****cb*cb*cb -> {a}
         auto next3 = RobotDiscreteTrace().push_back(a).push_back(b).push_back(c).push_back(b).push_back(a).
@@ -90,7 +90,7 @@ public:
                 push_back(c).push_back(b).push_back(a).push_back(c).push_back(b).next_locations();
         OPERA_TEST_EQUALS(next3.size(),1)
         OPERA_TEST_ASSERT(next3.has_key(a))
-        OPERA_TEST_EQUALS(next3.at(a),cast_positive(FloatType(1.0,dp)))
+        OPERA_TEST_EQUALS(next3.at(a),1.0)
 
         // abdabcabcdabadbc -> ****bc*bc*****bc -> {a,d}
         auto next4 = RobotDiscreteTrace().push_back(a).push_back(b).push_back(d).push_back(a).push_back(b).
@@ -99,8 +99,8 @@ public:
         OPERA_TEST_EQUALS(next4.size(),2)
         OPERA_TEST_ASSERT(next4.has_key(a))
         OPERA_TEST_ASSERT(next4.has_key(d))
-        OPERA_TEST_EQUALS(next4.at(a),cast_positive(FloatType(0.5,dp)))
-        OPERA_TEST_EQUALS(next4.at(d),cast_positive(FloatType(0.5,dp)))
+        OPERA_TEST_EQUALS(next4.at(a),0.5)
+        OPERA_TEST_EQUALS(next4.at(d),0.5)
 
         // dcbadcbdcbdcbcdcb -> dcb*dcbdcbdcb*dcb -> {a(0.25),c(0.25),d(0.5)}
         auto trace5 = RobotDiscreteTrace().push_back(d).push_back(c).push_back(b).push_back(a).push_back(d).
@@ -111,17 +111,17 @@ public:
         OPERA_TEST_ASSERT(next5.has_key(a))
         OPERA_TEST_ASSERT(next5.has_key(c))
         OPERA_TEST_ASSERT(next5.has_key(d))
-        OPERA_TEST_EQUALS(next5.at(a),cast_positive(FloatType(0.25,dp)))
-        OPERA_TEST_EQUALS(next5.at(c),cast_positive(FloatType(0.25,dp)))
-        OPERA_TEST_EQUALS(next5.at(d),cast_positive(FloatType(0.5,dp)))
+        OPERA_TEST_EQUALS(next5.at(a),0.25)
+        OPERA_TEST_EQUALS(next5.at(c),0.25)
+        OPERA_TEST_EQUALS(next5.at(d),0.5)
 
         // adding each next state
         auto trace5a = trace5;
-        trace5a.push_back(a,cast_positive(FloatType(0.25,dp)));
+        trace5a.push_back(a,0.25);
         auto trace5c = trace5;
-        trace5c.push_back(c,cast_positive(FloatType(0.25,dp)));
+        trace5c.push_back(c,0.25);
         auto trace5d = trace5;
-        trace5d.push_back(d,cast_positive(FloatType(0.5,dp)));
+        trace5d.push_back(d,0.5);
         auto next5a = trace5a.next_locations();
         auto next5c = trace5c.next_locations();
         auto next5d = trace5d.next_locations();
@@ -131,9 +131,9 @@ public:
         OPERA_TEST_ASSERT(next5a.has_key(d))
         OPERA_TEST_ASSERT(next5c.has_key(d))
         OPERA_TEST_ASSERT(next5d.has_key(c))
-        OPERA_TEST_EQUALS(next5a.at(d),cast_positive(FloatType(0.25,dp)))
-        OPERA_TEST_EQUALS(next5c.at(d),cast_positive(FloatType(0.25,dp)))
-        OPERA_TEST_EQUALS(next5d.at(c),cast_positive(FloatType(0.5,dp)))
+        OPERA_TEST_EQUALS(next5a.at(d),0.25)
+        OPERA_TEST_EQUALS(next5c.at(d),0.25)
+        OPERA_TEST_EQUALS(next5d.at(c),0.5)
 
         // adding each next state
         auto trace5ad = trace5a.push_back(d);
@@ -163,13 +163,13 @@ public:
         OPERA_TEST_ASSERT(next5cdc.has_key(b))
         OPERA_TEST_ASSERT(next5dcb.has_key(c))
         OPERA_TEST_ASSERT(next5dcb.has_key(d))
-        OPERA_TEST_EQUALS(next5dcb.at(c),cast_positive(FloatType(0.25,dp)))
-        OPERA_TEST_EQUALS(next5dcb.at(d),cast_positive(FloatType(0.25,dp)))
+        OPERA_TEST_EQUALS(next5dcb.at(c),0.25)
+        OPERA_TEST_EQUALS(next5dcb.at(d),0.25)
      }
 
     void test_robot_state_history_basics() {
         Ariadne::StringVariable robot("robot");
-        Robot r("r0", 10, {{3, 2},{1, 0}}, {FloatType(1.0, Ariadne::dp), FloatType(0.5, Ariadne::dp)});
+        Robot r("r0", 10, {{3, 2},{1, 0}}, {1.0, 0.5});
         RobotStateHistory history(&r);
 
         DiscreteLocation empty_location;
@@ -198,12 +198,12 @@ public:
         OPERA_TEST_EQUALS(history.presences_exiting_into(second).back().location(), first)
         OPERA_TEST_EQUALS(history.presences_exiting_into(second).back().from(), 5e8)
         OPERA_TEST_EQUALS(history.presences_exiting_into(second).back().to(), 7e8)
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<Natural>(2u, 2u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<SizeType>(2u, 2u))
         OPERA_TEST_ASSERT(history.has_samples(first))
         auto samples = history.samples(first);
         OPERA_TEST_EQUALS(samples.size(),2)
         OPERA_TEST_PRINT(history.samples(first))
-        OPERA_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() == 0))
+        OPERA_TEST_ASSERT(history.samples(first).at(0).at(0).error() == 0)
 
         history.acquire(first,{{Point(0,0,2),Point(0,0.1,2)},{Point(4,4,6)},{Point(0,4,0)},{Point(1,2,3),Point(1.1,2,3)}},8e8);
         OPERA_TEST_PRINT(history.presences_exiting_into(first))
@@ -221,7 +221,7 @@ public:
         OPERA_TEST_EQUALS(history.presences_in(first).size(), 2)
         OPERA_TEST_EQUALS(history.presences_exiting_into(second).size(), 2)
         OPERA_TEST_PRINT(history.samples(first))
-        OPERA_TEST_ASSERT(decide(history.samples(first).at(0).at(0).error() > 0))
+        OPERA_TEST_ASSERT(history.samples(first).at(0).at(0).error() > 0)
         auto history_trace = history.discrete_trace();
         OPERA_TEST_PRINT(history_trace)
         auto expected_trace = RobotDiscreteTrace().push_back(first).push_back(second).push_back(first).push_back(second);
@@ -230,7 +230,7 @@ public:
 
     void test_robot_state_history_analytics() {
         Ariadne::StringVariable robot("robot");
-        Robot r("r0", 10, {{0,1}}, {FloatType(1.0, Ariadne::dp)});
+        Robot r("r0", 10, {{0,1}}, {1.0});
         RobotStateHistory history(&r);
 
         DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth"), fifth(robot|"fifth");
@@ -266,11 +266,11 @@ public:
         OPERA_TEST_EQUALS(history.presences_exiting_into(fourth).size(),1)
         OPERA_TEST_EQUALS(history.presences_exiting_into(fifth).size(),0)
 
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<Natural>(2u, 3u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(second), Interval<Natural>(1u, 3u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(third), Interval<Natural>(1u, 2u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(fourth), Interval<Natural>(0u, 0u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_in(fifth), Interval<Natural>(0u, 0u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(first), Interval<SizeType>(2u, 3u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(second), Interval<SizeType>(1u, 3u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(third), Interval<SizeType>(1u, 2u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(fourth), Interval<SizeType>(0u, 0u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_in(fifth), Interval<SizeType>(0u, 0u))
 
         OPERA_TEST_EQUALS(history.presences_between(first,third).size(),1)
         OPERA_TEST_EQUALS(history.presences_between(first,second).size(),1)
@@ -279,10 +279,10 @@ public:
         OPERA_TEST_EQUALS(history.presences_between(third,first).size(),0)
         OPERA_TEST_EQUALS(history.presences_between(second,fourth).size(),1)
 
-        OPERA_TEST_EQUALS(history.range_of_num_samples_between(third,first),Interval<Natural>(0u, 0u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_between(first,second),Interval<Natural>(2u, 2u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_between(first,third),Interval<Natural>(3u, 3u))
-        OPERA_TEST_EQUALS(history.range_of_num_samples_between(third,second),Interval<Natural>(1u, 2u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_between(third,first),Interval<SizeType>(0u, 0u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_between(first,second),Interval<SizeType>(2u, 2u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_between(first,third),Interval<SizeType>(3u, 3u))
+        OPERA_TEST_EQUALS(history.range_of_num_samples_between(third,second),Interval<SizeType>(1u, 2u))
     }
 };
 
