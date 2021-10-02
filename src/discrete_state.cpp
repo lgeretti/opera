@@ -63,7 +63,7 @@ bool operator==(const DiscreteState& q1, const DiscreteState& q2) {
         }
     }
     if(q1iter!=q1sm.end() || q2iter!=q2sm.end()) { identical=false; }
-    OPERA_ASSERT_MSG(identical,"Locations "<<q1<<" and "<<q2<<" are not identical, but no values differ.");
+    OPERA_ASSERT_MSG(identical,"Locations "<<q1<<" and "<<q2<<" have different key values, hence they are not comparable.");
     return true;
 }
 
