@@ -43,7 +43,7 @@ class TestBrokerAccess {
     }
 
     void test_create_destroy() {
-        BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
+        BodyStatePacket p("robot0",DiscreteState({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
 
         OPERA_PRINT_TEST_COMMENT("Creating subscriber and removing it")
         auto* subscriber = _access.make_body_state_subscriber([](auto){});
@@ -63,7 +63,7 @@ class TestBrokerAccess {
         BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {1.0,0.5});
         List<BodyPresentationPacket> bp_received;
 
-        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.append(p); });
+        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.push_back(p); });
         auto bp_publisher = _access.make_body_presentation_publisher();
         bp_publisher->put(hp);
 
@@ -84,16 +84,16 @@ class TestBrokerAccess {
         BodyPresentationPacket hp("human1", {{0, 1},{3, 2}}, {1.0,0.5});
         BodyPresentationPacket rp("robot1", 30, {{0, 1},{3, 2},{4, 2}}, {1.0,0.5, 0.5});
         BodyStatePacket hs("human0",{{Point(0.4,2.1,0.2)},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{Point(0.4,0.1,1.2)},{Point(0,0,1)}},3423235253290);
-        BodyStatePacket rs("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
-        CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
+        BodyStatePacket rs("robot0",DiscreteState({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
+        CollisionNotificationPacket cn("h0",0,"r0",3,DiscreteState({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
 
         List<BodyPresentationPacket> bp_received;
         List<BodyStatePacket> bs_received;
         List<CollisionNotificationPacket> cn_received;
 
-        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.append(p); });
-        auto bs_subscriber = _access.make_body_state_subscriber([&](auto p){ bs_received.append(p); });
-        auto cn_subscriber = _access.make_collision_notification_subscriber([&](auto p){ cn_received.append(p); });
+        auto bp_subscriber = _access.make_body_presentation_subscriber([&](auto p){ bp_received.push_back(p); });
+        auto bs_subscriber = _access.make_body_state_subscriber([&](auto p){ bs_received.push_back(p); });
+        auto cn_subscriber = _access.make_collision_notification_subscriber([&](auto p){ cn_received.push_back(p); });
         auto bp_publisher = _access.make_body_presentation_publisher();
         auto bs_publisher = _access.make_body_state_publisher();
         auto cn_publisher = _access.make_collision_notification_publisher();

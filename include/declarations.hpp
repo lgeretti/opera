@@ -27,11 +27,14 @@
 
 #include <cstring>
 #include <numeric>
+#include <vector>
 
 namespace Opera {
 
 typedef double FloatType;
 typedef FloatType PositiveFloatType;
+template<class T> using List = std::vector<T>;
+template<class T1, class T2> using Pair = std::pair<T1,T2>;
 
 using SizeType = size_t;
 

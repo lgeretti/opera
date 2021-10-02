@@ -22,7 +22,6 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/container.hpp>
 #include "geometry.hpp"
 #include "profile.hpp"
 
@@ -42,7 +41,7 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_centre() {
-        Ariadne::List<Box> bbs;
+        List<Box> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
             auto pt2 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
@@ -53,7 +52,7 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_hull() {
-        Ariadne::List<Point> heads, tails;
+        List<Point> heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {
             heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
@@ -63,7 +62,7 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_circle_radius() {
-        Ariadne::List<Box> bbs;
+        List<Box> bbs;
         for (SizeType i=0; i<num_tries(); ++i) {
             auto pt1 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
             auto pt2 = Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0));
@@ -74,7 +73,7 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_point_point_distance() {
-        Ariadne::List<Point> p1, p2;
+        List<Point> p1, p2;
         for (SizeType i=0; i<num_tries(); ++i) {
             p1.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
             p2.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
@@ -84,7 +83,7 @@ struct ProfileGeometry : public Profiler {
     }
 
     void profile_point_segment_distance() {
-        Ariadne::List<Point> points, heads, tails;
+        List<Point> points, heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {
             points.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
             heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
@@ -98,7 +97,7 @@ struct ProfileGeometry : public Profiler {
     void profile_segment_segment_distance() {
         Point s1h(1.0,3.0,-2.0);
         Point s1t(4.0,1.2,0);
-        Ariadne::List<Point> heads, tails;
+        List<Point> heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {
             heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));

@@ -52,12 +52,12 @@ class NoCollisionScenario {
         while (true) {
             auto filepath = Resources::path("json/scenarios/human/nocollision/"+std::to_string(idx++)+".json");
             if (not exists(filepath)) break;
-            human_packets.append(Deserialiser<BodyStatePacket>(filepath).make());
+            human_packets.push_back(Deserialiser<BodyStatePacket>(filepath).make());
         }
 
         List<HumanStateInstance> instances;
         for (auto pkt : human_packets) {
-            instances.append(HumanStateInstance(human,pkt.points(),pkt.timestamp()));
+            instances.push_back(HumanStateInstance(human,pkt.points(),pkt.timestamp()));
         }
     }
 
@@ -80,7 +80,7 @@ class NoCollisionScenario {
                 history.acquire(pkt.location(),pkt.points(),pkt.timestamp());
             }
             auto trace = history.discrete_trace();
-            traces.append(trace);
+            traces.push_back(trace);
             std::ofstream txt;
             txt.open((std::to_string(folder)+".txt").c_str(), std::ios::out | std::ios::binary);
             txt << trace;

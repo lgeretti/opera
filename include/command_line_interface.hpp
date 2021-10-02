@@ -26,16 +26,14 @@
 #define OPERA_COMMAND_LINE_INTERFACE_HPP
 
 #include <queue>
+#include <functional>
 #include "declarations.hpp"
 #include "macros.hpp"
-#include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
-#include <ariadne/utility/container.hpp>
 
 namespace Opera {
 
 using Ariadne::Handle;
-using Ariadne::List;
 template<class T> using Set = std::set<T>;
 
 using VoidFunction = std::function<void()>;

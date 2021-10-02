@@ -22,7 +22,6 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/container.hpp>
 #include "thread.hpp"
 #include "declarations.hpp"
 #include "utility.hpp"
@@ -57,11 +56,11 @@ class TestThread {
     void test_atomic_multiple_threads() const {
         SizeType n_threads = 10*std::thread::hardware_concurrency();
         OPERA_TEST_PRINT(n_threads)
-        Ariadne::List<std::shared_ptr<Thread>> threads;
+        List<std::shared_ptr<Thread>> threads;
 
         std::atomic<SizeType> a = 0;
         for (SizeType i=0; i<n_threads; ++i) {
-            threads.append(std::make_shared<Thread>([&a] { a++; }));
+            threads.push_back(std::make_shared<Thread>([&a] { a++; }));
         }
 
         std::this_thread::sleep_for(100ms);

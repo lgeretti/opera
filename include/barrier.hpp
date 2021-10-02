@@ -36,18 +36,18 @@ class MinimumDistanceBarrier {
     friend MinimumDistanceBarrierTrace;
   protected:
     //! \brief Construct from fields
-    MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index);
+    MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteState const& farthest_location, SizeType const& maximum_index);
     //! \brief Increase the maximum index
     void increase_maximum_index();
     //! \brief Set the maximum index to zero (used when the location changes)
     void reset_maximum_index();
     //! \brief Change the location
-    void set_farthest_location(DiscreteLocation const& location);
+    void set_farthest_location(DiscreteState const& location);
   public:
     //! \brief The minimum distance from the spherical approximation sample
     PositiveFloatType const& minimum_distance() const;
     //! \brief The farthest location with this minimum distance
-    DiscreteLocation const& farthest_location() const;
+    DiscreteState const& farthest_location() const;
     //! \brief The maximum index in the farthest location for which this minimum distance holds
     SizeType const& maximum_index() const;
 
@@ -56,7 +56,7 @@ class MinimumDistanceBarrier {
 
   private:
     PositiveFloatType const _minimum_distance;
-    DiscreteLocation _farthest_location;
+    DiscreteState _farthest_location;
     SizeType _maximum_index;
 };
 
@@ -76,13 +76,13 @@ class MinimumDistanceBarrierTrace {
     //! \brief The number of barriers
     SizeType size() const;
     //! \brief Add a barrier to the end of the trace
-    void add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance);
+    void add_barrier(DiscreteState const& farthest_location, PositiveFloatType const& minimum_distance);
     //! \brief Remove the first barrier of the trace
     //! \details Used when recognising that the barrier is outdated, i.e., before the current timestamp
     void remove_barrier();
     //! \brief Check the spherical approximation with a robot \a sample in \a location, to update the last barrier or create a new one
     //! \returns True if something was updated or created, false otherwise
-    bool try_update_with(DiscreteLocation const& location, BodySegmentSample const& robot_sample);
+    bool try_update_with(DiscreteState const& location, BodySegmentSample const& robot_sample);
 
     //! \brief The minimum distance by the latest barrier
     PositiveFloatType const& current_minimum_distance() const;

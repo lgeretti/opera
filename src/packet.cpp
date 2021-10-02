@@ -53,17 +53,17 @@ List<FloatType> const& BodyPresentationPacket::thicknesses() const {
     return _thicknesses;
 }
 
-BodyStatePacket::BodyStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
+BodyStatePacket::BodyStatePacket(BodyIdType const& id, DiscreteState const& location, List<List<Point>> const& points, TimestampType const& timestamp) :
     _id(id), _location(location), _points(points), _timestamp(timestamp) { }
 
 BodyStatePacket::BodyStatePacket(BodyIdType const& id, List<List<Point>> const& points, TimestampType const& timestamp) :
-    BodyStatePacket(id,DiscreteLocation(),points,timestamp) { }
+    BodyStatePacket(id,DiscreteState({}),points,timestamp) { }
 
 BodyIdType const& BodyStatePacket::id() const {
     return _id;
 }
 
-DiscreteLocation const& BodyStatePacket::location() const {
+DiscreteState const& BodyStatePacket::location() const {
     return _location;
 }
 
@@ -76,7 +76,7 @@ TimestampType const& BodyStatePacket::timestamp() const {
 }
 
 CollisionNotificationPacket::CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                            DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time, PositiveFloatType const& likelihood) :
+                            DiscreteState const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time, PositiveFloatType const& likelihood) :
     _human_id(human_id), _human_segment_id(human_segment_id), _robot_id(robot_id), _robot_segment_id(robot_segment_id), _discrete_state(discrete_state),
     _lower_collision_time(lower_collision_time), _upper_collision_time(upper_collision_time), _likelihood(likelihood) { }
 
@@ -96,7 +96,7 @@ IdType const& CollisionNotificationPacket::robot_segment_id() const {
     return _robot_segment_id;
 }
 
-DiscreteLocation const& CollisionNotificationPacket::discrete_state() const {
+DiscreteState const& CollisionNotificationPacket::discrete_state() const {
     return _discrete_state;
 }
 

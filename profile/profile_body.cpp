@@ -22,7 +22,6 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/hybrid/discrete_location.hpp>
 #include "body.hpp"
 #include "profile.hpp"
 
@@ -61,13 +60,13 @@ struct ProfileBody : public Profiler {
         auto s = segment.create_sample();
         s.update({Point(0, 0, 0)},{Point(5, 5, 5)});
 
-        Ariadne::List<Point> heads, tails;
+        List<Point> heads, tails;
         for (SizeType i=0; i<num_tries(); ++i) {
             heads.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Body segment sample update",[&](SizeType i){ s.update(heads.at(i), tails.at(i)); });
+        profile("Body segment sample update",[&](SizeType i){ s.update({heads.at(i)}, {tails.at(i)}); });
     }
 };
 

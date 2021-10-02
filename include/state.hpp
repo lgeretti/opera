@@ -25,21 +25,18 @@
 #ifndef OPERA_STATE_HPP
 #define OPERA_STATE_HPP
 
-#include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
-#include <ariadne/hybrid/discrete_location.hpp>
-#include <ariadne/utility/string.hpp>
+#include <deque>
 #include "body.hpp"
 #include "utility.hpp"
 #include "interval.hpp"
+#include "discrete_state.hpp"
 
 namespace Opera {
 
 using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
-using Ariadne::List;
-using Ariadne::DiscreteLocation;
 
 //! \brief Holds the state of a human
 class HumanStateInstance {
@@ -60,11 +57,11 @@ class HumanStateInstance {
 class RobotLocationPresence {
   public:
     //! \brief Construct from a \a source, \a exit_destination, \a from and \a to for entrance/exit in the source location
-    RobotLocationPresence(DiscreteLocation const& location, DiscreteLocation const& exit_destination, TimestampType const& from, TimestampType const& to);
+    RobotLocationPresence(DiscreteState const& location, DiscreteState const& exit_destination, TimestampType const& from, TimestampType const& to);
     //! \brief The location of presence
-    DiscreteLocation const& location() const;
+    DiscreteState const& location() const;
     //! \brief The destination location after exiting
-    DiscreteLocation const& exit_destination() const;
+    DiscreteState const& exit_destination() const;
     //! \brief The timestamp of entrance
     TimestampType const& from() const;
     //! \brief The timestamp of exit
@@ -73,8 +70,8 @@ class RobotLocationPresence {
     //! \brief Print to the standard output
     friend std::ostream& operator<<(std::ostream& os, RobotLocationPresence const& p);
   private:
-    DiscreteLocation const _location;
-    DiscreteLocation const _exit_destination;
+    DiscreteState const _location;
+    DiscreteState const _exit_destination;
     TimestampType const _from;
     TimestampType const _to;
 };
@@ -88,19 +85,19 @@ class RobotDiscreteTrace {
     RobotDiscreteTrace(RobotDiscreteTrace const& other);
 
     //! \brief The locations in the trace at \a idx
-    DiscreteLocation at(SizeType const& idx) const;
+    DiscreteState at(SizeType const& idx) const;
 
     //! \brief The probability of this trace
     PositiveFloatType const& probability() const;
 
     //! \brief The next locations with their probability, which accounts for the probability of this trace
     //! \details This is computed lazily
-    Map<DiscreteLocation,PositiveFloatType> const& next_locations() const;
+    Map<DiscreteState,PositiveFloatType> const& next_locations() const;
 
     //! \brief Add to the head of the trace
-    RobotDiscreteTrace& push_front(DiscreteLocation const& location);
+    RobotDiscreteTrace& push_front(DiscreteState const& location);
     //! \brief Add to the tail of the trace
-    RobotDiscreteTrace& push_back(DiscreteLocation const& location, PositiveFloatType const& probability = 1.0);
+    RobotDiscreteTrace& push_back(DiscreteState const& location, PositiveFloatType const& probability = 1.0);
 
     //! \brief The number of locations
     SizeType size() const;
@@ -114,47 +111,47 @@ class RobotDiscreteTrace {
     friend std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t);
 
   private:
-    std::deque<DiscreteLocation> _locations;
+    std::deque<DiscreteState> _locations;
     PositiveFloatType _probability;
-    mutable Map<DiscreteLocation,PositiveFloatType> _next_locations;
+    mutable Map<DiscreteState,PositiveFloatType> _next_locations;
 };
 
 //! \brief Holds the states reached by a robot up to now
 class RobotStateHistory {
     typedef List<BodySegmentSample> SegmentTemporalSamplesType;
     typedef List<SegmentTemporalSamplesType> BodySamplesType;
-    typedef Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
+    typedef Map<DiscreteState,BodySamplesType> LocationSamplesType;
   public:
     RobotStateHistory(Robot const* robot);
     RobotStateHistory(RobotStateHistory const& other) = delete;
   public:
     //! \brief Acquire the \a state to be ultimately held into the hystory
     //! \details Hystory will not be effectively updated till the location changes
-    void acquire(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
+    void acquire(DiscreteState const& location, List<List<Point>> const& points, TimestampType const& timestamp);
 
     //! \brief The current location
-    DiscreteLocation const& current_location() const;
+    DiscreteState const& current_location() const;
 
     //! \brief The discrete trace
     RobotDiscreteTrace discrete_trace() const;
 
     //! \brief Whether there are samples registered for the \a location
     //! \details Until the location changes, samples acquired are not registered
-    bool has_samples(DiscreteLocation const& location) const;
+    bool has_samples(DiscreteState const& location) const;
 
     //! \brief The samples in a given \a location
-    BodySamplesType const& samples(DiscreteLocation const& location) const;
+    BodySamplesType const& samples(DiscreteState const& location) const;
 
     //! \brief The presences in a given \a location
-    List<RobotLocationPresence> presences_in(DiscreteLocation const& location) const;
+    List<RobotLocationPresence> presences_in(DiscreteState const& location) const;
     //! \brief The presences exiting into a given \a location
-    List<RobotLocationPresence> presences_exiting_into(DiscreteLocation const& location) const;
+    List<RobotLocationPresence> presences_exiting_into(DiscreteState const& location) const;
     //! \brief The presences between a \a source and \a destination locations
-    List<RobotLocationPresence> presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const;
+    List<RobotLocationPresence> presences_between(DiscreteState const& source, DiscreteState const& destination) const;
     //! \brief The range of number of samples acquired in a given location
-    Interval<SizeType> range_of_num_samples_in(DiscreteLocation const& location) const;
+    Interval<SizeType> range_of_num_samples_in(DiscreteState const& location) const;
     //! \brief The range of number of samples that are acquired when in \a source going into \a target
-    Interval<SizeType> range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const;
+    Interval<SizeType> range_of_num_samples_between(DiscreteState const& source, DiscreteState const& target) const;
   private:
     //! \brief Find the index of the sample to update given the current \a timestamp
     SizeType _update_index(TimestampType const& timestamp) const;
@@ -164,7 +161,7 @@ class RobotStateHistory {
   private:
     std::deque<RobotLocationPresence> _location_presences;
     LocationSamplesType _location_states;
-    DiscreteLocation _current_location;
+    DiscreteState _current_location;
     BodySamplesType _current_location_states_buffer;
     Robot const* _robot;
 };

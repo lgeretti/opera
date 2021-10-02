@@ -47,14 +47,14 @@ TimestampType const& HumanStateInstance::timestamp() const {
     return _timestamp;
 }
 
-RobotLocationPresence::RobotLocationPresence(DiscreteLocation const& location, DiscreteLocation const& exit_destination, TimestampType const& from, TimestampType const& to) :
+RobotLocationPresence::RobotLocationPresence(DiscreteState const& location, DiscreteState const& exit_destination, TimestampType const& from, TimestampType const& to) :
 _location(location), _exit_destination(exit_destination), _from(from), _to(to) { }
 
-DiscreteLocation const& RobotLocationPresence::location() const {
+DiscreteState const& RobotLocationPresence::location() const {
     return _location;
 }
 
-DiscreteLocation const& RobotLocationPresence::exit_destination() const {
+DiscreteState const& RobotLocationPresence::exit_destination() const {
     return _exit_destination;
 }
 
@@ -75,13 +75,13 @@ RobotDiscreteTrace::RobotDiscreteTrace() : _probability(1.0) { }
 RobotDiscreteTrace::RobotDiscreteTrace(RobotDiscreteTrace const& other) :
     _locations(other._locations), _probability(other._probability), _next_locations(other._next_locations) { }
 
-RobotDiscreteTrace& RobotDiscreteTrace::push_front(DiscreteLocation const& location) {
+RobotDiscreteTrace& RobotDiscreteTrace::push_front(DiscreteState const& location) {
     _locations.push_front(location);
     _next_locations.clear();
     return *this;
 }
 
-RobotDiscreteTrace& RobotDiscreteTrace::push_back(DiscreteLocation const& location, PositiveFloatType const& probability) {
+RobotDiscreteTrace& RobotDiscreteTrace::push_back(DiscreteState const& location, PositiveFloatType const& probability) {
     _locations.push_back(location);
     _next_locations.clear();
     _probability *= probability;
@@ -92,7 +92,7 @@ SizeType RobotDiscreteTrace::size() const {
     return _locations.size();
 }
 
-DiscreteLocation RobotDiscreteTrace::at(SizeType const& idx) const {
+DiscreteState RobotDiscreteTrace::at(SizeType const& idx) const {
     OPERA_PRECONDITION(idx < _locations.size())
     return _locations.at(idx);
 }
@@ -113,22 +113,22 @@ RobotDiscreteTrace& RobotDiscreteTrace::operator=(RobotDiscreteTrace const& othe
 }
 
 std::ostream& operator<<(std::ostream& os, RobotDiscreteTrace const& t) {
-    List<DiscreteLocation> locations;
+    List<DiscreteState> locations;
     for (auto l : t._locations)
         locations.push_back(l);
     return os << "{" << locations << ", p:" << t._probability << "}";
 }
 
 struct RobotDiscreteTraceBacktracking {
-    RobotDiscreteTraceBacktracking(SizeType const& index_, RobotDiscreteTrace const& trace_, DiscreteLocation const& _next_location, bool const& _is_valid)
+    RobotDiscreteTraceBacktracking(SizeType const& index_, RobotDiscreteTrace const& trace_, DiscreteState const& _next_location, bool const& _is_valid)
         : index(index_), trace(trace_), next_location(_next_location), is_valid(_is_valid) { }
     SizeType index;
     RobotDiscreteTrace trace;
-    DiscreteLocation next_location;
+    DiscreteState next_location;
     bool is_valid;
 };
 
-Map<DiscreteLocation,PositiveFloatType> const& RobotDiscreteTrace::next_locations() const {
+Map<DiscreteState,PositiveFloatType> const& RobotDiscreteTrace::next_locations() const {
     if (_next_locations.empty()) {
         List<RobotDiscreteTraceBacktracking> tracking;
         for (SizeType i=0; i<_locations.size()-1; ++i)
@@ -178,7 +178,7 @@ RobotStateHistory::RobotStateHistory(Robot const* robot) :
         _current_location_states_buffer.push_back(List<BodySegmentSample>());
 }
 
-DiscreteLocation const& RobotStateHistory::current_location() const {
+DiscreteState const& RobotStateHistory::current_location() const {
     return _current_location;
 }
 
@@ -189,35 +189,35 @@ RobotDiscreteTrace RobotStateHistory::discrete_trace() const {
     return trace;
 }
 
-bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {
+bool RobotStateHistory::has_samples(DiscreteState const& location) const {
     return _location_states.has_key(location);
 }
 
-auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodySamplesType const& {
+auto RobotStateHistory::samples(DiscreteState const& location) const -> BodySamplesType const& {
     return _location_states.at(location);
 }
 
-List<RobotLocationPresence> RobotStateHistory::presences_in(DiscreteLocation const& location) const {
+List<RobotLocationPresence> RobotStateHistory::presences_in(DiscreteState const& location) const {
     List<RobotLocationPresence> result;
     for (auto const& p : _location_presences)
         if ((not p.location().values().empty()) and p.location() == location)
-            result.append(p);
+            result.push_back(p);
     return result;
 }
 
-List<RobotLocationPresence> RobotStateHistory::presences_between(DiscreteLocation const& source, DiscreteLocation const& destination) const {
+List<RobotLocationPresence> RobotStateHistory::presences_between(DiscreteState const& source, DiscreteState const& destination) const {
     List<RobotLocationPresence> result;
     for (auto const& p : _location_presences)
         if ((not p.location().values().empty()) and p.location() == source and p.exit_destination() == destination)
-            result.append(p);
+            result.push_back(p);
     return result;
 }
 
-List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteLocation const& location) const {
+List<RobotLocationPresence> RobotStateHistory::presences_exiting_into(DiscreteState const& location) const {
     List<RobotLocationPresence> result;
     for (auto const& p : _location_presences)
         if (p.exit_destination() == location)
-            result.append(p);
+            result.push_back(p);
     return result;
 }
 
@@ -235,11 +235,11 @@ Interval<SizeType> RobotStateHistory::_range_of_num_samples_within(List<RobotLoc
     return Interval<SizeType>(min_value,max_value);
 }
 
-Interval<SizeType> RobotStateHistory::range_of_num_samples_in(DiscreteLocation const& location) const {
+Interval<SizeType> RobotStateHistory::range_of_num_samples_in(DiscreteState const& location) const {
     return _range_of_num_samples_within(presences_in(location));
 }
 
-Interval<SizeType> RobotStateHistory::range_of_num_samples_between(DiscreteLocation const& source, DiscreteLocation const& target) const {
+Interval<SizeType> RobotStateHistory::range_of_num_samples_between(DiscreteState const& source, DiscreteState const& target) const {
     return _range_of_num_samples_within(presences_between(source,target));
 }
 
@@ -247,7 +247,7 @@ SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const 
     return floor(double(timestamp- _location_presences.back().to()) / 1e9 * _robot->packet_frequency());
 }
 
-void RobotStateHistory::acquire(DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp) {
+void RobotStateHistory::acquire(DiscreteState const& location, List<List<Point>> const& points, TimestampType const& timestamp) {
     /*
      * 1) If the location is different from the current one (including the first location inserted)
      *   a) Save the buffered content

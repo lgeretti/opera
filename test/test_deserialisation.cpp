@@ -65,7 +65,7 @@ public:
     }
 
     void test_bodystatepacket_make() {
-        DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
+        DiscreteState loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
         Deserialiser<BodyStatePacket> d(Resources::path("json/examples/state/robot0.json"));
         auto p = d.make();
         OPERA_TEST_EQUALS(p.id(),"r0")
@@ -84,7 +84,7 @@ public:
     }
 
     void test_collisiondetectionpacket_make() {
-        DiscreteLocation loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
+        DiscreteState loc({{"origin","3"},{"destination","2"},{"phase","pre"}});
         Deserialiser<CollisionNotificationPacket> d(Resources::path("json/examples/notification/notification0.json"));
         auto p = d.make();
         OPERA_TEST_EQUALS(p.human_id(),"h0")

@@ -22,25 +22,21 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/hybrid/discrete_location.hpp>
-#include <ariadne/utility/container.hpp>
 #include "deserialisation.hpp"
+#include "discrete_state.hpp"
 
 namespace Opera {
 
 using namespace rapidjson;
-using Ariadne::StringVariable;
-using Ariadne::Map;
-using Ariadne::String;
 
 BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
     List<Pair<IdType,IdType>> point_ids;
     for (auto& extremes : _document["pointIds"].GetArray())
-        point_ids.append(std::make_pair(extremes[0].GetUint(),extremes[1].GetUint()));
+        point_ids.push_back(std::make_pair(extremes[0].GetUint(),extremes[1].GetUint()));
 
     List<FloatType> thicknesses;
     for (auto& thickness : _document["thicknesses"].GetArray())
-        thicknesses.append(thickness.GetDouble());
+        thicknesses.push_back(thickness.GetDouble());
 
     if (_document["isHuman"].GetBool())
         return BodyPresentationPacket(_document["id"].GetString(), point_ids, thicknesses);
@@ -49,25 +45,25 @@ BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
 }
 
 BodyStatePacket Deserialiser<BodyStatePacket>::make() const {
-    Map<StringVariable,String> discrete_state_values;
+    Map<String,String> discrete_state_values;
     if (_document.HasMember("discreteState"))
         for (auto& v : _document["discreteState"].GetObject())
-            discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
+            discrete_state_values.insert(std::make_pair(v.name.GetString(),v.value.GetString()));
     List<List<Point>> points;
     for (auto& point_samples : _document["continuousState"].GetArray()) {
         List<Point> samples;
         for (auto& pt : point_samples.GetArray())
-            samples.append(Point(pt[0].GetDouble(),pt[1].GetDouble(),pt[2].GetDouble()));
-        points.append(samples);
+            samples.push_back(Point(pt[0].GetDouble(),pt[1].GetDouble(),pt[2].GetDouble()));
+        points.push_back(samples);
     }
 
-    return BodyStatePacket(_document["bodyId"].GetString(),DiscreteLocation(discrete_state_values),points,_document["timestamp"].GetUint64());
+    return BodyStatePacket(_document["bodyId"].GetString(),DiscreteState(discrete_state_values),points,_document["timestamp"].GetUint64());
 }
 
 CollisionNotificationPacket Deserialiser<CollisionNotificationPacket>::make() const {
-    Map<StringVariable,String> discrete_state_values;
+    Map<String,String> discrete_state_values;
     for (auto& v : _document["discreteState"].GetObject())
-        discrete_state_values.insert(std::make_pair(StringVariable(v.name.GetString()),v.value.GetString()));
+        discrete_state_values.insert(std::make_pair(v.name.GetString(),v.value.GetString()));
 
     return CollisionNotificationPacket(_document["human"]["bodyId"].GetString(),
                                        _document["human"]["segmentId"].GetUint(),

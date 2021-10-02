@@ -211,7 +211,7 @@ CommandLineInterface::CommandLineInterface() : _parsers({
 
 bool CommandLineInterface::acquire(int argc, const char* argv[]) const {
     List<std::string> args;
-    for (int i = 0; i < argc; ++i) args.append(std::string(argv[i]));
+    for (int i = 0; i < argc; ++i) args.push_back(std::string(argv[i]));
     return acquire(args);
 }
 

@@ -27,14 +27,14 @@
 
 namespace Opera {
 
-MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteLocation const& farthest_location, SizeType const& maximum_index) :
+MinimumDistanceBarrier::MinimumDistanceBarrier(PositiveFloatType const& minimum_distance, DiscreteState const& farthest_location, SizeType const& maximum_index) :
     _minimum_distance(minimum_distance), _farthest_location(farthest_location), _maximum_index(maximum_index) { }
 
 PositiveFloatType const& MinimumDistanceBarrier::minimum_distance() const {
     return _minimum_distance;
 }
 
-DiscreteLocation const& MinimumDistanceBarrier::farthest_location() const {
+DiscreteState const& MinimumDistanceBarrier::farthest_location() const {
     return _farthest_location;
 }
 
@@ -42,7 +42,7 @@ SizeType const& MinimumDistanceBarrier::maximum_index() const {
     return _maximum_index;
 }
 
-void MinimumDistanceBarrier::set_farthest_location(DiscreteLocation const& location) {
+void MinimumDistanceBarrier::set_farthest_location(DiscreteState const& location) {
     _farthest_location = location;
 }
 
@@ -79,7 +79,7 @@ SizeType MinimumDistanceBarrierTrace::size() const {
     return _barriers.size();
 }
 
-void MinimumDistanceBarrierTrace::add_barrier(DiscreteLocation const& farthest_location, PositiveFloatType const& minimum_distance) {
+void MinimumDistanceBarrierTrace::add_barrier(DiscreteState const& farthest_location, PositiveFloatType const& minimum_distance) {
     _barriers.push_back(MinimumDistanceBarrier(minimum_distance,farthest_location,_next_index));
 }
 
@@ -88,7 +88,7 @@ void MinimumDistanceBarrierTrace::remove_barrier() {
     _barriers.pop_front();
 }
 
-bool MinimumDistanceBarrierTrace::try_update_with(DiscreteLocation const& location, BodySegmentSample const& segment_sample) {
+bool MinimumDistanceBarrierTrace::try_update_with(DiscreteState const& location, BodySegmentSample const& segment_sample) {
     auto current_distance = distance(_spherical_approximation,segment_sample);
     if (current_distance > 0) {
         if (current_distance<current_minimum_distance()) {

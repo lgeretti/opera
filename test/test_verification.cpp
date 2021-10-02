@@ -28,8 +28,6 @@
 
 using namespace Opera;
 
-using Ariadne::StringVariable;
-
 class TestVerification {
   public:
     void test() {
@@ -38,8 +36,7 @@ class TestVerification {
 
     void test_verification_trace_creation() {
         TimestampType const initial_time = 349234;
-        StringVariable robot("robot");
-        DiscreteLocation const initial_location(robot|"first");
+        DiscreteState const initial_location({"robot","first"});
         VerificationTrace trace = SimpleVerificationTrace("h0",2u,"r0",3u,initial_time,initial_location);
         OPERA_TEST_EQUALS(trace.human_id(),"h0")
         OPERA_TEST_EQUALS(trace.human_segment_id(),2u)

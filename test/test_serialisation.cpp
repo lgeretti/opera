@@ -60,14 +60,14 @@ public:
     }
 
     void test_bodystatepacket_robot() {
-        BodyStatePacket p("robot0",DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
+        BodyStatePacket p("robot0",DiscreteState({{"origin","3"},{"destination","2"},{"phase","pre"}}),{{},{Point(0,-1,0.1),Point(0.3,3.1,-1.2)},{}},93249042230);
         Serialiser<BodyStatePacket> serialiser(p);
         serialiser.to_file(Resources::path("json/examples/state/" + p.id() + ".tmp.json"));
         OPERA_TEST_EQUALS(serialiser.to_string(),"{\"bodyId\":\"robot0\",\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"continuousState\":[[],[[0.0,-1.0,0.1],[0.3,3.1,-1.2]],[]],\"timestamp\":93249042230}")
     }
 
     void test_collisionnotificationpacket() {
-        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteLocation({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
+        CollisionNotificationPacket p("h0",0,"r0",3,DiscreteState({{"origin","3"},{"destination","2"},{"phase","pre"}}), 328903284232, 328905923301, 0.5);
         Serialiser<CollisionNotificationPacket> serialiser(p);
         serialiser.to_file(Resources::path("json/examples/notification/notification0.tmp.json"));
         OPERA_TEST_EQUALS(serialiser.to_string(),"{\"human\":{\"bodyId\":\"h0\",\"segmentId\":0},\"robot\":{\"bodyId\":\"r0\",\"segmentId\":3},\"discreteState\":{\"destination\":\"2\",\"origin\":\"3\",\"phase\":\"pre\"},\"collisionTime\":{\"lower\":328903284232,\"upper\":328905923301},\"likelihood\":0.5}")

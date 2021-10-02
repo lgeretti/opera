@@ -25,18 +25,15 @@
 #ifndef OPERA_VERIFICATION_HPP
 #define OPERA_VERIFICATION_HPP
 
-#include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
-#include <ariadne/utility/string.hpp>
 #include "barrier.hpp"
+#include "discrete_state.hpp"
 
 namespace Opera {
 
 using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
-using Ariadne::List;
-using Ariadne::DiscreteLocation;
 using Ariadne::Handle;
 
 //! \brief Interface for a trace of verification data
@@ -53,7 +50,7 @@ class VerificationTraceInterface {
     //! \brief The time from which verification would start
     virtual TimestampType const& initial_time() const = 0;
     //! \brief The location from which verification would start
-    virtual DiscreteLocation const& initial_robot_discrete_state() const = 0;
+    virtual DiscreteState const& initial_robot_discrete_state() const = 0;
     //! \brief The current discrete trace of the robot
     virtual RobotDiscreteTrace const& robot_discrete_trace() const = 0;
 };
@@ -63,7 +60,7 @@ class VerificationTraceBase : public VerificationTraceInterface {
   protected:
     //! \brief Constructor from body and segment coordinates
     VerificationTraceBase(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                          TimestampType const& initial_time, DiscreteLocation const& initial_robot_discrete_state);
+                          TimestampType const& initial_time, DiscreteState const& initial_robot_discrete_state);
   public:
     //! \brief Interface accessors
     BodyIdType const& human_id() const;
@@ -71,7 +68,7 @@ class VerificationTraceBase : public VerificationTraceInterface {
     BodyIdType const& robot_id() const;
     IdType const& robot_segment_id() const;
     TimestampType const& initial_time() const;
-    DiscreteLocation const& initial_robot_discrete_state() const;
+    DiscreteState const& initial_robot_discrete_state() const;
     RobotDiscreteTrace const& robot_discrete_trace() const;
   protected:
     BodyIdType const _human_id;
@@ -79,7 +76,7 @@ class VerificationTraceBase : public VerificationTraceInterface {
     BodyIdType const _robot_id;
     IdType const _robot_segment_id;
     TimestampType const _initial_time;
-    DiscreteLocation const _initial_robot_discrete_state;
+    DiscreteState const _initial_robot_discrete_state;
     RobotDiscreteTrace _robot_discrete_trace;
 };
 
@@ -87,7 +84,7 @@ class VerificationTraceBase : public VerificationTraceInterface {
 class SimpleVerificationTrace : public VerificationTraceBase {
   public:
     SimpleVerificationTrace(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                            TimestampType const& initial_time, DiscreteLocation const& initial_robot_discrete_state);
+                            TimestampType const& initial_time, DiscreteState const& initial_robot_discrete_state);
 };
 
 //! \brief Handle class for a verification trace
@@ -100,7 +97,7 @@ class VerificationTrace : public Handle<VerificationTraceInterface> {
     BodyIdType const& robot_id() const { return _ptr->robot_id(); }
     IdType const& robot_segment_id() const { return _ptr->robot_segment_id(); }
     TimestampType const& initial_time() const { return _ptr->initial_time(); }
-    DiscreteLocation const& initial_robot_discrete_state() const { return _ptr->initial_robot_discrete_state(); }
+    DiscreteState const& initial_robot_discrete_state() const { return _ptr->initial_robot_discrete_state(); }
     RobotDiscreteTrace const& robot_discrete_trace() const { return _ptr->robot_discrete_trace(); }
 };
 

@@ -10,6 +10,7 @@ add_library(OPERA_SRC OBJECT
    deserialisation.cpp
    memory.cpp
    mqtt.cpp
+   discrete_state.cpp
    barrier.cpp
    verification.cpp
 )

@@ -47,14 +47,14 @@ public:
     }
 
     void test_robot_discrete_state_trace_creation() {
-        Ariadne::StringVariable robot("robot");
-        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third");
+        String robot("robot");
+        DiscreteState first({robot,"first"}), second({robot,"second"}), third({robot,"third"});
 
         RobotDiscreteTrace trace;
         trace.push_front(second).push_back(first).push_back(second).push_front(third);
         OPERA_TEST_EQUALS(trace.size(),4)
 
-        List<DiscreteLocation> locations = {third,second,first,second};
+        List<DiscreteState> locations = {third,second,first,second};
 
         OPERA_TEST_EQUALS(trace.at(0),third)
         OPERA_TEST_EQUALS(trace.at(1),second)
@@ -68,8 +68,8 @@ public:
     }
 
     void test_robot_discrete_state_trace_next_locations() {
-        Ariadne::StringVariable r("r");
-        DiscreteLocation a(r|"a"), b(r|"b"), c(r|"c"), d(r|"d");
+        String r("r");
+        DiscreteState a({r,"a"}), b({r,"b"}), c({r,"c"}), d({r,"d"});
 
         // abcabd -> *****d -> {}
         auto next1 = RobotDiscreteTrace().push_back(a).push_back(b).push_back(c).push_back(a).push_back(b).
@@ -168,17 +168,17 @@ public:
      }
 
     void test_robot_state_history_basics() {
-        Ariadne::StringVariable robot("robot");
+        String robot("robot");
         Robot r("r0", 10, {{3, 2},{1, 0}}, {1.0, 0.5});
         RobotStateHistory history(&r);
 
-        DiscreteLocation empty_location;
+        DiscreteState empty_location;
         OPERA_TEST_ASSERT(history.current_location().values().empty())
         OPERA_TEST_ASSERT(history.presences_in(empty_location).empty())
         OPERA_TEST_ASSERT(history.presences_exiting_into(empty_location).empty())
         OPERA_TEST_FAIL(history.samples(empty_location))
 
-        DiscreteLocation first(robot|"first"), second(robot|"second");
+        DiscreteState first({robot,"first"}), second({robot,"second"});
 
         history.acquire(first,{{Point(0,0,0)},{Point(4,4,4)},{Point(0,2,0)},{Point(1,0,3)}},5e8);
         OPERA_TEST_FAIL(history.samples(first))
@@ -229,11 +229,11 @@ public:
     }
 
     void test_robot_state_history_analytics() {
-        Ariadne::StringVariable robot("robot");
+        String robot("robot");
         Robot r("r0", 10, {{0,1}}, {1.0});
         RobotStateHistory history(&r);
 
-        DiscreteLocation first(robot|"first"), second(robot|"second"), third(robot|"third"), fourth(robot|"fourth"), fifth(robot|"fifth");
+        DiscreteState first({robot,"first"}), second({robot,"second"}), third({robot,"third"}), fourth({robot,"fourth"}), fifth({robot,"fifth"});
 
         TimestampType ts = 0u;
         history.acquire(first,{{Point(0,0,0)},{Point(4,4,4)}},ts); ts+= 1e8;

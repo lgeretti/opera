@@ -31,10 +31,9 @@
 #include <cstdio>
 #include <csignal>
 #include <cstring>
-#include <tuple>
+#include <functional>
 
 #include <ariadne/utility/handle.hpp>
-#include <ariadne/utility/container.hpp>
 #include "packet.hpp"
 
 namespace Opera {

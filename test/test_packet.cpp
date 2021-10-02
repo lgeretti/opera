@@ -28,8 +28,6 @@
 
 using namespace Opera;
 
-using Ariadne::StringVariable;
-
 class TestPacket {
 public:
     void test() {
@@ -66,7 +64,7 @@ public:
     }
 
     void test_robot_state_packet_create() {
-        DiscreteLocation loc(StringVariable("r0")|"first");
+        DiscreteState loc({"r0","first"});
         BodyStatePacket p("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},2e8);
         OPERA_TEST_EQUALS(p.id(),"r0")
         OPERA_TEST_EQUALS(p.location(),loc)
@@ -75,7 +73,7 @@ public:
     }
 
     void test_notification_packet_create() {
-        DiscreteLocation loc(StringVariable("r0")|"first");
+        DiscreteState loc({"r0","first"});
         CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8,1.0);
 
         OPERA_TEST_EQUALS(p.human_id(),"h0")

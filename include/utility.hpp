@@ -27,7 +27,7 @@
 
 #include <filesystem>
 #include <map>
-#include <ariadne/utility/string.hpp>
+#include "declarations.hpp"
 #include "config.hpp"
 
 using FilePath = std::filesystem::path;
@@ -48,6 +48,13 @@ template<class K, class V> class Map : public std::map<K,V> {
   public:
     bool has_key(K const& key) const { return this->find(key) != this->end(); }
 };
+
+template<class T> std::ostream& operator<<(std::ostream& os, List<T> const& l) {
+    if (l.empty()) return os << "[]";
+    os << "[" << l.at(0);
+    for (SizeType i=1;i<l.size();++i) os << "," << l.at(i);
+    return os << "]";
+}
 
 }
 

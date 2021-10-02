@@ -31,47 +31,45 @@
 
 namespace Opera {
 
-struct Vector {
-    Vector(FloatType x_, FloatType y_, FloatType z_) : x(x_), y(y_), z(z_) { }
+struct Point {
+    Point(FloatType x_, FloatType y_, FloatType z_) : x(x_), y(y_), z(z_) { }
     FloatType x;
     FloatType y;
     FloatType z;
 
-    friend std::ostream& operator<<(std::ostream& os, const Vector& v) {
+    friend std::ostream& operator<<(std::ostream& os, const Point& v) {
         return os << "(" << v.x << "," << v.y << "," << v.z << ")"; }
 };
 
-using Point = Vector;
-
-inline FloatType dot(Vector const& v1, Vector const& v2) {
+inline FloatType dot(Point const& v1, Point const& v2) {
     return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;
 }
 
-inline Vector operator-(Vector const& v1, Vector const& v2) {
-    return Vector({v1.x-v2.x, v1.y-v2.y, v1.z-v2.z });
+inline Point operator-(Point const& v1, Point const& v2) {
+    return Point({v1.x-v2.x, v1.y-v2.y, v1.z-v2.z });
 }
 
-inline Vector operator+(Vector const& v1, Vector const& v2) {
-    return Vector({v1.x+v2.x, v1.y+v2.y, v1.z+v2.z });
+inline Point operator+(Point const& v1, Point const& v2) {
+    return Point({v1.x+v2.x, v1.y+v2.y, v1.z+v2.z });
 }
 
-inline Vector operator*(FloatType const& s, Vector const& v) {
-    return Vector({s*v.x, s*v.y, s*v.z});
+inline Point operator*(FloatType const& s, Point const& v) {
+    return Point({s*v.x, s*v.y, s*v.z});
 }
 
-inline Vector operator/(Vector const& v, unsigned int c) {
-    return Vector({v.x/c, v.y/c, v.z/c});
+inline Point operator/(Point const& v, unsigned int c) {
+    return Point({v.x/c, v.y/c, v.z/c});
 }
 
-inline Vector operator*(Vector const& v, FloatType const& s) {
+inline Point operator*(Point const& v, FloatType const& s) {
     return s*v;
 }
 
-inline Vector operator*(Vector const& v1, Vector const& v2) {
-    return Vector({v1.y*v2.z-v1.z*v2.y, v1.z*v2.x-v1.x*v2.z, v1.x*v2.y-v1.y*v2.x});
+inline Point operator*(Point const& v1, Point const& v2) {
+    return Point({v1.y*v2.z-v1.z*v2.y, v1.z*v2.x-v1.x*v2.z, v1.x*v2.y-v1.y*v2.x});
 }
 
-inline bool operator==(Vector const& v1, Vector const& v2) {
+inline bool operator==(Point const& v1, Point const& v2) {
     return v1.x == v2.x and v1.y == v2.y and v1.z == v2.z;
 }
 

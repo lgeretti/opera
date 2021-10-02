@@ -25,19 +25,15 @@
 #ifndef OPERA_PACKET_HPP
 #define OPERA_PACKET_HPP
 
-#include <ariadne/hybrid/discrete_location.hpp>
-#include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
 #include "geometry.hpp"
+#include "discrete_state.hpp"
 
 namespace Opera {
 
 using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
-using Ariadne::List;
-template<class T1, class T2> using Pair = std::pair<T1,T2>;
-using Ariadne::DiscreteLocation;
 
 //! \brief A representation of an inbound packet for the presentation of a body
 class BodyPresentationPacket {
@@ -69,20 +65,20 @@ class BodyPresentationPacket {
 class BodyStatePacket {
   public:
     //! \brief Construct from an id, a location, a list of samples for each point, and a \a timestamp
-    BodyStatePacket(BodyIdType const& id, DiscreteLocation const& location, List<List<Point>> const& points, TimestampType const& timestamp);
+    BodyStatePacket(BodyIdType const& id, DiscreteState const& location, List<List<Point>> const& points, TimestampType const& timestamp);
     //! \brief Construct without a location
     BodyStatePacket(BodyIdType const& id, List<List<Point>> const& points, TimestampType const& timestamp);
     //! \brief The id of the related body
     BodyIdType const& id() const;
     //! \brief The location
-    DiscreteLocation const& location() const;
+    DiscreteState const& location() const;
     //! \brief The samples for each point
     List<List<Point>> const& points() const;
     //! \brief The timestamp associated with the packet
     TimestampType const& timestamp() const;
   private:
     BodyIdType const _id;
-    DiscreteLocation const _location;
+    DiscreteState const _location;
     List<List<Point>> const _points;
     TimestampType const _timestamp;
 };
@@ -92,7 +88,7 @@ class CollisionNotificationPacket {
   public:
     //! \brief Construct from fields
     CollisionNotificationPacket(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                                DiscreteLocation const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time,
+                                DiscreteState const& discrete_state, TimestampType const& lower_collision_time, TimestampType const& upper_collision_time,
                                 PositiveFloatType const& likelihood);
 
     //! \brief The identifier of the human
@@ -104,7 +100,7 @@ class CollisionNotificationPacket {
     //! \brief The identifier of the segment for the robot
     IdType const& robot_segment_id() const;
     //! \brief The discrete state of the robot
-    DiscreteLocation const& discrete_state() const;
+    DiscreteState const& discrete_state() const;
     //! \brief The lower bound on the collision time
     TimestampType const& lower_collision_time() const;
     //! \brief The upper bound on the collision time
@@ -117,7 +113,7 @@ class CollisionNotificationPacket {
     IdType const _human_segment_id;
     BodyIdType const _robot_id;
     IdType const _robot_segment_id;
-    DiscreteLocation const _discrete_state;
+    DiscreteState const _discrete_state;
     TimestampType const _lower_collision_time;
     TimestampType const _upper_collision_time;
     PositiveFloatType const _likelihood;

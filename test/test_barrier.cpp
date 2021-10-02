@@ -28,8 +28,6 @@
 
 using namespace Opera;
 
-using Ariadne::StringVariable;
-
 class TestBarrier {
   public:
     void test() {
@@ -43,7 +41,7 @@ class TestBarrier {
 
     void test_barrier_trace_create() {
         Human h("h0", {{0, 1},{3, 2}}, {1.0,1.0});
-        auto hs = h.segment(1).create_sample(Point(0,0,0),Point(2,2,2));
+        auto hs = h.segment(1).create_sample({Point(0,0,0)},{Point(2,2,2)});
         MinimumDistanceBarrierTrace trace(hs,3);
         OPERA_TEST_PRINT(trace)
         OPERA_TEST_EQUALS(trace.human_segment_id(),1)
@@ -56,9 +54,9 @@ class TestBarrier {
 
     void test_barrier_trace_add_remove() {
         Human h("r0", {{0, 1}}, {1.0});
-        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,2,2));
+        auto hs = h.segment(0).create_sample({Point(0,0,0)},{Point(2,2,2)});
         PositiveFloatType distance = 0.5;
-        DiscreteLocation loc(StringVariable(h.id())|"first");
+        DiscreteState loc({h.id(),"first"});
         MinimumDistanceBarrierTrace trace(hs,0);
         trace.add_barrier(loc,distance);
         OPERA_TEST_ASSERT(not trace.is_empty())
@@ -76,17 +74,17 @@ class TestBarrier {
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {1.0});
 
-        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto hs = h.segment(0).create_sample({Point(0,0,0)},{Point(2,0,0)});
 
-        DiscreteLocation loc(StringVariable(r.id())|"first");
+        DiscreteState loc({r.id(),"first"});
         MinimumDistanceBarrierTrace trace1(hs,0);
         List<BodySegmentSample> robot_samples;
 
-        robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(0,4,0),Point(1,4,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(1,3,0),Point(2,3,0)));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-3,7,0)},{Point(-2,7,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-2,6,0)},{Point(-1,6,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-1,5,0)},{Point(0,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(0,4,0)},{Point(1,4,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(1,3,0)},{Point(2,3,0)}));
         for (auto s : robot_samples) if (not trace1.try_update_with(loc,s)) break;
         OPERA_TEST_ASSERT(not trace1.try_update_with(loc,robot_samples.at(4)))
         OPERA_TEST_EQUALS(trace1.size(),4)
@@ -95,12 +93,12 @@ class TestBarrier {
 
         MinimumDistanceBarrierTrace trace2(hs,0);
         robot_samples.clear();
-        robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-3,6,0),Point(-2,6,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-2,5,0),Point(-1,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-1,4,0),Point(0,4,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(0,3,0),Point(1,3,0)));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-3,7,0)},{Point(-2,7,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-2,6,0)},{Point(-1,6,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-3,6,0)},{Point(-2,6,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-2,5,0)},{Point(-1,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-1,4,0)},{Point(0,4,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(0,3,0)},{Point(1,3,0)}));
         for (auto s : robot_samples) if (not trace2.try_update_with(loc,s)) break;
         OPERA_TEST_EQUALS(trace2.size(),4)
         OPERA_TEST_EQUALS(trace2.next_index(),5)
@@ -108,13 +106,13 @@ class TestBarrier {
 
         MinimumDistanceBarrierTrace trace3(hs,0);
         robot_samples.clear();
-        robot_samples.append(r.segment(0).create_sample(Point(-3,7,0),Point(-2,7,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-2,6,0),Point(-1,6,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(-1,5,0),Point(0,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(0,5,0),Point(1,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(1,5,0),Point(2,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(2,5,0),Point(3,5,0)));
-        robot_samples.append(r.segment(0).create_sample(Point(3,5,0),Point(4,5,0)));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-3,7,0)},{Point(-2,7,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-2,6,0)},{Point(-1,6,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(-1,5,0)},{Point(0,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(0,5,0)},{Point(1,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(1,5,0)},{Point(2,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(2,5,0)},{Point(3,5,0)}));
+        robot_samples.push_back(r.segment(0).create_sample({Point(3,5,0)},{Point(4,5,0)}));
         for (auto s : robot_samples) if (not trace3.try_update_with(loc,s)) break;
         OPERA_TEST_EQUALS(trace3.size(),4)
         OPERA_TEST_EQUALS(trace3.next_index(),7)
@@ -126,11 +124,11 @@ class TestBarrier {
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {1.0});
 
-        auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
+        auto hs1 = h.segment(0).create_sample({Point(4,5,0)},{Point(5,5,0)});
 
-        DiscreteLocation first(StringVariable(r.id())|"first");
-        DiscreteLocation second(StringVariable(r.id())|"second");
-        DiscreteLocation third(StringVariable(r.id())|"third");
+        DiscreteState first({r.id(),"first"});
+        DiscreteState second({r.id(),"second"});
+        DiscreteState third({r.id(),"third"});
         MinimumDistanceBarrierTrace trace(hs1,0);
         RobotStateHistory history(&r);
         history.acquire(first,{{Point(-3,7,0)},{Point(-2,7,0)}},0);
@@ -148,15 +146,15 @@ class TestBarrier {
         for (auto s : history.samples(second).at(trace.robot_segment_id())) if (not trace.try_update_with(second,s)) break;
         OPERA_TEST_PRINT(trace)
 
-        auto hs2 = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0)).spherical_approximation();
+        auto hs2 = h.segment(0).create_sample({Point(4.1,5,0)},{Point(5,5,0)}).spherical_approximation();
         auto element = trace.resume_element(hs2);
         OPERA_TEST_EQUALS(element,(int)trace.size()-1)
 
-        auto hs3 = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0)).spherical_approximation();
+        auto hs3 = h.segment(0).create_sample({Point(5,5,0)},{Point(5,5,0)}).spherical_approximation();
         element = trace.resume_element(hs3);
         OPERA_TEST_ASSERT(element < (int)trace.size()-1)
 
-        auto hs4 = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0)).spherical_approximation();
+        auto hs4 = h.segment(0).create_sample({Point(10,10,0)},{Point(10,10,0)}).spherical_approximation();
         element = trace.resume_element(hs4);
         OPERA_TEST_EQUALS(element,-1)
     }
@@ -165,11 +163,11 @@ class TestBarrier {
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {1.0});
 
-        auto hs1 = h.segment(0).create_sample(Point(4,5,0),Point(5,5,0));
+        auto hs1 = h.segment(0).create_sample({Point(4,5,0)},{Point(5,5,0)});
 
-        DiscreteLocation first(StringVariable(r.id())|"first");
-        DiscreteLocation second(StringVariable(r.id())|"second");
-        DiscreteLocation third(StringVariable(r.id())|"third");
+        DiscreteState first({r.id(),"first"});
+        DiscreteState second({r.id(),"second"});
+        DiscreteState third({r.id(),"third"});
         MinimumDistanceBarrierTrace trace1(hs1,0);
         RobotStateHistory history(&r);
         history.acquire(first,{{Point(-3,7,0)},{Point(-2,7,0)}},0);
@@ -189,19 +187,19 @@ class TestBarrier {
         MinimumDistanceBarrierTrace trace2 = trace1;
         MinimumDistanceBarrierTrace trace3 = trace1;
 
-        auto hs1_new = h.segment(0).create_sample(Point(4.1,5,0),Point(5,5,0));
+        auto hs1_new = h.segment(0).create_sample({Point(4.1,5,0)},{Point(5,5,0)});
         OPERA_TEST_PRINT(trace1)
         trace1.reset(hs1_new,history);
         OPERA_TEST_PRINT(trace1)
         OPERA_TEST_EQUALS(trace1.barrier(trace1.size()-1).farthest_location(),second)
         OPERA_TEST_EQUALS(trace1.barrier(trace1.size()-1).maximum_index(),0)
 
-        auto hs2_new = h.segment(0).create_sample(Point(5,5,0),Point(5,5,0));
+        auto hs2_new = h.segment(0).create_sample({Point(5,5,0)},{Point(5,5,0)});
         trace2.reset(hs2_new,history);
         OPERA_TEST_PRINT(trace2)
         OPERA_TEST_EQUALS(trace2.barrier(trace2.size()-1).farthest_location(),first)
 
-        auto hs3_new = h.segment(0).create_sample(Point(10,10,0),Point(10,10,0));
+        auto hs3_new = h.segment(0).create_sample({Point(10,10,0)},{Point(10,10,0)});
         trace3.reset(hs3_new,history);
         OPERA_TEST_ASSERT(trace3.is_empty())
     }

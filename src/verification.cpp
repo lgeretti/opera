@@ -28,7 +28,7 @@
 namespace Opera {
 
 VerificationTraceBase::VerificationTraceBase(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-                                             TimestampType const& initial_time, DiscreteLocation const& initial_robot_discrete_state)
+                                             TimestampType const& initial_time, DiscreteState const& initial_robot_discrete_state)
     : _human_id(human_id), _human_segment_id(human_segment_id), _robot_id(robot_id), _robot_segment_id(robot_segment_id), _initial_time(initial_time),
       _initial_robot_discrete_state(initial_robot_discrete_state) { }
 
@@ -53,7 +53,7 @@ TimestampType const& VerificationTraceBase::initial_time() const {
     return _initial_time;
 }
 
-DiscreteLocation const& VerificationTraceBase::initial_robot_discrete_state() const {
+DiscreteState const& VerificationTraceBase::initial_robot_discrete_state() const {
     return _initial_robot_discrete_state;
 }
 
@@ -62,7 +62,7 @@ RobotDiscreteTrace const& VerificationTraceBase::robot_discrete_trace() const {
 }
 
 SimpleVerificationTrace::SimpleVerificationTrace(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,
-            TimestampType const& initial_time, DiscreteLocation const& initial_robot_discrete_state)
+            TimestampType const& initial_time, DiscreteState const& initial_robot_discrete_state)
             : VerificationTraceBase(human_id,human_segment_id,robot_id,robot_segment_id,initial_time,initial_robot_discrete_state) { }
 
 }

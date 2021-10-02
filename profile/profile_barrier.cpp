@@ -27,8 +27,6 @@
 
 using namespace Opera;
 
-using Ariadne::StringVariable;
-
 struct ProfileBarrier : public Profiler {
 
     ProfileBarrier() : Profiler(1e5) { }
@@ -42,13 +40,13 @@ struct ProfileBarrier : public Profiler {
     void profile_apply_to_trace() {
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {1.0});
-        auto hs = h.segment(0).create_sample(Point(0,0,0),Point(2,0,0));
+        auto hs = h.segment(0).create_sample({Point(0,0,0)},{Point(2,0,0)});
 
-        DiscreteLocation first(StringVariable(r.id())|"first");
+        DiscreteState first({r.id(),"first"});
         MinimumDistanceBarrierTrace trace1(hs,0);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
-            rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
+            rss.push_back(r.segment(0).create_sample({Point(0,5+i,0)},{Point(2,6+i,0)}));
         }
 
         profile("Update trace with sample (decreasing distance)",[&](SizeType i){ trace1.try_update_with(first,rss.at(i)); });
@@ -56,7 +54,7 @@ struct ProfileBarrier : public Profiler {
         MinimumDistanceBarrierTrace trace2(hs,0);
         rss.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
-            rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
+            rss.push_back(r.segment(0).create_sample({Point(4+i,4,0)},{Point(6+i,4,0)}));
         }
 
         profile("Update trace with sample (increasing distance)",[&](SizeType i){ trace2.try_update_with(first,rss.at(i)); });
@@ -67,9 +65,9 @@ struct ProfileBarrier : public Profiler {
         const SizeType override_num_tries = 100;
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {0.5});
-        auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
+        auto hs = h.segment(0).create_sample({Point(ns,ns,0)},{Point(ns+2,ns,0)});
 
-        DiscreteLocation first(StringVariable(r.id())|"first");
+        DiscreteState first({r.id(),"first"});
         List<MinimumDistanceBarrierTrace> ts;
         List<SphericalApproximationSample> beginning_sas, middle_sas, end_sas;
         for (SizeType i=0; i<override_num_tries; ++i) {
@@ -78,22 +76,22 @@ struct ProfileBarrier : public Profiler {
             for (SizeType j=0; j<ns;++j) {
                 Point new_head(last_head.x+rnd().get(0.99,1.01),last_head.y+rnd().get(0.99,1.01),0.0);
                 Point new_tail(new_head.x+2,new_head.y,new_head.z);
-                trace.try_update_with(first,r.segment(0).create_sample(new_head,new_tail));
+                trace.try_update_with(first,r.segment(0).create_sample({new_head},{new_tail}));
                 last_head = new_head;
             }
-            ts.append(trace);
+            ts.push_back(trace);
 
             Point beginning_head_sa(rnd().get(0.9,1.1),rnd().get(0.9,1.1),0.0);
             Point beginning_tail_sa(beginning_head_sa.x+2,beginning_head_sa.y,beginning_head_sa.z);
-            beginning_sas.append(h.segment(0).create_sample(beginning_head_sa,beginning_tail_sa).spherical_approximation());
+            beginning_sas.push_back(h.segment(0).create_sample({beginning_head_sa},{beginning_tail_sa}).spherical_approximation());
 
             Point middle_head_sa(ns/2*rnd().get(0.9,1.1),ns/2*rnd().get(0.9,1.1),0.0);
             Point middle_tail_sa(middle_head_sa.x+2,middle_head_sa.y,middle_head_sa.z);
-            middle_sas.append(h.segment(0).create_sample(middle_head_sa,middle_tail_sa).spherical_approximation());
+            middle_sas.push_back(h.segment(0).create_sample({middle_head_sa},{middle_tail_sa}).spherical_approximation());
 
             Point end_head_sa(ns*rnd().get(0.9,1.1),ns*rnd().get(0.9,1.1),0.0);
             Point end_tail_sa(end_head_sa.x+2,end_head_sa.y,end_head_sa.z);
-            end_sas.append(h.segment(0).create_sample(end_head_sa,end_tail_sa).spherical_approximation());
+            end_sas.push_back(h.segment(0).create_sample({end_head_sa},{end_tail_sa}).spherical_approximation());
         }
 
         profile("Find resume element (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_element(beginning_sas.at(i)); },override_num_tries);
@@ -106,10 +104,10 @@ struct ProfileBarrier : public Profiler {
         const SizeType override_num_tries = 1;
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {0.5});
-        auto hs = h.segment(0).create_sample(Point(ns,ns,0),Point(ns+2,ns,0));
+        auto hs = h.segment(0).create_sample({Point(ns,ns,0)},{Point(ns+2,ns,0)});
 
-        DiscreteLocation first(StringVariable(r.id())|"first");
-        DiscreteLocation second(StringVariable(r.id())|"second");
+        DiscreteState first({r.id(),"first"});
+        DiscreteState second({r.id(),"second"});
         MinimumDistanceBarrierTrace trace(hs,0);
         RobotStateHistory history(&r);
         for (SizeType i=0; i<ns; ++i) {
@@ -119,7 +117,7 @@ struct ProfileBarrier : public Profiler {
 
         List<BodySegmentSample> hss;
         for (SizeType i=ns; i>0; --i) {
-            hss.append(h.segment(0).create_sample(Point(ns+i,0,0),Point(ns+i,2,0)));
+            hss.push_back(h.segment(0).create_sample({Point(ns+i,0,0)},{Point(ns+i,2,0)}));
         }
 
         auto const& samples = history.samples(first).at(trace.robot_segment_id());

@@ -25,10 +25,9 @@
 #ifndef OPERA_BODY_HPP
 #define OPERA_BODY_HPP
 
-#include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
-#include <ariadne/utility/string.hpp>
-#include <ariadne/hybrid/discrete_location.hpp>
+#include "declarations.hpp"
+#include "discrete_state.hpp"
 #include "geometry.hpp"
 
 namespace Opera {
@@ -36,9 +35,6 @@ namespace Opera {
 using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
-using Ariadne::List;
-template<class T1, class T2> using Pair = std::pair<T1,T2>;
-using Ariadne::DiscreteLocation;
 
 class BodySegment;
 

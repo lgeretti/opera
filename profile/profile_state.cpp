@@ -41,7 +41,7 @@ struct ProfileState : public Profiler {
         FloatType thickness = 1.0;
         Human h("h0", {{0, 1}}, {thickness});
 
-        Ariadne::List<BodyStatePacket> pkts;
+        List<BodyStatePacket> pkts;
         for (SizeType i=0; i<num_tries(); ++i) {
             pkts.push_back(BodyStatePacket(h.id(),{{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                               {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
@@ -54,12 +54,11 @@ struct ProfileState : public Profiler {
     void profile_robot_history_acquirement_and_update() {
         FloatType thickness = 1.0;
         Robot r("r0", 10, {{0, 1}}, {thickness});
-        Ariadne::StringVariable robot("robot");
         RobotStateHistory history(&r);
 
-        Ariadne::List<BodyStatePacket> pkts;
+        List<BodyStatePacket> pkts;
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkts.push_back(BodyStatePacket(r.id(),DiscreteLocation(robot|"first"),
+            pkts.push_back(BodyStatePacket(r.id(),DiscreteState({"robot","first"}),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                                     {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                                     10*i));
@@ -67,14 +66,14 @@ struct ProfileState : public Profiler {
 
         profile("Acquire robot packet for new location",[&](SizeType i){ history.acquire(pkts.at(i).location(),pkts.at(i).points(),pkts.at(i).timestamp()); });
 
-        history.acquire(DiscreteLocation(robot|"second"),
+        history.acquire(DiscreteState({"robot","second"}),
                                          {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                           {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                           10000010);
 
         pkts.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
-            pkts.push_back(BodyStatePacket(r.id(),DiscreteLocation(robot|"first"),
+            pkts.push_back(BodyStatePacket(r.id(),DiscreteState({"robot","first"}),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
                                              10000020+10*i));

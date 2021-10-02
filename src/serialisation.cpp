@@ -22,8 +22,8 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/hybrid/discrete_location.hpp>
 #include "serialisation.hpp"
+#include "discrete_state.hpp"
 
 namespace Opera {
 
@@ -69,7 +69,7 @@ Document Serialiser<BodyStatePacket>::to_document() const {
     id.SetString(obj.id().c_str(),obj.id().length());
     document.AddMember("bodyId",id,allocator);
 
-    if (not obj.location().values().empty()) {
+    if (not obj.location().is_empty()) {
         Value discreteState;
         discreteState.SetObject();
         for (auto v : obj.location().values()) {
