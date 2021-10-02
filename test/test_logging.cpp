@@ -184,13 +184,13 @@ class TestLogging {
 
     void test_handles_multiline_output() {
         SizeType num_cols = num_columns();
-
+        OPERA_PRINT_TEST_COMMENT("Number of window columns: " << num_cols)
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(2);
         Logger::instance().configuration().set_handles_multiline_output(true);
-        OPERA_LOG_PRINTLN("<begin>" << std::string(' ',num_cols) << "<end>")
+        OPERA_LOG_PRINTLN("<begin>" << std::string(num_cols,' ') << "<end>")
         Logger::instance().configuration().set_handles_multiline_output(false);
-        OPERA_LOG_PRINTLN("<begin>" << std::string(' ',num_cols) << "<end>")
+        OPERA_LOG_PRINTLN("<begin>" << std::string(num_cols,' ') << "<end>")
     }
 
     void test_discards_newlines_and_indentation() {
