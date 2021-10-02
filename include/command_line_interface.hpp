@@ -36,7 +36,7 @@ namespace Opera {
 
 using Ariadne::Handle;
 using Ariadne::List;
-using Ariadne::Set;
+template<class T> using Set = std::set<T>;
 
 using VoidFunction = std::function<void()>;
 
