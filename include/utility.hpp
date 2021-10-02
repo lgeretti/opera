@@ -26,6 +26,7 @@
 #define OPERA_UTILITY_HPP
 
 #include <filesystem>
+#include <map>
 #include <ariadne/utility/string.hpp>
 #include "config.hpp"
 
@@ -41,6 +42,12 @@ class Resources {
 };
 
 template<class T> inline std::string to_string(const T& t) { std::stringstream ss; ss << t; return ss.str(); }
+
+//! \brief Soft wrapper to expose the key finding functionality
+template<class K, class V> class Map : public std::map<K,V> {
+  public:
+    bool has_key(K const& key) const { return this->find(key) != this->end(); }
+};
 
 }
 

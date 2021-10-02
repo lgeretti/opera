@@ -26,8 +26,6 @@
 #include "macros.hpp"
 #include "body.hpp"
 
-using Ariadne::Map;
-
 namespace Opera {
 
 Body::Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, List<FloatType> const& thicknesses) :

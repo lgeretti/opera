@@ -30,6 +30,7 @@
 #include <ariadne/hybrid/discrete_location.hpp>
 #include <ariadne/utility/string.hpp>
 #include "body.hpp"
+#include "utility.hpp"
 #include "interval.hpp"
 
 namespace Opera {
@@ -38,7 +39,6 @@ using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
-using Ariadne::Map;
 using Ariadne::DiscreteLocation;
 
 //! \brief Holds the state of a human
@@ -123,7 +123,7 @@ class RobotDiscreteTrace {
 class RobotStateHistory {
     typedef List<BodySegmentSample> SegmentTemporalSamplesType;
     typedef List<SegmentTemporalSamplesType> BodySamplesType;
-    typedef Ariadne::Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
+    typedef Map<DiscreteLocation,BodySamplesType> LocationSamplesType;
   public:
     RobotStateHistory(Robot const* robot);
     RobotStateHistory(RobotStateHistory const& other) = delete;

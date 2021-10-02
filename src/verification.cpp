@@ -25,8 +25,6 @@
 #include "macros.hpp"
 #include "verification.hpp"
 
-using Ariadne::Map;
-
 namespace Opera {
 
 VerificationTraceBase::VerificationTraceBase(BodyIdType const& human_id, IdType const& human_segment_id, BodyIdType const& robot_id, IdType const& robot_segment_id,

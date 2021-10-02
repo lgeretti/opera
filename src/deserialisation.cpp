@@ -23,13 +23,14 @@
  */
 
 #include <ariadne/hybrid/discrete_location.hpp>
+#include <ariadne/utility/container.hpp>
 #include "deserialisation.hpp"
 
 namespace Opera {
 
 using namespace rapidjson;
-using Ariadne::Map;
 using Ariadne::StringVariable;
+using Ariadne::Map;
 using Ariadne::String;
 
 BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {

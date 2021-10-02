@@ -25,8 +25,6 @@
 #include "macros.hpp"
 #include "state.hpp"
 
-using Ariadne::Map;
-
 namespace Opera {
 
 HumanStateInstance::HumanStateInstance(Human const& human, List<List<Point>> const& points, TimestampType const& timestamp) : _timestamp(timestamp) {
@@ -196,7 +194,7 @@ bool RobotStateHistory::has_samples(DiscreteLocation const& location) const {
 }
 
 auto RobotStateHistory::samples(DiscreteLocation const& location) const -> BodySamplesType const& {
-    return _location_states.get(location);
+    return _location_states.at(location);
 }
 
 List<RobotLocationPresence> RobotStateHistory::presences_in(DiscreteLocation const& location) const {
