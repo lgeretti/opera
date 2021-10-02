@@ -887,23 +887,16 @@ std::string Logger::_apply_theme(std::string const& text) const {
     } else return text;
 }
 
-bool isalpha_withstylecodes(std::string text, size_t pos) {
+bool isalphanumeric_withstylecodes(std::string text, size_t pos) {
     auto c = text.at(pos);
-    if (not isalpha(c)) {
+    if (not isalpha(c) and not isdigit(c)) {
         return false;
     } else if (c == 'm' and pos > 2) { // If this is the last character of a feasible style code
         auto sub = text.substr(pos-3,3);
-        // Check for reset or bold or underline
-        if (sub == "\u001b[0" or sub == "\u001b[1" or sub == "\u001b[4") return false;
-        else if (isdigit(text.at(pos-1)) and pos > 8) { // If this is a feasible font/bg color (at 1,2 or 3 digits)
-            if (text.substr(pos-8,7) == "\u001b[38;5;" or text.substr(pos-8,7) == "\u001b[48;5;") return false;
-            else if (isdigit(text.at(pos-2)) and pos > 9) {
-                if (text.substr(pos-9,7) == "\u001b[38;5;" or text.substr(pos-9,7) == "\u001b[48;5;") return false;
-                else if (isdigit(text.at(pos-3)) and pos > 10) {
-                    if (text.substr(pos-10,7) == "\u001b[38;5;" or text.substr(pos-10,7) == "\u001b[48;5;") return false;
-                    else return true;
-                } else return true;
-            } else return true;
+        // Check for reset code
+        if (sub == "\u001b[0") {
+            if (isalpha(text.at(pos-4)) or isdigit(text.at(pos-4))) return true;
+            else return false;
         } else return true;
     } else return true;
 }
@@ -924,7 +917,7 @@ std::string Logger::_apply_theme_for_keywords(std::string const& text) const {
         size_t scan_pos = 0;
         while ((kw_pos  = result.find(kws.first,scan_pos)) != std::string::npos) {
             // Apply the theme only if the keyword is not adjacent to an alphanumerical character
-            if ((kw_pos > 0 and (isalpha_withstylecodes(result,kw_pos-1) or isdigit(result.at(kw_pos-1)))) or
+            if ((kw_pos > 0 and isalphanumeric_withstylecodes(result,kw_pos-1)) or
                 (kw_pos+kw_length < result.length() and (isalpha(result.at(kw_pos+kw_length)) or isdigit(result.at(kw_pos+kw_length)))))
                 current_result << result.substr(scan_pos,kw_pos-scan_pos+kw_length);
             else
