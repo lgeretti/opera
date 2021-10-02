@@ -29,6 +29,7 @@
 
 namespace Opera {
 
+//! \brief Helper class to display progress percentage when holding text in Logger
 class ProgressIndicator {
   public:
     ProgressIndicator(double final_value = 0.0) : _final_value(final_value), _current_value(0u), _step(0u) { }

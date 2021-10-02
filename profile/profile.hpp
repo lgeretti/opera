@@ -24,7 +24,7 @@
 
 #include <functional>
 #include <iostream>
-#include <ariadne/utility/stopwatch.hpp>
+#include "stopwatch.hpp"
 #include "declarations.hpp"
 
 using namespace Opera;
@@ -61,7 +61,7 @@ class Profiler {
     }
 
   private:
-    Ariadne::Stopwatch<Ariadne::Microseconds> _sw;
+    Stopwatch<Microseconds> _sw;
     Randomiser _rnd;
     const SizeType _num_tries;
 };
