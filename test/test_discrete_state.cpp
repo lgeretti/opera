@@ -56,8 +56,20 @@ class TestDiscreteState {
         OPERA_TEST_ASSERT(state1 < state3)
         OPERA_TEST_ASSERT(state4 < state3)
         OPERA_TEST_ASSERT(not (state1 == state3))
-        OPERA_TEST_FAIL(state4 == state2)
-        OPERA_TEST_FAIL(state2 == state4)
+        try {
+            bool result = (state4 == state2);
+            OPERA_PRINT_TEST_COMMENT("Error: expected exception, got " << result)
+            ++OPERA_TEST_FAILURES;
+        } catch (...) {
+            OPERA_PRINT_TEST_COMMENT("Exception caught as expected")
+        }
+        try {
+            bool result = (state2 == state4);
+            OPERA_PRINT_TEST_COMMENT("Error: expected exception, got " << result)
+            ++OPERA_TEST_FAILURES;
+        } catch (...) {
+            OPERA_PRINT_TEST_COMMENT("Exception caught as expected")
+        }
     }
 };
 
