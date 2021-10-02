@@ -69,7 +69,7 @@ struct ProfileGeometry : public Profiler {
             bbs.push_back(hull(pt1,pt2));
         }
 
-        profile("Bounding box circle error",[&](SizeType i){ bbs.at(i).circle_radius(); });
+        profile("Bounding box circle radius",[&](SizeType i){ bbs.at(i).circle_radius(); });
     }
 
     void profile_point_point_distance() {
@@ -79,7 +79,7 @@ struct ProfileGeometry : public Profiler {
             p2.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Point distance",[&](SizeType i){ distance(p1.at(i),p2.at(i)); });
+        profile("Point-point distance",[&](SizeType i){ distance(p1.at(i),p2.at(i)); });
     }
 
     void profile_point_segment_distance() {
@@ -90,8 +90,8 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Point distance using segment distance",[&](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
-        profile("Point distance using dedicated distance",[&](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
+        profile("Point-segment distance using segment distance",[&](SizeType i){ distance(points.at(i),points.at(i),heads.at(i),tails.at(i)); });
+        profile("Point-segment distance using dedicated distance",[&](SizeType i){ distance(points.at(i),heads.at(i),tails.at(i)); });
     }
 
     void profile_segment_segment_distance() {
@@ -103,7 +103,7 @@ struct ProfileGeometry : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Segment distance",[&](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
+        profile("Segment-segment distance",[&](SizeType i){ distance(s1h,s1t,heads.at(i),tails.at(i)); });
     }
 };
 

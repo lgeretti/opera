@@ -49,7 +49,7 @@ struct ProfileBody : public Profiler {
         s3.update({Point(0, 8, 0)},{Point(0, 10, 0)});
 
         profile("Box intersection",[&](auto){ s1.intersects(s3); });
-        profile("Pill intersection",[&](auto){ s1.intersects(s2); });
+        profile("Capsure intersection",[&](auto){ s1.intersects(s2); });
     }
 
     void profile_bodysegment_sample_update() {
@@ -66,7 +66,7 @@ struct ProfileBody : public Profiler {
             tails.push_back(Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0)));
         }
 
-        profile("Sample update",[&](SizeType i){ s.update(heads.at(i), tails.at(i)); });
+        profile("Body segment sample update",[&](SizeType i){ s.update(heads.at(i), tails.at(i)); });
     }
 };
 

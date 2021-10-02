@@ -49,7 +49,7 @@ struct ProfileBarrier : public Profiler {
             rss.append(r.segment(0).create_sample(Point(0,5+i,0),Point(2,6+i,0)));
         }
 
-        profile("Apply to trace (decreasing distance)",[&](SizeType i){ trace1.try_update_with(first,rss.at(i)); });
+        profile("Update trace with sample (decreasing distance)",[&](SizeType i){ trace1.try_update_with(first,rss.at(i)); });
 
         MinimumDistanceBarrierTrace trace2(hs,0);
         rss.clear();
@@ -57,7 +57,7 @@ struct ProfileBarrier : public Profiler {
             rss.append(r.segment(0).create_sample(Point(4+i,4,0),Point(6+i,4,0)));
         }
 
-        profile("Apply to trace (increasing distance)",[&](SizeType i){ trace2.try_update_with(first,rss.at(i)); });
+        profile("Update trace with sample (increasing distance)",[&](SizeType i){ trace2.try_update_with(first,rss.at(i)); });
     }
 
     void profile_resume_index() {
@@ -94,9 +94,9 @@ struct ProfileBarrier : public Profiler {
             end_sas.append(h.segment(0).create_sample(end_head_sa,end_tail_sa).spherical_approximation());
         }
 
-        profile("Resume index (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_element(beginning_sas.at(i)); },override_num_tries);
-        profile("Resume index (middle of trace)",[&](SizeType i){ ts.at(i).resume_element(middle_sas.at(i)); },override_num_tries);
-        profile("Resume index (near end of trace)",[&](SizeType i){ ts.at(i).resume_element(end_sas.at(i)); },override_num_tries);
+        profile("Find resume element (strictly beginning of trace)",[&](SizeType i){ ts.at(i).resume_element(beginning_sas.at(i)); },override_num_tries);
+        profile("Find resume element (middle of trace)",[&](SizeType i){ ts.at(i).resume_element(middle_sas.at(i)); },override_num_tries);
+        profile("Find resume element (near end of trace)",[&](SizeType i){ ts.at(i).resume_element(end_sas.at(i)); },override_num_tries);
     }
 
     void profile_resume_or_not() {
