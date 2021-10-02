@@ -53,13 +53,6 @@ void sample_printhold_nested_loop(std::string txt, unsigned int u) {
     }
 }
 
-unsigned int num_columns() {
-    const unsigned int DEFAULT_COLUMNS = 80;
-    struct winsize ws;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-    return (ws.ws_col > 0 ? ws.ws_col : DEFAULT_COLUMNS);
-}
-
 void print_something1() {
     OPERA_LOG_PRINTLN("This is a call from thread id " << std::this_thread::get_id() << " named '" << Logger::instance().current_thread_name() << "'")
 }
@@ -239,18 +232,20 @@ class TestLogging {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(2);
         OPERA_LOG_SCOPE_CREATE;
-        SizeType num_cols = num_columns();
+        SizeType num_cols = Logger::instance().get_window_columns();
 
         std::string exactly_str(num_cols-4,'x'); // exactly the length required to fill the columns (given a prefix of 4 chars)
         std::string larger_str(num_cols,'x'); // larger enough
 
         for (unsigned int i=0; i<10; ++i) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            OPERA_LOG_PRINTLN("i="<<i)
             OPERA_LOG_SCOPE_PRINTHOLD(exactly_str);
         }
 
         for (unsigned int i=0; i<10; ++i) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            OPERA_LOG_PRINTLN("i="<<i)
             OPERA_LOG_SCOPE_PRINTHOLD(larger_str);
         }
     }
