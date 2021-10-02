@@ -85,7 +85,7 @@ template<class T> struct CallbackContext {
 };
 
 //! \brief Callback for an MQTT message, used for running the actual callback on the deserialised message
-template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
+template<class T> void subscriber_on_message(struct mosquitto*, void *obj, const struct mosquitto_message *msg) {
     auto callback_context = static_cast<CallbackContext<T>*>(obj);
     if (not callback_context->registered) {
         callback_context->thread_id = std::this_thread::get_id();
@@ -93,8 +93,7 @@ template<class T> void subscriber_on_message(struct mosquitto *mosq, void *obj, 
         callback_context->registered = true;
     }
 
-    OPERA_ASSERT_MSG(strlen((char*)msg->payload)==msg->payloadlen, "Payload length inconsistent");
-    Deserialiser<T> deserialiser(std::string((char *)msg->payload,msg->payloadlen).c_str());
+    Deserialiser<T> deserialiser(std::string((char *)msg->payload,static_cast<SizeType>(msg->payloadlen)).c_str());
     callback_context->function(deserialiser.make());
 }
 
