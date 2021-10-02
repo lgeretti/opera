@@ -308,6 +308,8 @@ class Logger {
     std::string current_thread_name() const;
     std::string cached_last_printed_thread_name() const;
 
+    unsigned int get_window_columns() const;
+
     LoggerConfiguration& configuration();
 
   private:
@@ -321,7 +323,6 @@ class Logger {
     void _println(LogRawMessage const& msg);
     void _hold(LogRawMessage const& msg);
     void _release(LogRawMessage const& msg);
-    unsigned int _get_window_columns() const;
     bool _is_holding() const;
     bool _can_print_thread_name() const;
   private:

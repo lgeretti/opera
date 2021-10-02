@@ -183,7 +183,7 @@ class TestLogging {
     }
 
     void test_handles_multiline_output() {
-        SizeType num_cols = num_columns();
+        SizeType num_cols = Logger::instance().get_window_columns();
         OPERA_PRINT_TEST_COMMENT("Number of window columns: " << num_cols)
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(2);

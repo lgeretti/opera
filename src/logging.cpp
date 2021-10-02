@@ -792,7 +792,7 @@ bool Logger::_can_print_thread_name() const {
     else return false;
 }
 
-unsigned int Logger::_get_window_columns() const {
+unsigned int Logger::get_window_columns() const {
     const unsigned int DEFAULT_COLUMNS = 80;
     struct winsize ws;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
@@ -1010,7 +1010,7 @@ std::string Logger::_discard_newlines_and_indentation(std::string const& text) {
 
 void Logger::_print_held_line() {
     auto theme = _configuration.theme();
-    const unsigned int max_columns = _get_window_columns();
+    const unsigned int max_columns = get_window_columns();
     unsigned int held_columns = 0;
 
     std::clog << '\r';
@@ -1055,7 +1055,7 @@ void Logger::_println(LogRawMessage const& msg) {
     std::string text = msg.text;
     if (configuration().discards_newlines_and_indentation()) text = _discard_newlines_and_indentation(text);
     if (configuration().handles_multiline_output() and msg.text.size() > 0) {
-        const unsigned int max_columns = _get_window_columns();
+        const unsigned int max_columns = get_window_columns();
         size_t text_ptr = 0;
         const size_t text_size = text.size();
         while(true) {
@@ -1138,7 +1138,7 @@ void Logger::_release(LogRawMessage const& msg) {
             }
             _current_held_stack = new_held_stack;
             _print_held_line(); // Re-print
-            std::clog << std::string(std::min(released_text_length,_get_window_columns()), ' '); // Fill the released chars with blanks
+            std::clog << std::string(std::min(released_text_length,get_window_columns()), ' '); // Fill the released chars with blanks
             if (not _is_holding()) // If nothing is held anymore, allow overwriting of the line
                 std::clog << '\r';
             std::clog << std::flush;
