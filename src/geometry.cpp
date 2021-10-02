@@ -152,18 +152,6 @@ FloatType const& Box::zl() const { return _zl; }
 
 FloatType const& Box::zu() const { return _zu; }
 
-void Box::set_xl(FloatType const& v) { _xl = v; }
-
-void Box::set_xu(FloatType const& v) { _xu = v; }
-
-void Box::set_yl(FloatType const& v) { _yl = v; }
-
-void Box::set_yu(FloatType const& v) { _yu = v; }
-
-void Box::set_zl(FloatType const& v) { _zl = v; }
-
-void Box::set_zu(FloatType const& v) { _zu = v; }
-
 Point Box::centre() const {
     ARIADNE_PRECONDITION(not is_empty())
     return Point((_xl+_xu)/2,(_yl+_yu)/2,(_zl+_zu)/2);

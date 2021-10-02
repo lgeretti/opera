@@ -91,13 +91,6 @@ class Box {
     FloatType const& zl() const;
     FloatType const& zu() const;
 
-    void set_xl(FloatType const& v);
-    void set_xu(FloatType const& v);
-    void set_yl(FloatType const& v);
-    void set_yu(FloatType const& v);
-    void set_zl(FloatType const& v);
-    void set_zu(FloatType const& v);
-
     //! \brief The centre point
     Point centre() const;
     //! \brief The radius of the circle inscribing the box
