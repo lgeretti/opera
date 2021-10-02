@@ -27,6 +27,7 @@
 
 #include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
+#include <ariadne/hybrid/discrete_location.hpp>
 #include <ariadne/utility/string.hpp>
 #include "body.hpp"
 #include "interval.hpp"

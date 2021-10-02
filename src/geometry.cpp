@@ -22,6 +22,8 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
+#include "macros.hpp"
 #include "geometry.hpp"
 
 namespace Opera {
@@ -153,7 +155,7 @@ FloatType const& Box::zl() const { return _zl; }
 FloatType const& Box::zu() const { return _zu; }
 
 Point Box::centre() const {
-    ARIADNE_PRECONDITION(not is_empty())
+    OPERA_PRECONDITION(not is_empty())
     return Point((_xl+_xu)/2,(_yl+_yu)/2,(_zl+_zu)/2);
 }
 

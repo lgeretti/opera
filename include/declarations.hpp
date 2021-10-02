@@ -25,15 +25,13 @@
 #ifndef OPERA_DECLARATIONS_HPP
 #define OPERA_DECLARATIONS_HPP
 
-#include <ariadne.hpp>
+#include <cstring>
+#include <numeric>
 
 namespace Opera {
 
 typedef double FloatType;
 typedef FloatType PositiveFloatType;
-
-using Ariadne::StringStream;
-using Ariadne::StringVariable;
 
 using SizeType = size_t;
 

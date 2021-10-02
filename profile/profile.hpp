@@ -23,6 +23,7 @@
  */
 
 #include <functional>
+#include <iostream>
 #include <ariadne/utility/stopwatch.hpp>
 #include "declarations.hpp"
 

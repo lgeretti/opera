@@ -22,9 +22,11 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
+#include <thread>
 #include "utility.hpp"
 #include "broker.hpp"
+
+#include "test.hpp"
 
 using namespace Opera;
 

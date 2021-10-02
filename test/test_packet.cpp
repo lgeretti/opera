@@ -28,6 +28,8 @@
 
 using namespace Opera;
 
+using Ariadne::StringVariable;
+
 class TestPacket {
 public:
     void test() {

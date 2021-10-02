@@ -25,6 +25,8 @@
 #ifndef OPERA_GEOMETRY_HPP
 #define OPERA_GEOMETRY_HPP
 
+#include <ostream>
+
 #include "declarations.hpp"
 
 namespace Opera {

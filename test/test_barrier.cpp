@@ -28,6 +28,8 @@
 
 using namespace Opera;
 
+using Ariadne::StringVariable;
+
 class TestBarrier {
   public:
     void test() {

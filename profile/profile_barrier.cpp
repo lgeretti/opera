@@ -27,6 +27,8 @@
 
 using namespace Opera;
 
+using Ariadne::StringVariable;
+
 struct ProfileBarrier : public Profiler {
 
     ProfileBarrier() : Profiler(1e5) { }

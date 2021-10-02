@@ -22,11 +22,13 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "test.hpp"
-
 #include "verification.hpp"
 
+#include "test.hpp"
+
 using namespace Opera;
+
+using Ariadne::StringVariable;
 
 class TestVerification {
   public:

@@ -28,6 +28,7 @@
 #include <ariadne/utility/container.hpp>
 #include <ariadne/utility/handle.hpp>
 #include <ariadne/utility/string.hpp>
+#include <ariadne/hybrid/discrete_location.hpp>
 #include "geometry.hpp"
 
 namespace Opera {

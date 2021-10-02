@@ -22,12 +22,14 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <ariadne/hybrid/discrete_location.hpp>
 #include "deserialisation.hpp"
 
 namespace Opera {
 
 using namespace rapidjson;
 using Ariadne::Map;
+using Ariadne::StringVariable;
 
 BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
     List<Pair<IdType,IdType>> point_ids;

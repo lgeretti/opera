@@ -22,6 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <ariadne/hybrid/discrete_location.hpp>
 #include "macros.hpp"
 #include "body.hpp"
 

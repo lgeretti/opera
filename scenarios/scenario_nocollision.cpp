@@ -134,7 +134,7 @@ class NoCollisionScenario {
             auto* publisher = access.make_body_state_publisher();
             while (not human_packets.empty()) {
                 auto& p = human_packets.front();
-                OPERA_LOG_PRINTLN("Human packet sent at " << p.timestamp());
+                OPERA_LOG_PRINTLN("Human packet sent at " << p.timestamp())
                 publisher->put(p);
                 human_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(66667/speedup));
@@ -146,7 +146,7 @@ class NoCollisionScenario {
             auto* publisher = access.make_body_state_publisher();
             while (not robot_packets.empty()) {
                 BodyStatePacket p = robot_packets.front();
-                OPERA_LOG_PRINTLN("Robot packet sent at " << p.timestamp());
+                OPERA_LOG_PRINTLN("Robot packet sent at " << p.timestamp())
                 publisher->put(p);
                 robot_packets.pop_front();
                 std::this_thread::sleep_for(std::chrono::microseconds(100000/speedup));
@@ -159,7 +159,7 @@ class NoCollisionScenario {
         while(not robot_packets.empty())
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-        ARIADNE_LOG_PRINTLN("All done")
+        OPERA_LOG_PRINTLN("All done")
 
         delete subscriber;
     }

@@ -25,7 +25,9 @@
 #ifndef OPERA_PACKET_HPP
 #define OPERA_PACKET_HPP
 
+#include <ariadne/hybrid/discrete_location.hpp>
 #include <ariadne/utility/container.hpp>
+#include <ariadne/utility/handle.hpp>
 #include "geometry.hpp"
 
 namespace Opera {
@@ -36,7 +38,6 @@ using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::Pair;
 using Ariadne::DiscreteLocation;
-using Ariadne::SizeType;
 using Ariadne::String;
 
 //! \brief A representation of an inbound packet for the presentation of a body

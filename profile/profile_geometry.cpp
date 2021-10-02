@@ -22,6 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <ariadne/utility/container.hpp>
 #include "geometry.hpp"
 #include "profile.hpp"
 
