@@ -55,7 +55,7 @@ template<class T> class DeserialiserBase {
     }
 
     //! \brief Convert to string
-    String to_string() const {
+    std::string to_string() const {
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         _document.Accept(writer);

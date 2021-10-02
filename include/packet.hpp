@@ -33,12 +33,11 @@
 namespace Opera {
 
 using IdType = unsigned int;
-using BodyIdType = Ariadne::String;
+using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::Pair;
 using Ariadne::DiscreteLocation;
-using Ariadne::String;
 
 //! \brief A representation of an inbound packet for the presentation of a body
 class BodyPresentationPacket {

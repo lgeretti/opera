@@ -45,7 +45,7 @@ class ProfileDeserialisation : public Profiler {
             Deserialiser<BodyStatePacket>(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).make();
         },num_samples);
 
-        List<String> json_texts;
+        List<std::string> json_texts;
         profile("Deserialisation of a human sample JSON file into String",[&](SizeType i){
             json_texts.append(Deserialiser<BodyStatePacket>(Resources::path("json/scenarios/nocollision/h0/"+std::to_string(i+1)+".json")).to_string());
         },num_samples);
@@ -61,7 +61,7 @@ class ProfileDeserialisation : public Profiler {
             Deserialiser<BodyPresentationPacket>(Resources::path("json/examples/presentation/robot0.json")).make();
             },num_samples);
 
-        List<String> json_texts;
+        List<std::string> json_texts;
         profile("Deserialisation of a robot presentation JSON file into String",[&](auto){
             json_texts.append(Deserialiser<BodyPresentationPacket>(Resources::path("json/examples/presentation/robot0.json")).to_string());
             },num_samples);
@@ -77,7 +77,7 @@ class ProfileDeserialisation : public Profiler {
             Deserialiser<CollisionNotificationPacket>(Resources::path("json/examples/notification/notification0.json")).make();
             },num_samples);
 
-        List<String> json_texts;
+        List<std::string> json_texts;
         profile("Deserialisation of a collision notification JSON file into String",[&](auto){
             json_texts.append(Deserialiser<CollisionNotificationPacket>(Resources::path("json/examples/notification/notification0.json")).to_string());
             },num_samples);

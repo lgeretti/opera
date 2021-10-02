@@ -44,7 +44,7 @@ template<class T> class SerialiserInterface {
     //! \brief Serialise into file
     virtual void to_file(FilePath const& file) const = 0;
     //! \brief Serialise into String
-    virtual String to_string() const = 0;
+    virtual std::string to_string() const = 0;
 };
 
 //! \brief Base implementation of serialisation, from a rapidjson Document
@@ -66,7 +66,7 @@ template<class T> class SerialiserBase : public SerialiserInterface<T> {
         document.Accept(writer);
     }
 
-    String to_string() const override {
+    std::string to_string() const override {
         auto document = to_document();
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);

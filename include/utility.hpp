@@ -29,16 +29,14 @@
 #include <ariadne/utility/string.hpp>
 #include "config.hpp"
 
-using Ariadne::String;
-
 using FilePath = std::filesystem::path;
 
 namespace Opera {
 
 class Resources {
   public:
-    static FilePath path(String const& filename) {
-        return (String(RESOURCES_PATH) + filename).c_str();
+    static FilePath path(std::string const& filename) {
+        return (std::string(RESOURCES_PATH) + filename).c_str();
     }
 };
 

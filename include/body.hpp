@@ -34,12 +34,11 @@
 namespace Opera {
 
 using IdType = unsigned int;
-using BodyIdType = Ariadne::String;
+using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::Pair;
 using Ariadne::DiscreteLocation;
-using Ariadne::String;
 
 class BodySegment;
 

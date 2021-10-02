@@ -30,6 +30,7 @@ namespace Opera {
 using namespace rapidjson;
 using Ariadne::Map;
 using Ariadne::StringVariable;
+using Ariadne::String;
 
 BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
     List<Pair<IdType,IdType>> point_ids;
