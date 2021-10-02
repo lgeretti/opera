@@ -94,8 +94,10 @@ class TestLogging {
         OPERA_TEST_CALL(test_multiple_threads_with_blocking_scheduler())
         OPERA_TEST_CALL(test_multiple_threads_with_nonblocking_scheduler())
         OPERA_TEST_CALL(test_register_self_thread())
-        OPERA_TEST_CALL(test_thread_name_printing_policy())
-        OPERA_TEST_CALL(test_set_prints_level_on_change_only())
+        OPERA_TEST_CALL(test_printing_policy_with_theme_and_print_level(true,true))
+        OPERA_TEST_CALL(test_printing_policy_with_theme_and_print_level(true,false))
+        OPERA_TEST_CALL(test_printing_policy_with_theme_and_print_level(false,false))
+        OPERA_TEST_CALL(test_printing_policy_with_theme_and_print_level(false,true))
     }
 
     void test_very_pretty_function() {
@@ -288,14 +290,13 @@ class TestLogging {
         Logger::instance().configuration().set_verbosity(1);
         Logger::instance().configuration().set_theme(TT_THEME_DARK);
         Logger::instance().configuration().add_custom_keyword("first");
-        Logger::instance().configuration().add_custom_keyword("second",TT_STYLE_CREAM);
-        Logger::instance().configuration().add_custom_keyword("third",TT_STYLE_CREAM);
-        OPERA_LOG_PRINTLN("1second");
+        Logger::instance().configuration().add_custom_keyword("second",TT_STYLE_DARKORANGE);
         OPERA_LOG_PRINTLN("This is a default first, a styled second, an ignored secondsecond and msecond and second1 and 1second and firstsecond but not ignored [second and second]")
     }
 
     void test_theme_bgcolor_bold_underline() {
         Logger::instance().use_immediate_scheduler();
+        Logger::instance().configuration().set_theme(TT_THEME_DARK);
         std::list<TerminalTextStyle> styles;
         styles.push_back(TerminalTextStyle(0,0,true,false));
         styles.push_back(TerminalTextStyle(0,0,false,true));
@@ -314,6 +315,7 @@ class TestLogging {
     void test_redirect() {
         Logger::instance().use_immediate_scheduler();
         Logger::instance().configuration().set_verbosity(1);
+        Logger::instance().configuration().set_theme(TT_THEME_DARK);
         OPERA_LOG_PRINTLN("This is call 1");
         Logger::instance().redirect_to_file("log.txt");
         OPERA_LOG_PRINTLN("This is call 2");
@@ -338,6 +340,7 @@ class TestLogging {
     void test_multiple_threads_with_blocking_scheduler() {
         Logger::instance().use_blocking_scheduler();
         Logger::instance().configuration().set_verbosity(3);
+        Logger::instance().configuration().set_theme(TT_THEME_DARK);
         Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
         OPERA_LOG_PRINTLN("Printing on the " << Logger::instance().current_thread_name() << " thread without other threads");
         OPERA_TEST_EQUALS(Logger::instance().cached_last_printed_thread_name().compare("main"),0);
@@ -370,6 +373,7 @@ class TestLogging {
     void test_register_self_thread() {
         Logger::instance().use_blocking_scheduler();
         Logger::instance().configuration().set_verbosity(3);
+        Logger::instance().configuration().set_theme(TT_THEME_DARK);
         Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
         OPERA_LOG_PRINTLN("Printing on the " << Logger::instance().current_thread_name() << " thread without other threads");
         OPERA_TEST_EQUALS(Logger::instance().cached_last_printed_thread_name().compare("main"),0);
@@ -380,10 +384,14 @@ class TestLogging {
         Logger::instance().unregister_thread(thread_id);
     }
 
-    void test_thread_name_printing_policy() {
+    void test_printing_policy_with_theme_and_print_level(bool use_theme, bool print_level) {
         OPERA_PRINT_TEST_COMMENT("Policies: " << ThreadNamePrintingPolicy::BEFORE << " " << ThreadNamePrintingPolicy::AFTER << " " << ThreadNamePrintingPolicy::NEVER)
+        Logger::instance().use_immediate_scheduler();
         Logger::instance().use_blocking_scheduler();
         Logger::instance().configuration().set_verbosity(3);
+        if (use_theme) Logger::instance().configuration().set_theme(TT_THEME_DARK);
+        else Logger::instance().configuration().set_theme(TT_THEME_NONE);
+        Logger::instance().configuration().set_prints_level_on_change_only(print_level);
         Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
         Thread thread1([] { print_something1(); },"thr1");
         OPERA_LOG_PRINTLN("Printing thread name before");
@@ -396,24 +404,7 @@ class TestLogging {
         Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::NEVER);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         OPERA_LOG_PRINTLN("Printing thread name never");
-    }
-
-    void test_set_prints_level_on_change_only() {
-        Logger::instance().use_blocking_scheduler();
-        Logger::instance().configuration().set_verbosity(3);
-        Logger::instance().configuration().set_prints_level_on_change_only(true);
-        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::BEFORE);
-        Thread thread1([] { print_something1(); },"thr1");
-        OPERA_LOG_PRINTLN("Printing thread name before");
-        OPERA_LOG_PRINTLN("Printing thread name before again");
-        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::AFTER);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        Thread thread2([] { print_something1(); },"thr2");
-        OPERA_LOG_PRINTLN("Printing thread name after");
-        OPERA_LOG_PRINTLN("Printing thread name after again");
-        Logger::instance().configuration().set_thread_name_printing_policy(ThreadNamePrintingPolicy::NEVER);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        OPERA_LOG_PRINTLN("Printing thread name never");
+        Thread thread3([] { print_something1(); },"thr3");
     }
 };
 
