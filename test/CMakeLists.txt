@@ -7,6 +7,7 @@ set(UNIT_TESTS
     test_geometry
     test_interval
     test_body
+    test_discrete_state
     test_state
     test_packet
     test_serialisation
