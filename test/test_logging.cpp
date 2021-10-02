@@ -70,7 +70,7 @@ class TestLogging {
     }
 
     void test() {
-        /*OPERA_TEST_CALL(test_very_pretty_function())
+        OPERA_TEST_CALL(test_very_pretty_function())
         OPERA_TEST_CALL(test_print_configuration())
         OPERA_TEST_CALL(test_shown_single_print())
         OPERA_TEST_CALL(test_hidden_single_print())
@@ -85,9 +85,9 @@ class TestLogging {
         OPERA_TEST_CALL(test_hold_long_line())
         OPERA_TEST_CALL(test_hold_multiple())
         OPERA_TEST_CALL(test_light_theme())
-        OPERA_TEST_CALL(test_dark_theme())*/
+        OPERA_TEST_CALL(test_dark_theme())
         OPERA_TEST_CALL(test_theme_custom_keyword())
-        /*OPERA_TEST_CALL(test_theme_bgcolor_bold_underline())
+        OPERA_TEST_CALL(test_theme_bgcolor_bold_underline())
         OPERA_TEST_CALL(test_handles_multiline_output())
         OPERA_TEST_CALL(test_discards_newlines_and_indentation())
         OPERA_TEST_CALL(test_redirect())
@@ -95,7 +95,7 @@ class TestLogging {
         OPERA_TEST_CALL(test_multiple_threads_with_nonblocking_scheduler())
         OPERA_TEST_CALL(test_register_self_thread())
         OPERA_TEST_CALL(test_thread_name_printing_policy())
-        OPERA_TEST_CALL(test_set_prints_level_on_change_only())*/
+        OPERA_TEST_CALL(test_set_prints_level_on_change_only())
     }
 
     void test_very_pretty_function() {
@@ -291,7 +291,7 @@ class TestLogging {
         Logger::instance().configuration().add_custom_keyword("second",TT_STYLE_CREAM);
         Logger::instance().configuration().add_custom_keyword("third",TT_STYLE_CREAM);
         OPERA_LOG_PRINTLN("1second");
-        OPERA_LOG_PRINTLN("This is a default first, a styled second, an ignored secondsecond and second1 and 1second and firstsecond but not ignored [second and second]")
+        OPERA_LOG_PRINTLN("This is a default first, a styled second, an ignored secondsecond and msecond and second1 and 1second and firstsecond but not ignored [second and second]")
     }
 
     void test_theme_bgcolor_bold_underline() {
