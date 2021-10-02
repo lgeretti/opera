@@ -26,7 +26,6 @@
 #include "macros.hpp"
 #include "body.hpp"
 
-using Ariadne::StringStream;
 using Ariadne::Map;
 
 namespace Opera {

@@ -37,7 +37,6 @@ using BodyIdType = Ariadne::String;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::DiscreteLocation;
-using Ariadne::SizeType;
 using Ariadne::String;
 using Ariadne::Handle;
 

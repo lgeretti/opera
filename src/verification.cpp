@@ -25,7 +25,6 @@
 #include "macros.hpp"
 #include "verification.hpp"
 
-using Ariadne::StringStream;
 using Ariadne::Map;
 
 namespace Opera {

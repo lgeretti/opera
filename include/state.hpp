@@ -40,7 +40,6 @@ using TimestampType = long unsigned int; // Expressed in nanoseconds
 using Ariadne::List;
 using Ariadne::Map;
 using Ariadne::DiscreteLocation;
-using Ariadne::SizeType;
 using Ariadne::String;
 
 //! \brief Holds the state of a human
