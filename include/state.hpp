@@ -39,7 +39,6 @@ namespace Opera {
 
 using IdType = unsigned int;
 using BodyIdType = std::string;
-using TimestampType = long unsigned int; // Expressed in nanoseconds
 
 //! \brief Holds the state of a human
 class HumanStateInstance {

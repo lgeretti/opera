@@ -37,7 +37,6 @@ namespace Opera {
 
 using IdType = unsigned int;
 using BodyIdType = std::string;
-using TimestampType = long unsigned int; // Expressed in nanoseconds
 
 //! \brief A representation of an inbound packet for the presentation of a body
 class BodyPresentationPacket {

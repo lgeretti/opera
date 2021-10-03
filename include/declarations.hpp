@@ -43,6 +43,7 @@ template<class T1, class T2> using Pair = std::pair<T1,T2>;
 template<class T> using Set = std::set<T>;
 
 using SizeType = size_t;
+using TimestampType = long long unsigned int; // Expressed in nanoseconds
 
 static const FloatType infinity = std::numeric_limits<FloatType>::infinity();
 
