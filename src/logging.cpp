@@ -143,7 +143,7 @@ protected:
     unsigned int current_level() const;
     std::string thread_name() const;
 
-    unsigned int queue_size() const;
+    SizeType queue_size() const;
 private:
     unsigned int _current_level;
     std::string _thread_name;
@@ -152,7 +152,7 @@ private:
     bool _is_dead;
 };
 
-LogScopeManager::LogScopeManager(std::string scope, std::size_t level_increase)
+LogScopeManager::LogScopeManager(std::string scope, unsigned int level_increase)
     : _scope(scope), _level_increase(level_increase)
 {
     Logger::instance().increase_level(_level_increase);
@@ -233,7 +233,7 @@ void LoggerData::decrease_level(unsigned int i) {
     _current_level -= i;
 }
 
-unsigned int LoggerData::queue_size() const {
+SizeType LoggerData::queue_size() const {
     return _raw_messages.size();
 }
 
@@ -1020,7 +1020,7 @@ void Logger::_print_held_line() {
 
     std::clog << '\r';
     for (auto msg : _current_held_stack) {
-        held_columns = held_columns+(msg.level>9 ? 2 : 1)+3+msg.text.size();
+        held_columns = held_columns+(msg.level>9 ? 2 : 1)+3+static_cast<unsigned int>(msg.text.size());
         if (held_columns>max_columns+1) {
             std::string original = theme.level_number() + std::to_string(msg.level) + TerminalTextStyle::RESET +
                                    theme.level_shown_separator() + "|" + TerminalTextStyle::RESET + " " + _apply_theme(msg.text) + " ";
@@ -1052,7 +1052,7 @@ void Logger::_cover_held_columns_with_whitespaces(unsigned int printed_columns) 
 }
 
 void Logger::_println(LogRawMessage const& msg) {
-    const unsigned int preamble_columns = (msg.level>9 ? 3:2)+(_can_print_thread_name() ? _scheduler->largest_thread_name_size()+1 : 0)+msg.level;
+    const unsigned int preamble_columns = (msg.level>9 ? 3:2)+(_can_print_thread_name() ? static_cast<unsigned int>(_scheduler->largest_thread_name_size()+1) : 0)+msg.level;
     // If holding, we must write over the held line first
     if (_is_holding()) std::clog << '\r';
 
@@ -1069,11 +1069,11 @@ void Logger::_println(LogRawMessage const& msg) {
                 std::size_t newline_pos = to_print.find('\n');
                 if (newline_pos != std::string::npos) { // A newline is found before reaching the end of the terminal line
                     std::clog << _apply_theme(to_print.substr(0,newline_pos));
-                    _cover_held_columns_with_whitespaces(preamble_columns+to_print.substr(0,newline_pos).size());
+                    _cover_held_columns_with_whitespaces(preamble_columns+static_cast<unsigned int>(to_print.substr(0,newline_pos).size()));
                     text_ptr += newline_pos+1;
                 } else { // Text reaches the end of the terminal line
                     std::clog << _apply_theme(to_print);
-                    _cover_held_columns_with_whitespaces(preamble_columns+to_print.size());
+                    _cover_held_columns_with_whitespaces(preamble_columns+static_cast<unsigned int>(to_print.size()));
                     text_ptr += max_columns-preamble_columns;
                 }
                 std::clog << '\n';
@@ -1086,7 +1086,7 @@ void Logger::_println(LogRawMessage const& msg) {
                 std::size_t newline_pos = to_print.find('\n');
                 if (newline_pos != std::string::npos) { // A newline is found before reaching the end of the terminal line
                     std::clog << _apply_theme(to_print.substr(0,newline_pos));
-                    _cover_held_columns_with_whitespaces(preamble_columns+to_print.substr(0,newline_pos).size());
+                    _cover_held_columns_with_whitespaces(preamble_columns+static_cast<unsigned int>(to_print.substr(0,newline_pos).size()));
                     std::clog << '\n';
                     if (_is_holding()) {
                         _print_held_line();
@@ -1097,7 +1097,7 @@ void Logger::_println(LogRawMessage const& msg) {
                     _print_preamble_for_extralines(msg.level);
                 } else { // Text reaches the end of the terminal line
                     std::clog << _apply_theme(to_print);
-                    _cover_held_columns_with_whitespaces(preamble_columns+to_print.size());
+                    _cover_held_columns_with_whitespaces(preamble_columns+static_cast<unsigned int>(to_print.size()));
                     std::clog << '\n';
                     if (_is_holding()) _print_held_line();
 
@@ -1107,7 +1107,7 @@ void Logger::_println(LogRawMessage const& msg) {
         }
     } else { // No multiline is handled, \n characters are handled by the terminal
         std::clog << _apply_theme(text);
-        _cover_held_columns_with_whitespaces(preamble_columns+text.size());
+        _cover_held_columns_with_whitespaces(preamble_columns+static_cast<unsigned int>(text.size()));
         std::clog << '\n';
         if (_is_holding()) _print_held_line();
     }
@@ -1134,7 +1134,7 @@ void Logger::_release(LogRawMessage const& msg) {
             }
         }
         if (found) {
-            unsigned int released_text_length = _current_held_stack[i].text.size()+4;
+            auto released_text_length = static_cast<unsigned int>(_current_held_stack[i].text.size()+4);
             std::vector<LogRawMessage> new_held_stack;
             if (i>0) {
                 for (unsigned int j=0; j<i; ++j) {

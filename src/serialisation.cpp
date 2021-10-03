@@ -40,10 +40,10 @@ Document Serialiser<BodyPresentationPacket>::to_document() const {
     Document::AllocatorType& allocator = document.GetAllocator();
 
     Value id;
-    id.SetString(obj.id().c_str(),obj.id().length());
+    id.SetString(obj.id().c_str(),static_cast<rapidjson::SizeType>(obj.id().length()));
     document.AddMember("id",id,allocator);
     document.AddMember("isHuman",Value().SetBool(obj.is_human()),allocator);
-    if (not obj.is_human()) document.AddMember("packetFrequency",Value().SetUint(obj.packet_frequency()),allocator);
+    if (not obj.is_human()) document.AddMember("packetFrequency",Value().SetUint64(obj.packet_frequency()),allocator);
 
     Value thicknesses;
     Value point_ids;
@@ -70,14 +70,15 @@ Document Serialiser<BodyStatePacket>::to_document() const {
     Document::AllocatorType& allocator = document.GetAllocator();
 
     Value id;
-    id.SetString(obj.id().c_str(),obj.id().length());
+    id.SetString(obj.id().c_str(),static_cast<rapidjson::SizeType>(obj.id().length()));
     document.AddMember("bodyId",id,allocator);
 
     if (not obj.location().is_empty()) {
         Value discreteState;
         discreteState.SetObject();
         for (auto v : obj.location().values()) {
-            discreteState.AddMember(Value().SetString(v.first.c_str(),v.first.length(),allocator),Value().SetString(v.second.c_str(),v.second.length(), allocator),allocator);
+            discreteState.AddMember(Value().SetString(v.first.c_str(),static_cast<rapidjson::SizeType>(v.first.length()),allocator),
+                                    Value().SetString(v.second.c_str(),static_cast<rapidjson::SizeType>(v.second.length()), allocator),allocator);
         }
         document.AddMember("discreteState",discreteState,allocator);
     }
@@ -111,13 +112,13 @@ Document Serialiser<CollisionNotificationPacket>::to_document() const {
 
     Value human;
     human.SetObject();
-    human.AddMember("bodyId",Value().SetString(obj.human_id().c_str(),obj.human_id().length(),allocator),allocator);
+    human.AddMember("bodyId",Value().SetString(obj.human_id().c_str(),static_cast<rapidjson::SizeType>(obj.human_id().length()),allocator),allocator);
     human.AddMember("segmentId",Value().SetUint(obj.human_segment_id()),allocator);
     document.AddMember("human",human,allocator);
 
     Value robot;
     robot.SetObject();
-    robot.AddMember("bodyId",Value().SetString(obj.robot_id().c_str(),obj.robot_id().length(),allocator),allocator);
+    robot.AddMember("bodyId",Value().SetString(obj.robot_id().c_str(),static_cast<rapidjson::SizeType>(obj.robot_id().length()),allocator),allocator);
     robot.AddMember("segmentId",Value().SetUint(obj.robot_segment_id()),allocator);
     document.AddMember("robot",robot,allocator);
 
@@ -125,7 +126,8 @@ Document Serialiser<CollisionNotificationPacket>::to_document() const {
         Value discreteState;
         discreteState.SetObject();
         for (auto v : obj.discrete_state().values()) {
-            discreteState.AddMember(Value().SetString(v.first.c_str(),v.first.length(),allocator),Value().SetString(v.second.c_str(),v.second.length(), allocator),allocator);
+            discreteState.AddMember(Value().SetString(v.first.c_str(),static_cast<rapidjson::SizeType>(v.first.length()),allocator),
+                                    Value().SetString(v.second.c_str(),static_cast<rapidjson::SizeType>(v.second.length()), allocator),allocator);
         }
         document.AddMember("discreteState",discreteState,allocator);
     }

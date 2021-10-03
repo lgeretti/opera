@@ -45,7 +45,7 @@ BodyPresentationPacket Deserialiser<BodyPresentationPacket>::make() const {
     if (_document["isHuman"].GetBool())
         return BodyPresentationPacket(_document["id"].GetString(), point_ids, thicknesses);
     else
-        return BodyPresentationPacket(_document["id"].GetString(), _document["packetFrequency"].GetUint(), point_ids, thicknesses);
+        return BodyPresentationPacket(_document["id"].GetString(), _document["packetFrequency"].GetUint64(), point_ids, thicknesses);
 }
 
 BodyStatePacket Deserialiser<BodyStatePacket>::make() const {

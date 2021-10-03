@@ -155,13 +155,13 @@ static TerminalTextTheme TT_THEME_LIGHT = TerminalTextTheme(TT_STYLE_BRIGHTORANG
 class LogScopeManager {
   public:
     //! \brief Construct with a given scope, and optionally choosing the amount of level increase
-    LogScopeManager(std::string scope, std::size_t level_increase=1);
+    LogScopeManager(std::string scope, unsigned int level_increase=1);
     std::string scope() const;
   public:
     virtual ~LogScopeManager();
   private:
-    std::string _scope;
-    std::size_t _level_increase;
+    std::string const _scope;
+    unsigned int const _level_increase;
 };
 
 //! \brief Supported kinds of log messages

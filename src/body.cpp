@@ -39,7 +39,7 @@ Body::Body(BodyIdType const& id, List<Pair<IdType,IdType>> const& points_ids, Li
     _num_points = 0;
     for (List<IdType>::size_type i=0; i<thicknesses.size(); ++i) {
         _num_points = std::max(std::max(_num_points,static_cast<SizeType>(points_ids.at(i).first+1)),static_cast<SizeType>(points_ids.at(i).second+1));
-        _segments.push_back(new BodySegment(this,i,points_ids.at(i).first,points_ids.at(i).second,thicknesses.at(i)));
+        _segments.push_back(new BodySegment(this,static_cast<IdType>(i),points_ids.at(i).first,points_ids.at(i).second,thicknesses.at(i)));
     }
 }
 
