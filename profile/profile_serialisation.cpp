@@ -36,7 +36,7 @@ using namespace Opera;
 
 class ProfileSerialisation : public Profiler {
   public:
-    ProfileSerialisation() : Profiler(1e5) { }
+    ProfileSerialisation() : Profiler(100000) { }
 
     void run() {
         profile_bodypresentationpacket();

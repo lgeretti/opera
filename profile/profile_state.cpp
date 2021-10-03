@@ -34,7 +34,7 @@ using namespace Opera;
 
 struct ProfileState : public Profiler {
 
-    ProfileState() : Profiler(1e5) { }
+    ProfileState() : Profiler(100000) { }
 
     void run() {
         profile_human_instance_acquirement();
@@ -49,7 +49,7 @@ struct ProfileState : public Profiler {
         for (SizeType i=0; i<num_tries(); ++i) {
             pkts.push_back(BodyStatePacket(h.id(),{{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                               {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                              10*i));
+                                              static_cast<TimestampType>(10*i)));
         }
 
         profile("Make human state instance from packet fields",[&](SizeType i){ HumanStateInstance hsi(h,pkts.at(i).points(),pkts.at(i).timestamp()); });
@@ -65,7 +65,7 @@ struct ProfileState : public Profiler {
             pkts.push_back(BodyStatePacket(r.id(),DiscreteState({"robot","first"}),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                                     {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                                    10*i));
+                                                    static_cast<TimestampType>(10*i)));
         }
 
         profile("Acquire robot packet for new location",[&](SizeType i){ history.acquire(pkts.at(i).location(),pkts.at(i).points(),pkts.at(i).timestamp()); });
@@ -80,7 +80,7 @@ struct ProfileState : public Profiler {
             pkts.push_back(BodyStatePacket(r.id(),DiscreteState({"robot","first"}),
                                             {{Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))},
                                              {Point(rnd().get(-5.0,5.0),rnd().get(-5.0,5.0),rnd().get(-5.0,5.0))}},
-                                             10000020+10*i));
+                                             static_cast<TimestampType>(10000020+10*i)));
         }
 
         profile("Acquire robot packet for existing location",[&](SizeType i){ history.acquire(pkts.at(i).location(),pkts.at(i).points(),pkts.at(i).timestamp()); });

@@ -33,7 +33,7 @@ using namespace Opera;
 
 struct ProfileBarrier : public Profiler {
 
-    ProfileBarrier() : Profiler(1e5) { }
+    ProfileBarrier() : Profiler(100000) { }
 
     void run() {
         profile_apply_to_trace();
@@ -69,7 +69,7 @@ struct ProfileBarrier : public Profiler {
         const SizeType override_num_tries = 100;
         Robot r("r0", 10, {{0, 1}}, {1.0});
         Human h("h0", {{0, 1}}, {0.5});
-        auto hs = h.segment(0).create_sample({Point(ns,ns,0)},{Point(ns+2,ns,0)});
+        auto hs = h.segment(0).create_sample({Point(FloatType(ns),FloatType(ns),0)},{Point(FloatType(ns+2),FloatType(ns),0)});
 
         DiscreteState first({r.id(),"first"});
         List<MinimumDistanceBarrierTrace> ts;
@@ -89,11 +89,11 @@ struct ProfileBarrier : public Profiler {
             Point beginning_tail_sa(beginning_head_sa.x+2,beginning_head_sa.y,beginning_head_sa.z);
             beginning_sas.push_back(h.segment(0).create_sample({beginning_head_sa},{beginning_tail_sa}).spherical_approximation());
 
-            Point middle_head_sa(ns/2*rnd().get(0.9,1.1),ns/2*rnd().get(0.9,1.1),0.0);
+            Point middle_head_sa(FloatType(ns)/2*rnd().get(0.9,1.1),FloatType(ns)/2*rnd().get(0.9,1.1),0.0);
             Point middle_tail_sa(middle_head_sa.x+2,middle_head_sa.y,middle_head_sa.z);
             middle_sas.push_back(h.segment(0).create_sample({middle_head_sa},{middle_tail_sa}).spherical_approximation());
 
-            Point end_head_sa(ns*rnd().get(0.9,1.1),ns*rnd().get(0.9,1.1),0.0);
+            Point end_head_sa(FloatType(ns)*rnd().get(0.9,1.1),FloatType(ns)*rnd().get(0.9,1.1),0.0);
             Point end_tail_sa(end_head_sa.x+2,end_head_sa.y,end_head_sa.z);
             end_sas.push_back(h.segment(0).create_sample({end_head_sa},{end_tail_sa}).spherical_approximation());
         }
@@ -115,13 +115,13 @@ struct ProfileBarrier : public Profiler {
         MinimumDistanceBarrierTrace trace(hs,0);
         RobotStateHistory history(&r);
         for (SizeType i=0; i<ns; ++i) {
-            history.acquire(first,{{Point(i,0,0)},{Point(i,2,0)}},i*1e8);
+            history.acquire(first,{{Point(FloatType(i),0,0)},{Point(FloatType(i),2,0)}},static_cast<TimestampType>(i*100000000));
         }
-        history.acquire(second,{{Point(ns,0,0)},{Point(ns,2,0)}},ns*1e8);
+        history.acquire(second,{{Point(FloatType(ns),0,0)},{Point(FloatType(ns),2,0)}},static_cast<TimestampType>(ns*100000000));
 
         List<BodySegmentSample> hss;
         for (SizeType i=ns; i>0; --i) {
-            hss.push_back(h.segment(0).create_sample({Point(ns+i,0,0)},{Point(ns+i,2,0)}));
+            hss.push_back(h.segment(0).create_sample({Point(FloatType(ns+i),0,0)},{Point(FloatType(ns+i),2,0)}));
         }
 
         auto const& samples = history.samples(first).at(trace.robot_segment_id());

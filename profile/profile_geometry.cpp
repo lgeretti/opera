@@ -33,7 +33,7 @@ using namespace Opera;
 
 struct ProfileGeometry : public Profiler {
 
-    ProfileGeometry() : Profiler(1e5) { }
+    ProfileGeometry() : Profiler(100000) { }
 
     void run() {
         profile_centre();

@@ -35,7 +35,7 @@ using namespace Opera;
 
 class ProfileDeserialisation : public Profiler {
   public:
-    ProfileDeserialisation() : Profiler(1e5) { }
+    ProfileDeserialisation() : Profiler(100000) { }
 
     void run() {
         profile_bodysamplepacket();

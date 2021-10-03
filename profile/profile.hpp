@@ -40,7 +40,7 @@ struct Randomiser {
 };
 
 inline bool _init_randomiser() {
-    srand(time(nullptr));
+    srand(static_cast<unsigned int>(time(nullptr)));
     return true;
 }
 static const bool init_randomiser = _init_randomiser();
