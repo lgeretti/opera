@@ -249,7 +249,7 @@ Interval<SizeType> RobotStateHistory::range_of_num_samples_between(DiscreteState
 }
 
 SizeType RobotStateHistory::_update_index(TimestampType const& timestamp) const {
-    return floor(double(timestamp- _location_presences.back().to()) / 1e9 * _robot->packet_frequency());
+    return floor(double(timestamp- _location_presences.back().to()) / 1e9 * FloatType(_robot->packet_frequency()));
 }
 
 void RobotStateHistory::acquire(DiscreteState const& location, List<List<Point>> const& points, TimestampType const& timestamp) {

@@ -118,14 +118,14 @@ int MinimumDistanceBarrierTrace::resume_element(SphericalApproximationSample con
     SizeType lower=0;
     SizeType upper=_barriers.size()-1;
     if (deviation > _barriers.at(lower).minimum_distance()) return -1;
-    if (deviation <= _barriers.at(upper).minimum_distance()) return upper;
+    if (deviation <= _barriers.at(upper).minimum_distance()) return static_cast<int>(upper);
     SizeType result = (upper+lower)/2;
     while (upper>lower+1) {
         if (deviation > _barriers.at(result).minimum_distance()) upper = result;
         else lower = result;
         result = (upper+lower)/2;
     }
-    return result;
+    return static_cast<int>(result);
 }
 
 void MinimumDistanceBarrierTrace::reset(BodySegmentSample const& human_sample, RobotStateHistory const& history) {

@@ -141,7 +141,7 @@ class ValuedArgumentParserBase : public ArgumentParserBase {
         if (stream.empty()) { throw MissingArgumentValueException(long_id()); }
         try {
             f = _create_processor(stream);
-        } catch (std::exception& e) {
+        } catch (std::exception&) {
             throw InvalidArgumentValueException(long_id());
         }
         return f;

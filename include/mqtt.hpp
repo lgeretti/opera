@@ -64,7 +64,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
 
     void put(T const& obj) override {
         std::string payload = Serialiser<T>(obj).to_string();
-        int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), payload.size(), payload.c_str(), 2, false);
+        int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), static_cast<int>(payload.size()), payload.c_str(), 2, false);
         OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
     }
 

@@ -39,7 +39,7 @@ void sample_function() {
     OPERA_LOG_PRINTLN("val=inf, x0=2.0^3*1.32424242432423[2,3], y>[0.1:0.2] (z={0:1}), 1, x0, x11, true@1.")
 }
 
-void sample_printhold_simple_loop(std::string txt, unsigned int u) {
+void sample_printhold_simple_loop(std::string txt, SizeType u) {
     OPERA_LOG_SCOPE_CREATE
     for (unsigned int i=0; i<3; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(u));
@@ -47,7 +47,7 @@ void sample_printhold_simple_loop(std::string txt, unsigned int u) {
     }
 }
 
-void sample_printhold_nested_loop(std::string txt, unsigned int u) {
+void sample_printhold_nested_loop(std::string txt, SizeType u) {
     OPERA_LOG_SCOPE_CREATE
     for (unsigned int i=0; i<3; ++i) {
         sample_printhold_simple_loop("internal",u);
