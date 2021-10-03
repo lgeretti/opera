@@ -178,7 +178,7 @@ using StringStream = std::stringstream;
 #if defined(linux) || defined(__linux) || defined(__linux__)
 #define OPERA_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-#define OPERA_PRETTY_FUNCTION __FUNCTION__
+#define OPERA_PRETTY_FUNCTION __FUNCSIG__
 #elif defined(darwin) || defined(__darwin) || defined(__darwin__) || defined(__APPLE__)
 #define OPERA_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #else
