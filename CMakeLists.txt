@@ -19,7 +19,6 @@ foreach(WARN ${ANY_TARGET_WARN})
     add_compile_options(-W${WARN})
 endforeach()
 
-find_package(Ariadne REQUIRED)
 find_package(rapidjson REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Mosquitto REQUIRED)
@@ -27,14 +26,14 @@ find_package(Mosquitto REQUIRED)
 set(RESOURCES_PATH ${PROJECT_SOURCE_DIR}/resources/)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/include/config.hpp)
 
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${ARIADNE_INCLUDE_DIRS} ${Mosquitto_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${Mosquitto_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
 
 add_subdirectory(src)
 add_subdirectory(profile)
 add_subdirectory(scenarios)
 
 add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
-target_link_libraries(opera ${ARIADNE_LIBRARIES} ${Mosquitto_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(opera ${Mosquitto_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(operad src/operad.cpp)
 target_link_libraries(operad opera)

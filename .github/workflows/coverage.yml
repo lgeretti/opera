@@ -17,9 +17,7 @@ jobs:
       run: echo NPROC="nproc" >> $GITHUB_ENV
 
     - name: Set Up Dependencies
-      run: |
-        sudo add-apt-repository ppa:ariadne-cps/ariadne
-        sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 mosquitto libmosquittopp-dev rapidjson-dev ariadne
+      run: sudo apt install -y cmake ninja-build pkg-config lcov clang-11 g++-10 mosquitto libmosquittopp-dev rapidjson-dev
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
