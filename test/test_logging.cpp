@@ -26,8 +26,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <sys/ioctl.h>
-#include <unistd.h>
 #include <list>
 #include "thread.hpp"
 #include "logging.hpp"
