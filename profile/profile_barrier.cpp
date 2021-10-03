@@ -50,7 +50,7 @@ struct ProfileBarrier : public Profiler {
         MinimumDistanceBarrierTrace trace1(hs,0);
         List<BodySegmentSample> rss;
         for (SizeType i=num_tries(); i>0; --i) {
-            rss.push_back(r.segment(0).create_sample({Point(0,5+i,0)},{Point(2,6+i,0)}));
+            rss.push_back(r.segment(0).create_sample({Point(0,FloatType(5+i),0)},{Point(2,FloatType(6+i),0)}));
         }
 
         profile("Update trace with sample (decreasing distance)",[&](SizeType i){ trace1.try_update_with(first,rss.at(i)); });
@@ -58,7 +58,7 @@ struct ProfileBarrier : public Profiler {
         MinimumDistanceBarrierTrace trace2(hs,0);
         rss.clear();
         for (SizeType i=0; i<num_tries(); ++i) {
-            rss.push_back(r.segment(0).create_sample({Point(4+i,4,0)},{Point(6+i,4,0)}));
+            rss.push_back(r.segment(0).create_sample({Point(FloatType(4+i),4,0)},{Point(FloatType(6+i),4,0)}));
         }
 
         profile("Update trace with sample (increasing distance)",[&](SizeType i){ trace2.try_update_with(first,rss.at(i)); });
