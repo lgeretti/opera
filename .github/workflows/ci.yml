@@ -23,7 +23,8 @@ jobs:
             name: "Windows Server 2019 [Debug]",
             os: windows-2019,
             extra: "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-            exclude: "-E mqtt"
+            exclude: "-E mqtt",
+            windowspath: "/opera"
           }
           - {
             name: "macOS 11.0 AppleClang 12 [Release]",
@@ -83,15 +84,11 @@ jobs:
       run: sudo apt install -y cmake ninja-build pkg-config clang-11 g++-10 mosquitto libmosquittopp-dev rapidjson-dev
 
     - name: Create Build Environment
-      run: |
-        echo $GITHUB_WORKSPACE
-        cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}${{matrix.confix.windowspath}}/build
 
     - name: Configure CMake
       working-directory: ${{runner.workspace}}/build
-      run: |
-        echo $GITHUB_WORKSPACE
-        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE ${{matrix.config.cxx}} ${{matrix.config.extra}}
+      run: cmake $GITHUB_WORKSPACE${{matrix.confix.windowspath}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE ${{matrix.config.cxx}} ${{matrix.config.extra}}
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
