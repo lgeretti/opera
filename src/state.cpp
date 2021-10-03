@@ -22,6 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
 #include "macros.hpp"
 #include "state.hpp"
 

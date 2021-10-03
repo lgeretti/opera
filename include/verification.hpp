@@ -25,7 +25,7 @@
 #ifndef OPERA_VERIFICATION_HPP
 #define OPERA_VERIFICATION_HPP
 
-#include <ariadne/utility/handle.hpp>
+#include "handle.hpp"
 #include "barrier.hpp"
 #include "discrete_state.hpp"
 
@@ -34,7 +34,6 @@ namespace Opera {
 using IdType = unsigned int;
 using BodyIdType = std::string;
 using TimestampType = long unsigned int; // Expressed in nanoseconds
-using Ariadne::Handle;
 
 //! \brief Interface for a trace of verification data
 class VerificationTraceInterface {

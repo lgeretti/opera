@@ -22,7 +22,7 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ariadne/utility/handle.hpp>
+#include "handle.hpp"
 #include "packet.hpp"
 
 namespace Opera {

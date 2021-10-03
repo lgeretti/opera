@@ -25,7 +25,6 @@
 #ifndef OPERA_STATE_HPP
 #define OPERA_STATE_HPP
 
-#include <ariadne/utility/handle.hpp>
 #include <deque>
 #include "body.hpp"
 #include "utility.hpp"

@@ -1,5 +1,5 @@
 /***************************************************************************
- *            declarations.hpp
+ *            handle.hpp
  *
  *  Copyright  2021  Luca Geretti
  *
@@ -22,26 +22,30 @@
  *  along with Opera.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERA_DECLARATIONS_HPP
-#define OPERA_DECLARATIONS_HPP
+#ifndef OPERA_HANDLE_HPP
+#define OPERA_HANDLE_HPP
 
-#include <cstring>
-#include <numeric>
-#include <vector>
-#include <set>
+#include <memory>
 
 namespace Opera {
 
-typedef double FloatType;
-typedef FloatType PositiveFloatType;
-template<class T> using List = std::vector<T>;
-template<class T1, class T2> using Pair = std::pair<T1,T2>;
-template<class T> using Set = std::set<T>;
+//! \brief A handle for interface implementations
+template<class I> class Handle {
+  protected:
+    mutable std::shared_ptr<I> _ptr;
+  public:
+    ~Handle() { }
+    explicit Handle(I* p) : _ptr(p) { }
+    Handle(std::shared_ptr<I> p) : _ptr(p) { }
+    template<class T> Handle(const T& t)
+        : _ptr(new T(t)) { }
+    Handle(const Handle<I>& h) = default;
+    Handle(Handle<I>&& h) = default;
+    Handle<I>& operator=(const Handle<I>& h) = default;
+    Handle<I>& operator=(Handle<I>&& h) = default;
+    operator I const& () const { return *_ptr; }
+};
 
-using SizeType = size_t;
+} // namespace Opera
 
-static const FloatType infinity = std::numeric_limits<FloatType>::infinity();
-
-}
-
-#endif //OPERA_DECLARATIONS_HPP
+#endif // OPERA_HANDLE_HPP

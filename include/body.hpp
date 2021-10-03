@@ -25,7 +25,6 @@
 #ifndef OPERA_BODY_HPP
 #define OPERA_BODY_HPP
 
-#include <ariadne/utility/handle.hpp>
 #include "declarations.hpp"
 #include "discrete_state.hpp"
 #include "geometry.hpp"
@@ -182,12 +181,11 @@ class BodySegmentSampleInterface {
     friend std::ostream& operator<<(std::ostream& os, BodySegmentSampleInterface const& s);
 };
 
-class BodySegmentSampleBase: public BodySegmentSampleInterface {
+class BodySegmentSample: public BodySegmentSampleInterface {
     friend class BodySegment;
-  protected:
-    //! \brief Create empty
-    BodySegmentSampleBase(BodySegment const* segment);
   public:
+    //! \brief Create empty
+    BodySegmentSample(BodySegment const* segment);
 
     IdType const& segment_id() const override;
 
@@ -227,25 +225,6 @@ class BodySegmentSampleBase: public BodySegmentSampleInterface {
     Point _tail_centre;
     FloatType _radius;
     Box _bb;
-};
-
-//! \brief Handle class for BodySegmentSampleInterface
-class BodySegmentSample : public Ariadne::Handle<BodySegmentSampleInterface> {
-  public:
-    using Ariadne::Handle<BodySegmentSampleInterface>::Handle;
-
-    IdType const& segment_id() const { return this->_ptr->segment_id(); };
-    Point const& head_centre() const { return this->_ptr->head_centre(); };
-    Point const& tail_centre() const { return this->_ptr->tail_centre(); };
-    FloatType error() const { return this->_ptr->error(); }
-    FloatType thickness() const { return this->_ptr->thickness(); }
-    Box const& bounding_box() const { return this->_ptr->bounding_box(); }
-    bool is_empty() const { return this->_ptr->is_empty(); }
-    void update(List<Point> const& heads, List<Point> const& tails) { this->_ptr->update(heads,tails); }
-    bool intersects(BodySegmentSample const& other) const { return this->_ptr->intersects(other); }
-    SphericalApproximationSample spherical_approximation() const { return this->_ptr->spherical_approximation(); }
-    friend FloatType distance(BodySegmentSample const& s1, BodySegmentSample const& s2)  { return distance(s1.const_reference(),s2.const_reference()); }
-    friend std::ostream& operator<<(std::ostream& os, BodySegmentSample const& s) { return os << s.const_reference(); }
 };
 
 }

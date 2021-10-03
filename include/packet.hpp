@@ -25,7 +25,7 @@
 #ifndef OPERA_PACKET_HPP
 #define OPERA_PACKET_HPP
 
-#include <ariadne/utility/handle.hpp>
+#include "handle.hpp"
 #include "geometry.hpp"
 #include "discrete_state.hpp"
 

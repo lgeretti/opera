@@ -29,12 +29,9 @@
 #include <functional>
 #include "declarations.hpp"
 #include "macros.hpp"
-#include <ariadne/utility/handle.hpp>
+#include "handle.hpp"
 
 namespace Opera {
-
-using Ariadne::Handle;
-template<class T> using Set = std::set<T>;
 
 using VoidFunction = std::function<void()>;
 

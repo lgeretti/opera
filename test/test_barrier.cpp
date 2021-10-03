@@ -24,6 +24,7 @@
 
 #include "test.hpp"
 
+#include <math.h>
 #include "barrier.hpp"
 
 using namespace Opera;

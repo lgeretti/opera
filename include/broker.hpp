@@ -33,7 +33,7 @@
 #include <cstring>
 #include <functional>
 
-#include <ariadne/utility/handle.hpp>
+#include "handle.hpp"
 #include "packet.hpp"
 
 namespace Opera {
@@ -72,9 +72,9 @@ class BrokerAccessInterface {
 };
 
 //! \brief Handle for a broker access
-class BrokerAccess : public Ariadne::Handle<BrokerAccessInterface> {
+class BrokerAccess : public Handle<BrokerAccessInterface> {
   public:
-    using Ariadne::Handle<BrokerAccessInterface>::Handle;
+    using Handle<BrokerAccessInterface>::Handle;
     PublisherInterface<BodyPresentationPacket>* make_body_presentation_publisher() const { return _ptr->make_body_presentation_publisher(); }
     PublisherInterface<BodyStatePacket>* make_body_state_publisher() const { return _ptr->make_body_state_publisher(); }
     PublisherInterface<CollisionNotificationPacket>* make_collision_notification_publisher() const { return _ptr->make_collision_notification_publisher(); }

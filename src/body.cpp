@@ -98,11 +98,11 @@ FloatType const& BodySegment::thickness() const {
 }
 
 BodySegmentSample BodySegment::create_sample() const {
-    return BodySegmentSample(new BodySegmentSampleBase(this));
+    return BodySegmentSample(this);
 }
 
 BodySegmentSample BodySegment::create_sample(List<Point> const& begin, List<Point> const& end) const {
-    BodySegmentSample result(new BodySegmentSampleBase(this));
+    BodySegmentSample result(this);
     result.update(begin,end);
     return result;
 }
@@ -111,7 +111,7 @@ std::ostream& operator<<(std::ostream& os, BodySegment const& s) {
     return os << "(body_id=" << s._body->id() << ", id=" << s._id << ", head_id=" << s._head_id << ", tail_id=" << s._tail_id << ", thickness=" << s._thickness << ")";
 }
 
-BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
+BodySegmentSample::BodySegmentSample(BodySegment const* segment) :
         _segment(segment), _is_empty(true),
         _head_bounds(Box::make_empty()),
         _tail_bounds(_head_bounds),
@@ -121,27 +121,27 @@ BodySegmentSampleBase::BodySegmentSampleBase(BodySegment const* segment) :
         _bb(_head_bounds)
         { }
 
-IdType const& BodySegmentSampleBase::segment_id() const {
+IdType const& BodySegmentSample::segment_id() const {
     return _segment->id();
 }
 
-Point const& BodySegmentSampleBase::head_centre() const {
+Point const& BodySegmentSample::head_centre() const {
     return _head_centre;
 }
 
-Point const& BodySegmentSampleBase::tail_centre() const {
+Point const& BodySegmentSample::tail_centre() const {
     return _tail_centre;
 }
 
-FloatType const& BodySegmentSampleBase::error() const {
+FloatType const& BodySegmentSample::error() const {
     return _radius;
 }
 
-FloatType const& BodySegmentSampleBase::thickness() const {
+FloatType const& BodySegmentSample::thickness() const {
     return _segment->thickness();
 }
 
-void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& tails) {
+void BodySegmentSample::update(List<Point> const& heads, List<Point> const& tails) {
     auto const hs = heads.size();
     auto const ts = tails.size();
     auto common_size = std::min(hs,ts);
@@ -156,24 +156,24 @@ void BodySegmentSampleBase::update(List<Point> const& heads, List<Point> const& 
     if (not _is_empty) _recalculate_centres_radius_bb();
 }
 
-void BodySegmentSampleBase::_update(Point const& head, Point const& tail) {
+void BodySegmentSample::_update(Point const& head, Point const& tail) {
     _update_head(head);
     _update_tail(tail);
 }
 
-void BodySegmentSampleBase::_update_head(Point const& head) {
+void BodySegmentSample::_update_head(Point const& head) {
     _head_bounds = Box(std::min(_head_bounds.xl(),head.x),std::max(_head_bounds.xu(),head.x),
                        std::min(_head_bounds.yl(),head.y),std::max(_head_bounds.yu(),head.y),
                        std::min(_head_bounds.zl(),head.z),std::max(_head_bounds.zu(),head.z));
 }
 
-void BodySegmentSampleBase::_update_tail(Point const& tail) {
+void BodySegmentSample::_update_tail(Point const& tail) {
     _tail_bounds = Box(std::min(_tail_bounds.xl(),tail.x),std::max(_tail_bounds.xu(),tail.x),
                        std::min(_tail_bounds.yl(),tail.y),std::max(_tail_bounds.yu(),tail.y),
                        std::min(_tail_bounds.zl(),tail.z),std::max(_tail_bounds.zu(),tail.z));
 }
 
-void BodySegmentSampleBase::_recalculate_centres_radius_bb() {
+void BodySegmentSample::_recalculate_centres_radius_bb() {
     auto hc = _head_bounds.centre();
     auto tc = _tail_bounds.centre();
     _head_centre = Point(hc.x, hc.y, hc.z);
@@ -182,22 +182,22 @@ void BodySegmentSampleBase::_recalculate_centres_radius_bb() {
     _bb = widen(hull(_head_centre,_tail_centre),_radius+_segment->thickness());
 }
 
-Box const& BodySegmentSampleBase::bounding_box() const {
+Box const& BodySegmentSample::bounding_box() const {
     return _bb;
 }
 
-bool BodySegmentSampleBase::is_empty() const {
+bool BodySegmentSample::is_empty() const {
     return _is_empty;
 }
 
-bool BodySegmentSampleBase::intersects(BodySegmentSampleInterface const& other) const {
+bool BodySegmentSample::intersects(BodySegmentSampleInterface const& other) const {
     if (bounding_box().disjoint(other.bounding_box())) return false;
     else {
         return distance(*this,other) <= this->thickness() + this->error() + other.thickness() + other.error();
     }
 }
 
-SphericalApproximationSample BodySegmentSampleBase::spherical_approximation() const {
+SphericalApproximationSample BodySegmentSample::spherical_approximation() const {
     auto centre = _bb.centre();
     return SphericalApproximationSample(Point(centre.x, centre.y, centre.z), _bb.circle_radius());
 }
