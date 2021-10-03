@@ -23,8 +23,7 @@ jobs:
             name: "Windows Server 2019 [Debug]",
             os: windows-2019,
             extra: "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-            exclude: "-E mqtt",
-            windowspath: "/opera"
+            exclude: "-E mqtt"
           }
           - {
             name: "macOS 11.0 AppleClang 12 [Release]",
