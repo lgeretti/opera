@@ -53,7 +53,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
         _mosquitto_publisher = mosquitto_new(nullptr, true, nullptr);
         OPERA_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
 
-        int rc = mosquitto_connect(_mosquitto_publisher, hostname.c_str(), port, 60);
+        int rc = mosquitto_connect_bind_v5(_mosquitto_publisher, hostname.c_str(), port, 60, hostname.c_str(), nullptr);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
             OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
@@ -64,7 +64,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
 
     void put(T const& obj) override {
         std::string payload = Serialiser<T>(obj).to_string();
-        int rc = mosquitto_publish(_mosquitto_publisher, nullptr, _topic.c_str(), static_cast<int>(payload.size()), payload.c_str(), 2, false);
+        int rc = mosquitto_publish_v5(_mosquitto_publisher, nullptr, _topic.c_str(), static_cast<int>(payload.size()), payload.c_str(), 2, false, nullptr);
         OPERA_ASSERT_MSG(rc == MOSQ_ERR_SUCCESS,"Error publishing: " << mosquitto_strerror(rc))
     }
 
@@ -114,13 +114,13 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
 
         mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
 
-        int rc = mosquitto_connect(_subscriber, _hostname.c_str(), _port, 60);
+        int rc = mosquitto_connect_bind_v5(_subscriber, _hostname.c_str(), _port, 60, _hostname.c_str(), nullptr);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
             OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
         }
 
-        mosquitto_subscribe(_subscriber, nullptr, _topic.c_str(), 2);
+        mosquitto_subscribe_v5(_subscriber, nullptr, _topic.c_str(), 2, 0, nullptr);
         mosquitto_loop_start(_subscriber);
     }
 
