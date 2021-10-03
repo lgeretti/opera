@@ -2,7 +2,7 @@
 
 # Opera
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![CI Status](https://github.com/ariadne-cps/opera/workflows/CI/badge.svg)](https://github.com/ariadne-cps/opera/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/ariadne-cps/opera/branch/main/graph/badge.svg)](https://codecov.io/gh/ariadne-cps/opera)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![CI Status](https://github.com/ariadne-cps/opera/workflows/CI/badge.svg)](https://github.com/ariadne-cps/opera/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/ariadne-cps/opera/branch/main/graph/badge.svg)](https://codecov.io/gh/ariadne-cps/opera)
 
 Opera is a tool for run-time verification of human-robot interaction, aimed at identifying future collisions based on the dynamically stored history of robots behavior.
 
