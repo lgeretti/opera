@@ -25,13 +25,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(ANY_TARGET_WARN all extra pedantic sign-conversion cast-qual disabled-optimization
+if(NOT WIN32)
+  set(ANY_TARGET_WARN all extra pedantic sign-conversion cast-qual disabled-optimization
         init-self missing-include-dirs sign-promo switch-default undef redundant-decls
         strict-aliasing unused-parameter shadow error)
-
-foreach(WARN ${ANY_TARGET_WARN})
+  foreach(WARN ${ANY_TARGET_WARN})
     add_compile_options(-W${WARN})
-endforeach()
+  endforeach()
+endif()
 
 find_package(rapidjson REQUIRED)
 find_package(mqtt REQUIRED)
