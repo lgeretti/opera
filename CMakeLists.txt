@@ -18,6 +18,13 @@ else()
     message(WARNING "You are using an unsupported compiler! MSVC, GCC and Clang are supported.")
 endif()
 
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(LIBRARY_KIND STATIC)
+else()
+    set(LIBRARY_KIND SHARED)	
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MACOSX_RPATH 1)
 set(BUILD_SHARED_LIBS ON)
@@ -55,7 +62,7 @@ add_subdirectory(src)
 add_subdirectory(profile)
 add_subdirectory(scenarios)
 
-add_library(opera SHARED $<TARGET_OBJECTS:OPERA_SRC>)
+add_library(opera ${LIBRARY_KIND} $<TARGET_OBJECTS:OPERA_SRC>)
 target_link_libraries(opera ${mqtt_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(operad src/operad.cpp)
