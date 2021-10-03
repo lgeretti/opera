@@ -28,13 +28,16 @@
 
 #include <iostream>
 #include <cassert>
-#include <sys/ioctl.h>
-#include <unistd.h>
 #include <thread>
 #include <future>
 #include <mutex>
 #include <atomic>
 #include <functional>
+
+#ifndef _WIN32
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
 
 #include "logging.hpp"
 
@@ -799,9 +802,13 @@ bool Logger::_can_print_thread_name() const {
 unsigned int Logger::get_window_columns() const {
     const unsigned int DEFAULT_COLUMNS = 80;
     const unsigned int MAX_COLUMNS = 512;
-    struct winsize ws;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-    return ((ws.ws_col > 0 and ws.ws_col <= MAX_COLUMNS) ? ws.ws_col : DEFAULT_COLUMNS);
+    #ifndef _WIN32
+        struct winsize ws;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+        return ((ws.ws_col > 0 and ws.ws_col <= MAX_COLUMNS) ? ws.ws_col : DEFAULT_COLUMNS);
+    #else
+        return DEFAULT_COLUMNS;
+    #endif
 }
 
 std::string Logger::_apply_theme(std::string const& text) const {
