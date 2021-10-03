@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "memory.hpp"
+#include "memory.tpl.hpp"
 
 namespace Opera {
 

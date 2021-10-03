@@ -75,14 +75,6 @@ class MemoryBroker {
     mutable std::mutex _mux;
 };
 
-template<> BodyPresentationPacket const& MemoryBroker::get<BodyPresentationPacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _body_presentations.at(idx); }
-template<> BodyStatePacket const& MemoryBroker::get<BodyStatePacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _body_states.at(idx); }
-template<> CollisionNotificationPacket const& MemoryBroker::get<CollisionNotificationPacket>(SizeType const& idx) const { std::lock_guard<std::mutex> lock(_mux); return _collision_notifications.at(idx); }
-
-template<> SizeType MemoryBroker::size<BodyPresentationPacket>() const { std::lock_guard<std::mutex> lock(_mux); return _body_presentations.size(); }
-template<> SizeType MemoryBroker::size<BodyStatePacket>() const { std::lock_guard<std::mutex> lock(_mux); return _body_states.size(); }
-template<> SizeType MemoryBroker::size<CollisionNotificationPacket>() const { std::lock_guard<std::mutex> lock(_mux); return _collision_notifications.size(); }
-
 //! \brief The publisher of objects to memory
 template<class T> class MemoryPublisher : public PublisherInterface<T> {
   public:
