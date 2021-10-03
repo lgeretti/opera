@@ -88,7 +88,7 @@ jobs:
 
     - name: Configure CMake
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE${{matrix.confix.windowspath}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE ${{matrix.config.cxx}} ${{matrix.config.extra}}
+      run: cmake ${{runner.workspace}}/opera -DCMAKE_BUILD_TYPE=$BUILD_TYPE ${{matrix.config.cxx}} ${{matrix.config.extra}}
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
