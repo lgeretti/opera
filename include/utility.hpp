@@ -27,6 +27,7 @@
 
 #include <filesystem>
 #include <map>
+#include <sstream>
 #include "declarations.hpp"
 #include "config.hpp"
 
