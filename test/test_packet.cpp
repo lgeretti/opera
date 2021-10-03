@@ -60,33 +60,33 @@ public:
     }
 
     void test_human_state_packet_create() {
-        BodyStatePacket p("h0",{{Point(0,0,0)},{Point(0,2,0)}},3e8);
+        BodyStatePacket p("h0",{{Point(0,0,0)},{Point(0,2,0)}},300000000);
         OPERA_TEST_EQUALS(p.id(),"h0")
         OPERA_TEST_ASSERT(p.location().values().empty())
         OPERA_TEST_EQUALS(p.points().size(),2)
-        OPERA_TEST_EQUALS(p.timestamp(),3e8)
+        OPERA_TEST_EQUALS(p.timestamp(),300000000)
     }
 
     void test_robot_state_packet_create() {
         DiscreteState loc({"r0","first"});
-        BodyStatePacket p("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},2e8);
+        BodyStatePacket p("r0",loc,{{Point(0,0,0)},{Point(0,2,0)},{Point(0,4,0)}},200000000);
         OPERA_TEST_EQUALS(p.id(),"r0")
         OPERA_TEST_EQUALS(p.location(),loc)
         OPERA_TEST_EQUALS(p.points().size(),3)
-        OPERA_TEST_EQUALS(p.timestamp(),2e8)
+        OPERA_TEST_EQUALS(p.timestamp(),200000000)
     }
 
     void test_notification_packet_create() {
         DiscreteState loc({"r0","first"});
-        CollisionNotificationPacket p("h0",1,"r0",4,loc,2e8,3e8,1.0);
+        CollisionNotificationPacket p("h0",1,"r0",4,loc,200000000,300000000,1.0);
 
         OPERA_TEST_EQUALS(p.human_id(),"h0")
         OPERA_TEST_EQUALS(p.human_segment_id(),1)
         OPERA_TEST_EQUALS(p.robot_id(),"r0")
         OPERA_TEST_EQUALS(p.robot_segment_id(),4)
         OPERA_TEST_EQUALS(p.discrete_state(),loc)
-        OPERA_TEST_EQUALS(p.lower_collision_time(),2e8)
-        OPERA_TEST_EQUALS(p.upper_collision_time(),3e8)
+        OPERA_TEST_EQUALS(p.lower_collision_time(),200000000)
+        OPERA_TEST_EQUALS(p.upper_collision_time(),300000000)
         OPERA_TEST_EQUALS(p.likelihood(),1.0)
     }
 };
