@@ -41,45 +41,10 @@ if(NOT WIN32)
   endforeach()
 endif()
 
-include(CheckTypeSize)
-check_type_size("size_t" SIZEOF_SIZET)
-message(STATUS "size_t size: ${SIZEOF_SIZET}")
-check_type_size("long int" SIZEOF_LONG_INT)
-message(STATUS "long int size: ${SIZEOF_LONG_INT}")
-check_type_size("long long int" SIZEOF_LONG_LONG_INT)
-message(STATUS "long long int size: ${SIZEOF_LONG_LONG_INT}")
-
-find_package(rapidjson REQUIRED)
 find_package(mqtt REQUIRED)
 find_package(Threads REQUIRED)
 
-set(RESOURCES_PATH ${PROJECT_SOURCE_DIR}/resources/)
-configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/include/config.hpp)
+include_directories(SYSTEM ${mqtt_INCLUDE_DIR})
 
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include ${mqtt_INCLUDE_DIR} ${RAPIDJSON_INCLUDEDIR})
-
-add_subdirectory(src)
-add_subdirectory(profile)
-add_subdirectory(scenarios)
-
-add_library(opera ${LIBRARY_KIND} $<TARGET_OBJECTS:OPERA_SRC>)
+add_executable(opera src/opera.cpp)
 target_link_libraries(opera ${mqtt_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable(operad src/operad.cpp)
-target_link_libraries(operad opera)
-
-option(COVERAGE "Enable coverage reporting" OFF)
-add_library(coverage_config INTERFACE)
-if(COVERAGE)
-    message(STATUS "Enabled coverage reporting")
-    target_compile_options(coverage_config INTERFACE -O0 -g --coverage)
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-        target_link_options(coverage_config INTERFACE --coverage)
-    else()
-        target_link_libraries(coverage_config INTERFACE --coverage)
-    endif()
-    target_link_libraries(opera coverage_config)
-endif()
-
-enable_testing()
-add_subdirectory(test)
