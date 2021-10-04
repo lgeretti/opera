@@ -76,10 +76,6 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       run: cmake --build . --parallel $($NPROC)
 
-    - name: Build Tests
-      working-directory: ${{runner.workspace}}/build
-      run: cmake --build . --parallel $($NPROC) --target tests
-
     - name: Test
       working-directory: ${{runner.workspace}}/build
       run: ctest -j $($NPROC) --output-on-failure
