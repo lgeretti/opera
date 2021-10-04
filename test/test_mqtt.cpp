@@ -48,7 +48,7 @@ class TestBrokerFailure {
 int main() {
     TestBrokerFailure().test();
 
-    BrokerAccess access = MqttBrokerAccess("localhost",1883);
+    BrokerAccess access = MqttBrokerAccess("test.mosquitto.org",1883);
     TestBrokerAccess(access).test();
     return OPERA_TEST_FAILURES;
 }
