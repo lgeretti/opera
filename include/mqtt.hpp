@@ -53,7 +53,7 @@ template<class T> class MqttPublisher : public PublisherInterface<T> {
         _mosquitto_publisher = mosquitto_new(nullptr, true, nullptr);
         OPERA_ASSERT_MSG(_mosquitto_publisher != nullptr, "Error: Out of memory.")
 
-        int rc = mosquitto_connect_bind_v5(_mosquitto_publisher, hostname.c_str(), port, 60, hostname.c_str(), nullptr);
+        int rc = mosquitto_connect_bind_v5(_mosquitto_publisher, hostname.c_str(), port, 60, nullptr, nullptr);
         if (rc != MOSQ_ERR_SUCCESS){
             mosquitto_destroy(_mosquitto_publisher);
             OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
@@ -114,7 +114,7 @@ template<class T> class MqttSubscriber : public SubscriberInterface<T> {
 
         mosquitto_message_callback_set(_subscriber, subscriber_on_message<T>);
 
-        int rc = mosquitto_connect_bind_v5(_subscriber, _hostname.c_str(), _port, 60, _hostname.c_str(), nullptr);
+        int rc = mosquitto_connect_bind_v5(_subscriber, _hostname.c_str(), _port, 60, nullptr, nullptr);
         if (rc != MOSQ_ERR_SUCCESS) {
             mosquitto_destroy(_subscriber);
             OPERA_THROW_RTE("Error connecting: " << mosquitto_strerror(rc))
